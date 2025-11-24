@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import TodoPage from './components/TodoPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import API_URL from './config';
 import './App.css';
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/check-auth', {
+      const response = await fetch(`${API_URL}/api/check-auth`, {
         credentials: 'include',
       });
       const data = await response.json();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 import './TodoPage.css';
 
 function TodoPage({ username, onLogout }) {
@@ -14,7 +15,7 @@ function TodoPage({ username, onLogout }) {
 
   const fetchTodoContent = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/todo', {
+      const response = await fetch(`${API_URL}/api/todo`, {
         credentials: 'include',
       });
 
@@ -33,7 +34,7 @@ function TodoPage({ username, onLogout }) {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:3001/api/logout', {
+      await fetch(`${API_URL}/api/logout`, {
         method: 'POST',
         credentials: 'include',
       });
