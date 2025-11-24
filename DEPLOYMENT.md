@@ -2,6 +2,13 @@
 
 This guide will help you deploy the BET EVision application to make it accessible on evisionbet.com.
 
+## 📋 Quick Start
+
+**Already have hosting?**
+- **Namecheap hosting?** → See [DEPLOYMENT_NAMECHEAP.md](./DEPLOYMENT_NAMECHEAP.md) for specific instructions
+- **Other shared hosting?** → Follow the Namecheap guide, it applies to most shared hosting
+- **No hosting yet?** → Continue reading below for free/simple options
+
 ## Overview
 
 The application consists of two parts that need to be deployed:
@@ -11,9 +18,9 @@ The application consists of two parts that need to be deployed:
 ## Prerequisites
 
 - [ ] Domain name (evisionbet.com) with access to DNS settings
-- [ ] Hosting account that supports Node.js (for backend)
-- [ ] Web hosting or static site hosting (for frontend)
-- [ ] SSL certificate (for HTTPS)
+- [ ] Hosting account that supports Node.js (for backend) OR use free services below
+- [ ] Web hosting or static site hosting (for frontend) OR use free services below
+- [ ] SSL certificate (for HTTPS) - usually free with hosting
 
 ## Deployment Options
 
