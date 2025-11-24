@@ -7,7 +7,8 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Hardcoded credentials
+// Hardcoded credentials - FOR DEVELOPMENT ONLY
+// TODO: Replace with proper user authentication in production
 const VALID_USERNAME = 'EVison';
 const VALID_PASSWORD = 'PattyMac';
 
@@ -17,12 +18,19 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Session configuration - FOR DEVELOPMENT ONLY
+// TODO: For production:
+// - Use environment variable for session secret
+// - Enable secure: true when using HTTPS
+// - Add CSRF protection middleware
+// - Implement rate limiting
 app.use(session({
-  secret: 'evisionbet-secret-key-2024',
+  secret: 'evisionbet-secret-key-2024', // TODO: Use env variable in production
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to true if using HTTPS
+    secure: false, // TODO: Set to true in production with HTTPS
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
@@ -67,6 +75,7 @@ app.get('/api/check-auth', (req, res) => {
   }
 });
 
+// TODO: Add rate limiting middleware in production
 app.get('/api/todo', requireAuth, (req, res) => {
   const todoPath = path.join(__dirname, '..', 'TODO.md');
   

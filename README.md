@@ -131,6 +131,30 @@ The frontend will run on `http://localhost:3000` and automatically open in your 
 
 The original `index.html` file is preserved at the root level and can be viewed by opening it directly in a browser.
 
+## Security Considerations
+
+⚠️ **This is a development scaffold** - The current implementation includes several security considerations for local development:
+
+### Current Limitations (Development Only)
+- **Hardcoded credentials** - Username and password are hardcoded in the backend
+- **No HTTPS** - Cookies are sent over HTTP (secure: false)
+- **No CSRF protection** - Session middleware lacks CSRF token validation
+- **No rate limiting** - API endpoints are not rate-limited
+- **Session secret** - Using a hardcoded session secret
+
+### Production Requirements
+Before deploying to production, implement:
+- ✅ Database-backed user authentication
+- ✅ Environment variables for secrets and credentials
+- ✅ HTTPS with secure cookies (secure: true)
+- ✅ CSRF protection middleware
+- ✅ Rate limiting on all API endpoints
+- ✅ Input validation and sanitization
+- ✅ Proper error handling and logging
+- ✅ Security headers (helmet.js)
+
+See `TODO.md` for additional security improvements.
+
 ## Future Enhancements
 
 See `TODO.md` for a complete list of planned features and improvements.
