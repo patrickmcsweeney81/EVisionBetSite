@@ -1,0 +1,109 @@
+.todo-container {
+  min-height: 100vh;
+  background: #0b0b0b;
+  color: white;
+}
+
+.todo-nav {
+  background: #1a1a1a;
+  padding: 15px 0;
+  border-bottom: 2px solid #4be1c1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.todo-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.breadcrumb {
+  margin-bottom: 20px;
+}
+
+.breadcrumb a {
+  color: #4be1c1;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+  color: #3cc5a8;
+}
+
+.todo-content h1 {
+  font-size: 42px;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  color: #4be1c1;
+  font-size: 18px;
+  padding: 40px;
+}
+
+.markdown-content {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  line-height: 1.8;
+}
+
+.markdown-content h1 {
+  font-size: 32px;
+  color: #4be1c1;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+}
+
+.markdown-content h2 {
+  font-size: 26px;
+  color: #4be1c1;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.markdown-content h3 {
+  font-size: 22px;
+  color: #3cc5a8;
+  margin-top: 25px;
+  margin-bottom: 12px;
+}
+
+.markdown-content p {
+  color: #ccc;
+  margin: 10px 0;
+}
+
+.markdown-content li {
+  color: #ccc;
+  margin: 8px 0;
+  margin-left: 20px;
+}
+
+.checkbox-item {
+  color: #ccc;
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: #0b0b0b;
+  border-radius: 4px;
+  border-left: 3px solid #666;
+  font-family: monospace;
+}
+
+.checkbox-item.completed {
+  color: #4be1c1;
+  border-left-color: #4be1c1;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.markdown-content br {
+  margin: 5px 0;
+}
