@@ -2,12 +2,18 @@
 
 This guide will help you deploy the BET EVision application to make it accessible on evisionbet.com.
 
+
 ## 📋 Quick Start
+
+**Recommended Setup (Automated):**
+- **Backend:** Render (free tier, auto-deploy from GitHub)
+- **Frontend:** Netlify (free tier, auto-deploy from GitHub)
 
 **Already have hosting?**
 - **Namecheap hosting?** → See [DEPLOYMENT_NAMECHEAP.md](./DEPLOYMENT_NAMECHEAP.md) for specific instructions
 - **Other shared hosting?** → Follow the Namecheap guide, it applies to most shared hosting
-- **No hosting yet?** → Continue reading below for free/simple options
+
+---
 
 ## Overview
 
@@ -22,127 +28,42 @@ The application consists of two parts that need to be deployed:
 - [ ] Web hosting or static site hosting (for frontend) OR use free services below
 - [ ] SSL certificate (for HTTPS) - usually free with hosting
 
+
 ## Deployment Options
 
-### Option 1: Simple Hosting (Recommended for Beginners)
+### Option 1: Automated (Recommended)
 
-#### Backend Deployment Services (Choose One):
-- **Heroku** (free tier available) - https://www.heroku.com
-- **Railway** (free tier available) - https://railway.app
-- **Render** (free tier available) - https://render.com
-- **DigitalOcean App Platform** - https://www.digitalocean.com/products/app-platform
+- **Backend:** Render (auto-deploy from GitHub via GitHub Actions)
+- **Frontend:** Netlify (auto-deploy from GitHub via GitHub Actions)
 
-#### Frontend Deployment Services (Choose One):
-- **Vercel** (free for personal projects) - https://vercel.com
-- **Netlify** (free tier available) - https://www.netlify.com
-- **GitHub Pages** - https://pages.github.com
-- **Cloudflare Pages** - https://pages.cloudflare.com
+### Option 2: Manual/Other
+- See Namecheap or other shared hosting instructions
 
-### Option 2: VPS Hosting (For More Control)
-- **DigitalOcean Droplet**
-- **AWS EC2**
-- **Linode**
-- **Vultr**
+---
 
 ## Step-by-Step Deployment
 
-### Part 1: Deploy Backend (Using Heroku as Example)
 
-#### 1. Prepare Backend for Deployment
+### Part 1: Deploy Backend (Automated with Render)
 
-```bash
-cd backend
-```
+1. Create a free Render account and connect your GitHub repo.
+2. Set up your backend as a "Web Service" with root directory `backend`.
+3. Set your Render API key and service ID as GitHub secrets (`RENDER_API_KEY`, `RENDER_SERVICE_ID`).
+4. GitHub Actions will auto-deploy on every push to main or copilot/scaffold-react-node-app (see `.github/workflows/deploy-backend-render.yml`).
+5. Your backend URL will look like: `https://your-app.onrender.com`
 
-Create a `Procfile` in the backend directory:
-```
-web: node server.js
-```
+---
 
-Update `package.json` to specify Node version:
-```json
-{
-  "engines": {
-    "node": "18.x"
-  }
-}
-```
 
-#### 2. Deploy to Heroku
+### Part 2: Deploy Frontend (Automated with Netlify)
 
-```bash
-# Install Heroku CLI: https://devcenter.heroku.com/articles/heroku-cli
-heroku login
-heroku create evisionbet-api
+1. Create a free Netlify account and connect your GitHub repo.
+2. Set your Netlify auth token and site ID as GitHub secrets (`NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`).
+3. GitHub Actions will auto-build and deploy on every push to main or copilot/scaffold-react-node-app (see `.github/workflows/deploy-frontend-netlify.yml`).
+4. Your frontend URL will look like: `https://your-site-name.netlify.app` (or your custom domain).
 
-# Set environment variables
-heroku config:set SESSION_SECRET=your-very-long-random-secret-string
+---
 
-# Deploy
-git subtree push --prefix backend heroku main
-
-# Your backend will be at: https://evisionbet-api.herokuapp.com
-```
-
-#### 3. Update Backend for Production
-
-After deployment, your backend URL will be something like:
-- `https://evisionbet-api.herokuapp.com`
-
-### Part 2: Deploy Frontend (Using Netlify as Example)
-
-#### 1. Update Frontend Configuration
-
-Create `.env.production` in the frontend directory:
-```
-REACT_APP_API_URL=https://evisionbet-api.herokuapp.com
-```
-
-Update API calls to use environment variable. Edit `frontend/src/components/Login.js`:
-```javascript
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
-// Update fetch calls to use API_URL
-const response = await fetch(`${API_URL}/api/login`, {
-  // ... rest of the code
-});
-```
-
-Do the same for all other API calls in:
-- `frontend/src/App.js`
-- `frontend/src/components/TodoPage.js`
-- `frontend/src/components/Dashboard.js`
-
-#### 2. Build Frontend
-
-```bash
-cd frontend
-npm run build
-```
-
-This creates a `build/` directory with optimized production files.
-
-#### 3. Deploy to Netlify
-
-**Option A: Using Netlify CLI**
-```bash
-npm install -g netlify-cli
-netlify login
-netlify deploy --prod --dir=build
-```
-
-**Option B: Using Netlify Website**
-1. Go to https://app.netlify.com
-2. Drag and drop the `build` folder
-3. Your site will be deployed with a random URL
-
-#### 4. Configure Custom Domain
-
-In Netlify dashboard:
-1. Go to Domain Settings
-2. Add custom domain: `evisionbet.com`
-3. Follow DNS configuration instructions
-4. Netlify will automatically provision SSL certificate
 
 ### Part 3: Update DNS Settings
 
@@ -161,24 +82,20 @@ Name: @
 Value: 75.2.60.5 (Netlify's load balancer)
 ```
 
+Netlify will automatically provision SSL for your domain.
+
+
 ### Part 4: Configure Backend CORS
 
 Update `backend/server.js` to allow your production domain:
 
 ```javascript
 app.use(cors({
-  origin: 'https://evisionbet.com',
+  origin: ['https://evisionbet.com', 'https://www.evisionbet.com', 'https://your-site-name.netlify.app'],
   credentials: true
 }));
 ```
 
-If using both www and non-www:
-```javascript
-app.use(cors({
-  origin: ['https://evisionbet.com', 'https://www.evisionbet.com'],
-  credentials: true
-}));
-```
 
 ### Part 5: Enable HTTPS and Secure Cookies
 
@@ -198,18 +115,18 @@ app.use(session({
 }));
 ```
 
+
 ## Quick Deployment Checklist
 
-- [ ] Deploy backend to hosting service
-- [ ] Note backend URL (e.g., `https://evisionbet-api.herokuapp.com`)
-- [ ] Update frontend API URLs to use production backend
-- [ ] Build frontend (`npm run build`)
-- [ ] Deploy frontend build folder
+- [ ] Backend auto-deploys to Render on every push
+- [ ] Frontend auto-builds and deploys to Netlify on every push
+- [ ] Set API URLs in `frontend/.env.production`
 - [ ] Configure custom domain DNS
 - [ ] Update backend CORS to allow production domain
 - [ ] Enable secure cookies in backend (secure: true)
 - [ ] Test login functionality on production site
 - [ ] Verify TODO page loads correctly
+
 
 ## Alternative: All-in-One VPS Deployment
 

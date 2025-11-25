@@ -1,0 +1,41 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+    branches:
+      - main
+      - copilot/scaffold-react-node-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"serviceId": "<YOUR_RENDER_SERVICE_ID>"}' \
+            https://api.render.com/v1/services/<YOUR_RENDER_SERVICE_ID>/deploys
+
+# Instructions:
+# 1. Set your Render API key as a GitHub secret named RENDER_API_KEY.
+# 2. Replace <YOUR_RENDER_SERVICE_ID> with your actual Render service ID.
+# 3. This workflow will auto-deploy your backend on every push to main or copilot/scaffold-react-node-app.
