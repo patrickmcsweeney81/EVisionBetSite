@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3001;
 
 // Hardcoded credentials - FOR DEVELOPMENT ONLY
 // TODO: Replace with proper user authentication in production
-const VALID_USERNAME = 'EVison';
+const VALID_USERNAME = 'EVision';
 const VALID_PASSWORD = 'PattyMac';
 
 // Middleware
