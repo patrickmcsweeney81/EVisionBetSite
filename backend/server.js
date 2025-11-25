@@ -14,7 +14,7 @@ const VALID_PASSWORD = 'PattyMac';
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://evisionbetsite.netlify.app'],
   credentials: true
 }));
 app.use(express.json());

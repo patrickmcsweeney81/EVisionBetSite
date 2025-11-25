@@ -1,0 +1,45 @@
+name: Deploy Frontend to Netlify
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+    branches:
+      - main
+      - copilot/scaffold-react-node-app
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build React app
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: ./frontend/build
+          production-deploy: true
+          deploy-message: "Automated deploy from GitHub Actions"
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+# Instructions:
+# 1. Set your Netlify auth token as a GitHub secret named NETLIFY_AUTH_TOKEN.
+# 2. Set your Netlify site ID as a GitHub secret named NETLIFY_SITE_ID.
+# 3. This workflow will auto-deploy your frontend on every push to main or copilot/scaffold-react-node-app.

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .login-container {
   display: flex;
   justify-content: center;
@@ -95,3 +96,102 @@
   color: #666;
   font-size: 13px;
 }
+=======
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #0b0b0b;
+}
+
+.login-box {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+}
+
+.login-logo {
+  max-width: 300px;
+  width: 80%;
+  margin-bottom: 30px;
+}
+
+.login-box h2 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.login-subtitle {
+  color: #888;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.error-message {
+  background: #ff4444;
+  color: white;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  color: #ccc;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  background: #0b0b0b;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4be1c1;
+}
+
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background: #4be1c1;
+  color: #0b0b0b;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background: #3cc5a8;
+}
+
+.hint {
+  margin-top: 20px;
+  color: #666;
+  font-size: 13px;
+}
+>>>>>>> copilot/scaffold-react-node-app

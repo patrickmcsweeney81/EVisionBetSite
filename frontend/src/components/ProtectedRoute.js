@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -10,3 +11,17 @@ function ProtectedRoute({ isAuthenticated, children }) {
 }
 
 export default ProtectedRoute;
+=======
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+
+function ProtectedRoute({ isAuthenticated, children }) {
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+export default ProtectedRoute;
+>>>>>>> copilot/scaffold-react-node-app
