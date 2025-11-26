@@ -51,6 +51,14 @@ function Dashboard({ username, onLogout }) {
           </div>
 
           <div className="dashboard-card">
+            <h3>🎯 Live Odds</h3>
+            <p>Compare live odds across multiple bookmakers</p>
+            <Link to="/odds" className="card-button">
+              View Odds
+            </Link>
+          </div>
+
+          <div className="dashboard-card">
             <h3>💡 Ideas & TODO</h3>
             <p>View project ideas and development roadmap</p>
             <Link to="/todo" className="card-button">
