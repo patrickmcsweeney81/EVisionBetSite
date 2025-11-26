@@ -12,29 +12,14 @@ import './App.css';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    // Check authentication status on app load
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/check-auth`, {
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.authenticated) {
-        setIsAuthenticated(true);
-        setUsername(data.username);
-      }
-    } catch (err) {
-      console.error('Auth check error:', err);
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      // Optionally decode or validate token expiry here
+      setIsAuthenticated(true);
+      // We stored username on login via onLogin callback
     }
-  };
+  }, []);
 
   const handleLogin = (user) => {
     setIsAuthenticated(true);
@@ -42,25 +27,12 @@ function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('authToken');
     setIsAuthenticated(false);
     setUsername('');
   };
 
-  if (loading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh', 
-        background: '#0b0b0b',
-        color: '#4be1c1',
-        fontSize: '20px'
-      }}>
-        Loading...
-      </div>
-    );
-  }
+  // No remote auth check loading state needed now
 
   return (
     <Router>

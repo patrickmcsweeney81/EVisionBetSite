@@ -6,17 +6,9 @@ import './Dashboard.css';
 function Dashboard({ username, onLogout }) {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await fetch(`${API_URL}/api/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      onLogout();
-      navigate('/');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
   };
 
   return (

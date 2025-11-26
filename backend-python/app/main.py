@@ -1,7 +1,11 @@
 """
 Main FastAPI application
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from .database import Base, engine, get_db, SessionLocal
+from .models.user import User
+from .api.auth import get_password_hash
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 
@@ -49,5 +53,30 @@ app.include_router(odds.router, prefix="/api/odds", tags=["odds"])
 app.include_router(todo.router, prefix="/api/todo", tags=["todo"])
 
 # TODO: Add more routers
+
+@app.on_event("startup")
+def on_startup():
+    """Create database tables and ensure a default user exists."""
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    db: Session = SessionLocal()
+    try:
+        default_username = "EVision"
+        default_password = "PattyMac"
+        existing = db.query(User).filter(User.username == default_username).first()
+        if not existing:
+            user = User(
+                username=default_username,
+                email="admin@example.com",
+                hashed_password=get_password_hash(default_password),
+                is_active=True,
+                is_superuser=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+    finally:
+        db.close()
+
 # from .api import bets
 # app.include_router(bets.router, prefix="/api/bets", tags=["bets"])

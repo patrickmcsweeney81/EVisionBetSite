@@ -14,22 +14,23 @@ function Login({ onLogin }) {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/api/login`, {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: formData.toString()
       });
-
       const data = await response.json();
-
-      if (response.ok) {
-        onLogin(data.username);
+      if (response.ok && data.access_token) {
+        localStorage.setItem('authToken', data.access_token);
+        onLogin(username);
         navigate('/dashboard');
       } else {
-        setError(data.error || 'Login failed');
+        setError(data.detail || data.error || 'Login failed');
       }
     } catch (err) {
       setError('Network error. Please make sure the backend is running.');
@@ -79,7 +80,7 @@ function Login({ onLogin }) {
           </button>
         </form>
         
-        <p className="hint">Hint: Username: EVison, Password: PattyMac</p>
+        <p className="hint">Hint: Username: EVision, Password: PattyMac</p>
       </div>
     </div>
   );
