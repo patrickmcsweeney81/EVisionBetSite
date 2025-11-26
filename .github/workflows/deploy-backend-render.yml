@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'backend/**'
+      - 'TODO.md'
+      - 'NEXT_STEPS.txt'
     branches:
       - main
       - copilot/scaffold-react-node-app

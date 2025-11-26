@@ -1,0 +1,32 @@
+name: Auto Deploy to Render on TODO Changes
+
+on:
+  push:
+    paths:
+      - 'TODO.md'
+      - 'NEXT_STEPS.txt'
+      - 'backend/**'
+    branches:
+      - main
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+# Setup Instructions:
+# 1. Go to https://dashboard.render.com
+# 2. Select your backend service
+# 3. Go to Settings → Deploy Hook
+# 4. Copy the Deploy Hook URL
+# 5. In GitHub: Settings → Secrets → Actions → New repository secret
+# 6. Name: RENDER_DEPLOY_HOOK
+# 7. Value: Paste the Deploy Hook URL
+# 8. Save
+#
+# Now every push to main that changes TODO.md, NEXT_STEPS.txt, or backend/** 
+# will automatically trigger a Render deployment!
