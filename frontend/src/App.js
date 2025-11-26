@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import TodoPage from './components/TodoPage';
 import OddsComparison from './components/OddsComparison';
+import DiagnosticPage from './components/DiagnosticPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import API_URL from './config';
 import './App.css';
@@ -93,6 +94,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <OddsComparison username={username} onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/diagnostics" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <DiagnosticPage username={username} onLogout={handleLogout} />
             </ProtectedRoute>
           } 
         />
