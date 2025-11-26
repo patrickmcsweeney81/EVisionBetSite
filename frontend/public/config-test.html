@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Config Test</title></head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 20px;">
+<h1>Environment Variable Test</h1>
+<div id="result"></div>
+<script>
+const apiUrl = process.env.REACT_APP_API_URL || 'NOT SET';
+const nodeEnv = process.env.NODE_ENV || 'NOT SET';
+
+document.getElementById('result').innerHTML = `
+<p><strong>REACT_APP_API_URL:</strong> ${apiUrl}</p>
+<p><strong>NODE_ENV:</strong> ${nodeEnv}</p>
+<p><strong>Should be:</strong> https://evisionbet-api.onrender.com</p>
+`;
+</script>
+</body>
+</html>
