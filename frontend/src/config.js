@@ -1,9 +1,8 @@
 // API configuration
-// Production: Use Python backend on Render
-// Development: Use local backend
-const API_URL = process.env.REACT_APP_API_URL || 
-  (process.env.NODE_ENV === 'production' 
-    ? 'https://evisionbet-api.onrender.com' 
-    : 'http://localhost:8000');
+// HARDCODED for production - no environment variable needed
+const API_URL = 'https://evisionbet-api.onrender.com';
+
+// For local development, change above line to:
+// const API_URL = 'http://localhost:8000';
 
 export default API_URL;
