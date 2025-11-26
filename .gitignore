@@ -30,3 +30,26 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+bot/.venv/
+bot/venv/
+*.egg-info/
+.pytest_cache/
+
+# Bot data files
+bot/data/*.csv
+bot/data/*.json
+bot/data/*.txt
+bot/api_spreads.json
+bot/debug_*.txt
+bot/debug_*.json
+bot/test_*.txt
+bot/dedup_test.txt
+bot/final_test.txt
