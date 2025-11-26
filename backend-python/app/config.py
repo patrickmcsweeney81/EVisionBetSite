@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./evisionbet.db"  # Fallback for local dev if not provided
     
     # Security
     SECRET_KEY: str
@@ -58,3 +58,8 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Normalize DATABASE_URL for SQLAlchemy if using Postgres on Render (ensure psycopg driver prefix)
+if settings.DATABASE_URL.startswith("postgres://"):
+    # Render legacy format conversion to sqlalchemy's expected 'postgresql://'
+    settings.DATABASE_URL = settings.DATABASE_URL.replace("postgres://", "postgresql://", 1)
