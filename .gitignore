@@ -14,7 +14,8 @@ backend/dist/
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local
+# Note: .env.production is tracked for Netlify deployment
+backend-python/.env
 
 # IDE
 .vscode/

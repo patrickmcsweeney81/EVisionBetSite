@@ -1,0 +1,43 @@
+# Render.com deployment configuration
+# https://render.com/docs/yaml-spec
+
+services:
+  # Python FastAPI Backend
+  - type: web
+    name: evisionbet-api
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd backend-python && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: DATABASE_URL
+        value: sqlite:///./evisionbet.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:3000,https://evisionbetsite.netlify.app,https://evisionbet.com,https://www.evisionbet.com
+      - key: ODDS_API_KEY
+        sync: false  # Set manually in dashboard
+      - key: ODDS_API_BASE
+        value: https://api.the-odds-api.com/v4
+      - key: EV_MIN_EDGE
+        value: 0.03
+      - key: BETFAIR_COMMISSION
+        value: 0.06
+      - key: REGIONS
+        value: au,us,eu
+      - key: MARKETS
+        value: h2h,spreads,totals
+      - key: SPORTS
+        value: upcoming
+      - key: TELEGRAM_ENABLED
+        value: 0
+    healthCheckPath: /health
