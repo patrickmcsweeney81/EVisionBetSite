@@ -1,65 +1,215 @@
-# BET EVision - Project TODO & Ideas
+# BET EVision Platform - Development Roadmap
+
+**Project:** EVisionBet Platform - Sports Betting Analytics & EV Finder  
+**Goal:** Build a professional web platform like BonusBank/OddsJam for EV betting opportunities
 
 ---
 
 ## 🔨 TODO: Development Steps & Building Tasks
 
-### ✅ Completed
+### ✅ Phase 0: Infrastructure Setup (COMPLETED)
 - [x] Set up React frontend and Node.js backend
-- [x] Implement login functionality (username: EVision, password: PattyMac)
-- [x] Create protected dashboard
-- [x] Create Ideas/TODO page
+- [x] Implement basic authentication (username: EVision, password: PattyMac)
+- [x] Create protected dashboard structure
+- [x] Create Ideas/TODO management page
 - [x] Deploy backend to Render (https://evisionbetsite.onrender.com)
 - [x] Deploy frontend to Netlify (https://evisionbetsite.netlify.app)
 - [x] Set up custom domain (evisionbet.com)
 - [x] Configure DNS with Namecheap
 - [x] Set up CI/CD with GitHub Actions
-- [x] Configure environment variables
-- [x] Resolve all merge conflicts
-- [x] Install helpful VS Code extensions (GitLens, Git Graph, Netlify)
+- [x] Configure environment variables (Netlify & Render)
+- [x] Resolve all merge conflicts in repository
+- [x] Install development tools (GitLens, Git Graph, Netlify extensions)
+- [x] Create auto-deploy workflow for TODO changes
+- [x] SSL certificate provisioning (Let's Encrypt via Netlify)
 
-### 🚀 In Progress
-- [ ] SSL certificate provisioning for evisionbet.com (automatic, 0-24 hours)
+### 🚀 Phase 1: Bot Integration & Core Features (IN PROGRESS)
 
-### 🔴 High Priority - Next Steps
-- [ ] Replace hardcoded credentials with proper user authentication system
-- [ ] Implement database for user management (MongoDB/PostgreSQL)
-- [ ] Add user registration functionality
-- [ ] Implement proper password hashing (bcrypt/argon2)
+**1.1 Project Reorganization**
+- [ ] Create `/bot` directory for Python EV code
+- [ ] Move EV_ARB Bot code into main repository
+- [ ] Set up Python virtual environment in project
+- [ ] Create requirements.txt for Python dependencies
+- [ ] Update .gitignore for Python files
+- [ ] Document bot code structure in README
+
+**1.2 Backend Migration to Python FastAPI**
+- [ ] Install FastAPI and dependencies
+- [ ] Create basic FastAPI server structure
+- [ ] Migrate authentication to FastAPI
+- [ ] Set up CORS for React frontend
+- [ ] Create session management with JWT tokens
+- [ ] Add user model and database schema
+- [ ] Deploy FastAPI to Render (replace Node backend)
+
+**1.3 Database Setup**
+- [ ] Choose database (PostgreSQL recommended)
+- [ ] Set up database on Render or external service
+- [ ] Create database schema (users, bets, odds_history)
+- [ ] Set up SQLAlchemy ORM
+- [ ] Create migration system (Alembic)
+- [ ] Seed initial data
+
+**1.4 EV Bot Integration**
+- [ ] Integrate existing EV calculation code
+- [ ] Create API endpoint: GET /api/ev-opportunities
+- [ ] Add caching layer (Redis) for odds data
+- [ ] Set up background job for odds fetching
+- [ ] Create endpoint: GET /api/odds/:sport/:market
+- [ ] Add fair odds calculation endpoints
+- [ ] Implement deduplication logic for opportunities
+
+### 🔴 Phase 2: Core Dashboard Features (HIGH PRIORITY)
+
+**2.1 Odds Comparison Table Component**
+- [ ] Design table component (like BonusBank screenshot)
+- [ ] Add columns: Date, Bet, Market, Event, Bookie, Odds, Best Alt, Pinnacle, Fair Odds, EV%, Kelly Stake
+- [ ] Implement sorting (by EV%, date, bookie, etc.)
+- [ ] Add filtering (bookmaker, sport, market type, min EV%)
+- [ ] Add pagination for large datasets
+- [ ] Style with Material-UI or Ant Design
+- [ ] Add row highlighting for high EV (>5%, >10%)
+- [ ] Make table responsive for mobile
+
+**2.2 Real-time Updates**
+- [ ] Set up WebSocket connection (Socket.io)
+- [ ] Implement auto-refresh (1-5 minute intervals)
+- [ ] Add manual refresh button
+- [ ] Show "last updated" timestamp
+- [ ] Add loading states and skeletons
+- [ ] Handle connection errors gracefully
+
+**2.3 Dashboard Analytics**
+- [ ] Create summary cards (total opportunities, avg EV, best bookies)
+- [ ] Add EV distribution chart
+- [ ] Show opportunities by sport breakdown
+- [ ] Add bookmaker coverage statistics
+- [ ] Create time-series chart for EV trends
+
+**2.4 User Authentication & Security**
+- [ ] Replace hardcoded credentials with database users
+- [ ] Add user registration form
+- [ ] Implement email verification
+- [ ] Add password reset functionality
+- [ ] Implement proper password hashing (bcrypt)
 - [ ] Add input validation and sanitization
-- [ ] Add comprehensive error handling
+- [ ] Set up rate limiting on API endpoints
+- [ ] Add CSRF protection
+- [ ] Implement session timeout
 
-### 🟡 Medium Priority - Security & Performance
-- [ ] Use environment variable for session secret (not hardcoded)
-- [ ] Enable secure cookies (secure: true) for HTTPS in production
-- [ ] Add CSRF protection middleware
-- [ ] Add rate limiting middleware
-- [ ] JWT authentication with refresh tokens
-- [ ] Redis caching for API responses
-- [ ] Unit and integration tests (Jest, React Testing Library)
+### 🟡 Phase 3: Advanced Features (MEDIUM PRIORITY)
 
-### 🟢 Low Priority - Polish & Optimization
-- [ ] Docker containerization
-- [ ] E2E tests (Playwright/Cypress)
-- [ ] API documentation (Swagger/OpenAPI)
-- [ ] Monitoring and alerting (Sentry, DataDog)
-- [ ] Performance optimization (code splitting, lazy loading)
-- [ ] PWA features (offline support)
+**3.1 User Preferences & Customization**
+- [ ] Bookmaker selection (which books user has accounts with)
+- [ ] Sport preferences (basketball, football, soccer, etc.)
+- [ ] Market preferences (H2H, spreads, totals, props)
+- [ ] Minimum EV threshold setting
+- [ ] Bankroll management settings
+- [ ] Kelly Criterion multiplier preference
+- [ ] Notification preferences
 
-### 📱 Design & UX Tasks
+**3.2 Bet Tracking & History**
+- [ ] Create bet logging form
+- [ ] Store bet history in database
+- [ ] Calculate actual vs expected EV
+- [ ] Track ROI per bookmaker
+- [ ] Show P&L charts
+- [ ] Export betting history (CSV)
+- [ ] Add bet tags/categories
+
+**3.3 Alert System**
+- [ ] Email notifications for high EV bets
+- [ ] SMS alerts (Twilio integration)
+- [ ] Browser push notifications
+- [ ] Discord/Telegram bot integration
+- [ ] Custom alert rules (EV threshold, specific bookies, sports)
+
+**3.4 Performance & Optimization**
+- [ ] Implement Redis caching for odds data
+- [ ] Add database query optimization
+- [ ] Set up CDN for static assets
+- [ ] Code splitting and lazy loading
+- [ ] Image optimization
+- [ ] API response compression
+- [ ] Implement service worker for PWA
+
+### 🟢 Phase 4: Premium Features (LOW PRIORITY - FUTURE)
+
+**4.1 Advanced Analytics**
+- [ ] Line movement tracking
+- [ ] Closing line value (CLV) analysis
+- [ ] Steam moves detection
+- [ ] Sharp money indicators
+- [ ] Bookmaker profiling (limits, speed, reliability)
+- [ ] Market efficiency analysis
+
+**4.2 Arbitrage Features**
+- [ ] Arbitrage opportunity detection
+- [ ] Stake calculator for arb bets
+- [ ] Arb alerts
+- [ ] Two-way and three-way arb support
+- [ ] Hedge calculator
+
+**4.3 Player Props & Live Betting**
+- [ ] Player props EV analysis
+- [ ] Live betting odds (in-game)
+- [ ] Same-game parlay analysis
+- [ ] Correlation analysis for parlays
+
+**4.4 Subscription & Monetization**
+- [ ] Stripe payment integration
+- [ ] Subscription tiers (Free, Pro, Enterprise)
+- [ ] Feature gating by subscription level
+- [ ] Usage tracking and limits
+- [ ] Admin dashboard for user management
+
+### 📱 Design & UX Polish
 - [ ] Responsive design improvements (mobile-first)
-- [ ] Dark/light theme toggle
+- [ ] Dark/light theme toggle with system preference
 - [ ] Loading states and skeleton screens
 - [ ] Toast notifications for user feedback
 - [ ] Accessibility enhancements (WCAG 2.1 AA)
 - [ ] Better error pages (404, 500)
+- [ ] Onboarding tutorial for new users
+- [ ] Help center / FAQ section
+- [ ] Keyboard shortcuts for power users
 
-### 🔧 DevOps & Infrastructure
-- [ ] Automated backups
-- [ ] Database migrations strategy
+### 🔧 Phase 5: DevOps & Testing
+
+**5.1 Testing**
+- [ ] Unit tests for Python backend (pytest)
+- [ ] Unit tests for React components (Jest)
+- [ ] Integration tests for API endpoints
+- [ ] E2E tests (Playwright/Cypress)
+- [ ] Test coverage reporting
+- [ ] Automated testing in CI/CD
+
+**5.2 Infrastructure**
+- [ ] Docker containerization (frontend, backend, bot)
+- [ ] Docker Compose for local development
+- [ ] Kubernetes deployment (optional, for scale)
+- [ ] Automated database backups
+- [ ] Database migration strategy
 - [ ] Load balancing setup
 - [ ] CDN integration (Cloudflare)
-- [ ] Security audits
+- [ ] SSL/TLS certificate auto-renewal
+
+**5.3 Monitoring & Logging**
+- [ ] Application logging (Winston/Python logging)
+- [ ] Error tracking (Sentry)
+- [ ] Performance monitoring (New Relic/DataDog)
+- [ ] Uptime monitoring
+- [ ] API usage analytics
+- [ ] User activity tracking
+- [ ] Cost monitoring (API calls, server usage)
+
+**5.4 Documentation**
+- [ ] API documentation (Swagger/OpenAPI)
+- [ ] User guide / documentation site
+- [ ] Developer onboarding guide
+- [ ] Architecture documentation
+- [ ] Deployment runbook
+- [ ] Security best practices guide
 
 ---
 
