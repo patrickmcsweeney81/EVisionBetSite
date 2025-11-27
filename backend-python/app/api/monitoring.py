@@ -276,38 +276,45 @@ async def initialize_database(db: Session = Depends(get_db)):
     """
     from ..database import Base, engine
     from ..models.user import User
-    from ..api.auth import get_password_hash
+    from passlib.context import CryptContext
     
     try:
         # Create all tables
         Base.metadata.create_all(bind=engine)
         
-        # Check if admin user exists
-        admin = db.query(User).filter(User.username == "admin").first()
+        # Check if user exists
+        user = db.query(User).filter(User.username == "EVision").first()
         
-        if not admin:
-            # Create admin user
-            admin = User(
-                username="admin",
-                email="admin@evisionbet.com",
-                hashed_password=get_password_hash("admin123")
+        if not user:
+            # Create admin user with direct password hashing (avoid import issues)
+            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+            password = "PattyMac"[:72]  # Truncate to bcrypt limit
+            hashed_password = pwd_context.hash(password)
+            
+            user = User(
+                username="EVision",
+                email="evision@evisionbet.com",
+                hashed_password=hashed_password
             )
-            db.add(admin)
+            db.add(user)
             db.commit()
+            db.refresh(user)
             return {
                 "status": "success",
-                "message": "Database initialized and admin user created",
-                "admin_username": "admin",
-                "admin_password": "admin123"
+                "message": "Database initialized and user created",
+                "username": "EVision",
+                "note": "Login with your credentials"
             }
         else:
             return {
                 "status": "success",
                 "message": "Database already initialized",
-                "admin_exists": True
+                "user_exists": True
             }
     except Exception as e:
+        db.rollback()
         return {
             "status": "error",
-            "message": str(e)
+            "message": str(e),
+            "type": type(e).__name__
         }
