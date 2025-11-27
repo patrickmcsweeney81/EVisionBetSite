@@ -1,6 +1,13 @@
 # Render.com deployment configuration
 # https://render.com/docs/yaml-spec
 
+databases:
+  - name: evisionbet-db
+    plan: free
+    databaseName: evisionbet
+    user: evisionbet_user
+    region: oregon
+
 services:
   # Python FastAPI Backend
   - type: web
@@ -9,21 +16,27 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: pip install -r requirements.txt
-    startCommand: cd backend-python && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r backend-python/requirements.txt
+    startCommand: cd backend-python && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:$PORT --workers 2
     envVars:
       - key: PYTHON_VERSION
         value: 3.11
       - key: DATABASE_URL
-        value: sqlite:///./evisionbet.db
+        fromDatabase:
+          name: evisionbet-db
+          property: connectionString
       - key: SECRET_KEY
-        generateValue: true
+        sync: false  # Set manually - see RENDER_DEPLOYMENT_GUIDE.md
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 30
+      - key: FRONTEND_URL
+        value: https://evisionbetsite.netlify.app
+      - key: CORS_ORIGINS
+        value: https://evisionbetsite.netlify.app,https://evisionbet.com,https://www.evisionbet.com
       - key: ALLOWED_ORIGINS
-        value: http://localhost:3000,https://evisionbetsite.netlify.app,https://evisionbet.com,https://www.evisionbet.com
+        value: https://evisionbetsite.netlify.app,https://evisionbet.com,https://www.evisionbet.com
       - key: ODDS_API_KEY
         sync: false  # Set manually in dashboard
       - key: ODDS_API_BASE
@@ -40,4 +53,4 @@ services:
         value: upcoming
       - key: TELEGRAM_ENABLED
         value: 0
-    healthCheckPath: /health
+    healthCheckPath: /api/monitoring/health
