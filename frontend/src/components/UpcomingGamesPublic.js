@@ -1,42 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
 import './UpcomingGamesPublic.css';
 
 function UpcomingGamesPublic() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedSport] = useState('basketball_nba'); // Default to NBA for public view
 
-  useEffect(() => {
-    fetchGames();
-  }, []);
-
-  const fetchGames = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Try to fetch without auth - if endpoint is public, this will work
-      // Otherwise, we'll show a sample/demo view
-      const response = await fetch(`${API_URL}/api/odds/upcoming/${selectedSport}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setGames(data.games || []);
-      } else {
-        // Show demo data for public view
-        setGames(getDemoGames());
-      }
-    } catch (err) {
-      // Show demo data on error
-      setGames(getDemoGames());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDemoGames = () => {
+  const getDemoGames = useCallback(() => {
     // Demo games for public view
     return [
       {
@@ -58,7 +29,34 @@ function UpcomingGamesPublic() {
         commence_time: new Date(Date.now() + 3600000 * 12).toISOString()
       }
     ];
-  };
+  }, []);
+
+  const fetchGames = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      // Try to fetch without auth - if endpoint is public, this will work
+      // Otherwise, we'll show a sample/demo view
+      const response = await fetch(`${API_URL}/api/odds/upcoming/${selectedSport}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setGames(data.games || []);
+      } else {
+        // Show demo data for public view
+        setGames(getDemoGames());
+      }
+    } catch (err) {
+      // Show demo data on error
+      setGames(getDemoGames());
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedSport, getDemoGames]);
+
+  useEffect(() => {
+    fetchGames();
+  }, [fetchGames]);
 
   const formatLocalTime = (utcTimeString) => {
     if (!utcTimeString) return 'TBA';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
 import './EVHits.css';
 
@@ -14,7 +14,7 @@ function EVHits({ username, onLogout }) {
   });
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/api/ev/summary`, {
@@ -30,9 +30,9 @@ function EVHits({ username, onLogout }) {
     } catch (err) {
       console.error('Failed to fetch summary:', err);
     }
-  };
+  }, []);
 
-  const fetchHits = async () => {
+  const fetchHits = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -67,7 +67,7 @@ function EVHits({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchSummary();
@@ -80,7 +80,7 @@ function EVHits({ username, onLogout }) {
     }, 120000);
     
     return () => clearInterval(interval);
-  }, [filters]);
+  }, [filters, fetchSummary, fetchHits]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
