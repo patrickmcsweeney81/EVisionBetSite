@@ -26,8 +26,7 @@ function Login({ onLogin }) {
       });
       const data = await response.json();
       if (response.ok && data.access_token) {
-        localStorage.setItem('authToken', data.access_token);
-        onLogin(username);
+        onLogin(username, data.access_token);
         navigate('/dashboard');
       } else {
         setError(data.detail || data.error || 'Login failed');
