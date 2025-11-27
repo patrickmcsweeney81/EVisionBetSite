@@ -8,10 +8,10 @@ from typing import Dict, Any
 import time
 import psutil
 from ..database import get_db
-from ..auth import get_current_user
+from ..api.auth import get_current_user
 from ..models import User
 from ..cache import get_cache
-from ..websocket import get_connection_manager
+from ..websocket import ws_manager
 from ..config import settings
 
 router = APIRouter(prefix="/api/monitoring", tags=["monitoring"])
@@ -69,10 +69,9 @@ async def health_check(db: Session = Depends(get_db)):
     
     # WebSocket check
     try:
-        manager = get_connection_manager()
         health["components"]["websocket"] = {
             "status": "healthy",
-            "active_connections": manager.connection_count
+            "active_connections": ws_manager.connection_count
         }
     except Exception as e:
         health["components"]["websocket"] = {"status": "degraded", "error": str(e)}
@@ -122,10 +121,9 @@ async def prometheus_metrics():
     
     # WebSocket metrics
     try:
-        manager = get_connection_manager()
         metrics.append(f"# HELP websocket_connections Active WebSocket connections")
         metrics.append(f"# TYPE websocket_connections gauge")
-        metrics.append(f"websocket_connections {manager.connection_count}")
+        metrics.append(f"websocket_connections {ws_manager.connection_count}")
     except Exception:
         pass
     
@@ -195,10 +193,9 @@ async def get_stats(
     
     # WebSocket stats
     try:
-        manager = get_connection_manager()
         stats["websocket"] = {
-            "active_connections": manager.connection_count,
-            "topics": list(manager.active_connections.keys())
+            "active_connections": ws_manager.connection_count,
+            "topics": list(ws_manager.active_connections.keys())
         }
     except Exception as e:
         stats["websocket"] = {"error": str(e)}
