@@ -1,0 +1,58 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend-python/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend-python/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      working-directory: ./backend-python
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Lint with ruff (if available)
+      working-directory: ./backend-python
+      run: |
+        pip install ruff || true
+        ruff check app/ || true
+      continue-on-error: true
+    
+    - name: Run tests
+      working-directory: ./backend-python
+      env:
+        DATABASE_URL: sqlite:///./test.db
+        SECRET_KEY: test-secret-key-for-ci-only
+        ODDS_API_KEY: dummy-key
+      run: |
+        pytest tests/ -v --cov=app --cov-report=term-missing
+    
+    - name: Check code coverage
+      working-directory: ./backend-python
+      run: |
+        pytest tests/ --cov=app --cov-report=xml
+      continue-on-error: true
