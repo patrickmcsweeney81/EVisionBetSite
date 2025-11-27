@@ -265,3 +265,48 @@ def get_metrics_middleware():
             raise
     
     return metrics_middleware
+
+
+@router.post("/init-db")
+async def initialize_database(db: Session = Depends(get_db)):
+    """
+    Initialize database tables and create default admin user.
+    This is a public endpoint for initial setup only.
+    """
+    from ..database import Base, engine
+    from ..models.user import User
+    from ..api.auth import get_password_hash
+    
+    try:
+        # Create all tables
+        Base.metadata.create_all(bind=engine)
+        
+        # Check if admin user exists
+        admin = db.query(User).filter(User.username == "admin").first()
+        
+        if not admin:
+            # Create admin user
+            admin = User(
+                username="admin",
+                email="admin@evisionbet.com",
+                hashed_password=get_password_hash("admin123")
+            )
+            db.add(admin)
+            db.commit()
+            return {
+                "status": "success",
+                "message": "Database initialized and admin user created",
+                "admin_username": "admin",
+                "admin_password": "admin123"
+            }
+        else:
+            return {
+                "status": "success",
+                "message": "Database already initialized",
+                "admin_exists": True
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
