@@ -39,10 +39,13 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Detailed health check"""
+    from .cache import cache
+    cache_stats = cache.get_stats()
+    
     return {
         "status": "healthy",
         "database": "connected",  # TODO: Add actual DB check
-        "redis": "connected"  # TODO: Add actual Redis check
+        "cache": cache_stats
     }
 
 
@@ -102,11 +105,12 @@ async def get_version():
 
 
 # Include routers
-from .api import auth, odds, todo, ev
+from .api import auth, odds, todo, ev, ws
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(odds.router, prefix="/api/odds", tags=["odds"])
 app.include_router(todo.router, prefix="/api/todo", tags=["todo"])
 app.include_router(ev.router, prefix="/api/ev", tags=["ev"])
+app.include_router(ws.router, prefix="/ws", tags=["websocket"])
 
 # TODO: Add more routers
 

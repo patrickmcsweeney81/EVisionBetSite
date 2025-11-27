@@ -51,8 +51,16 @@ jobs:
       run: |
         pytest tests/ -v --cov=app --cov-report=term-missing
     
-    - name: Check code coverage
+    - name: Generate coverage report
       working-directory: ./backend-python
       run: |
-        pytest tests/ --cov=app --cov-report=xml
+        pytest tests/ --cov=app --cov-report=xml --cov-report=term
+      continue-on-error: true
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./backend-python/coverage.xml
+        flags: backend
+        name: backend-coverage
       continue-on-error: true
