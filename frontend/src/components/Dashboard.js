@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import API_URL from '../config';
 import './Dashboard.css';
 
 function Dashboard({ username, onLogout }) {
