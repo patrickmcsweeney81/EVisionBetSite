@@ -25,6 +25,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add security middleware
+from .security import (
+    RateLimitMiddleware,
+    SecurityHeadersMiddleware,
+    RequestLoggingMiddleware
+)
+
+# Security headers (should be first)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Request logging
+app.add_middleware(RequestLoggingMiddleware)
+
+# Rate limiting (with custom limits if needed)
+rate_limits = {
+    "/api/auth/login": 10,
+    "/api/auth/register": 5,
+    "default": 60
+}
+app.add_middleware(RateLimitMiddleware, default_limits=rate_limits)
+
+# Add metrics middleware
+from .api.monitoring import get_metrics_middleware
+app.middleware("http")(get_metrics_middleware())
+
 
 @app.get("/")
 async def root():
@@ -105,12 +130,13 @@ async def get_version():
 
 
 # Include routers
-from .api import auth, odds, todo, ev, ws
+from .api import auth, odds, todo, ev, ws, monitoring
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(odds.router, prefix="/api/odds", tags=["odds"])
 app.include_router(todo.router, prefix="/api/todo", tags=["todo"])
 app.include_router(ev.router, prefix="/api/ev", tags=["ev"])
 app.include_router(ws.router, prefix="/ws", tags=["websocket"])
+app.include_router(monitoring.router)
 
 # TODO: Add more routers
 

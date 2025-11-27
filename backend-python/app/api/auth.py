@@ -73,6 +73,8 @@ async def get_current_user(
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
+    from ..security import audit_logger
+    
     # Check if user already exists
     db_user = db.query(User).filter(User.username == user.username).first()
     if db_user:
@@ -91,6 +93,14 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    # Log user creation
+    audit_logger.log_user_creation(
+        username=user.username,
+        created_by="self",
+        ip="unknown"  # Will be enhanced with request context
+    )
+    
     return db_user
 
 
@@ -100,14 +110,30 @@ async def login(
     db: Session = Depends(get_db)
 ):
     """Login endpoint - returns JWT token"""
+    from ..security import audit_logger
+    
     # Find user
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
+        # Log failed login attempt
+        audit_logger.log_auth_attempt(
+            username=form_data.username,
+            success=False,
+            ip="unknown",  # Will be enhanced with request context
+            reason="invalid_credentials"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Log successful login
+    audit_logger.log_auth_attempt(
+        username=form_data.username,
+        success=True,
+        ip="unknown"
+    )
     
     # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
