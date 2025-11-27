@@ -47,10 +47,11 @@ async def health_check():
 
 
 # Include routers
-from .api import auth, odds, todo
+from .api import auth, odds, todo, ev
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(odds.router, prefix="/api/odds", tags=["odds"])
 app.include_router(todo.router, prefix="/api/todo", tags=["todo"])
+app.include_router(ev.router, prefix="/api/ev", tags=["ev"])
 
 # TODO: Add more routers
 
