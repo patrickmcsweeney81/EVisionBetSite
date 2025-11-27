@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import API_URL from '../config';
+import { apiFetch } from '../api/client';
 import './TodoPage.css';
 
 function TodoPage({ username, onLogout }) {
@@ -15,7 +15,7 @@ function TodoPage({ username, onLogout }) {
 
   const fetchTodoContent = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/todo`, {
+      const response = await apiFetch('/api/todo', {
         credentials: 'include',
       });
 
@@ -32,17 +32,9 @@ function TodoPage({ username, onLogout }) {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch(`${API_URL}/api/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      onLogout();
-      navigate('/');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
   };
 
   const renderMarkdown = (content) => {

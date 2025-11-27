@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { apiFetch } from '../api/client';
+import API_URL from '../config';
 
 function DiagnosticPage() {
   const [results, setResults] = useState({});
@@ -21,7 +21,7 @@ function DiagnosticPage() {
 
     // Test 1: Root endpoint
     try {
-      const response = await fetch(`${API_URL}/`);
+      const response = await apiFetch('/');
       diagnostics.tests.root = {
         status: response.status,
         ok: response.ok,
@@ -33,7 +33,7 @@ function DiagnosticPage() {
 
     // Test 2: Health endpoint
     try {
-      const response = await fetch(`${API_URL}/health`);
+      const response = await apiFetch('/health');
       diagnostics.tests.health = {
         status: response.status,
         ok: response.ok,
@@ -45,7 +45,7 @@ function DiagnosticPage() {
 
     // Test 3: Config endpoint
     try {
-      const response = await fetch(`${API_URL}/api/odds/config`);
+      const response = await apiFetch('/api/odds/config');
       diagnostics.tests.config = {
         status: response.status,
         ok: response.ok,
@@ -57,7 +57,7 @@ function DiagnosticPage() {
 
     // Test 4: Sports endpoint
     try {
-      const response = await fetch(`${API_URL}/api/odds/sports`);
+      const response = await apiFetch('/api/odds/sports');
       const data = await response.json();
       diagnostics.tests.sports = {
         status: response.status,

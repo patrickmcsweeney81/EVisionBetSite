@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../api/client';
 import './OddsComparison.css';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 function OddsComparison() {
   const [sports, setSports] = useState([]);
@@ -19,7 +18,7 @@ function OddsComparison() {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/odds/config`);
+      const response = await apiFetch('/api/odds/config');
       const data = await response.json();
       setConfig(data);
     } catch (err) {
@@ -31,7 +30,7 @@ function OddsComparison() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/odds/sports`);
+      const response = await apiFetch('/api/odds/sports');
       if (!response.ok) throw new Error('Failed to fetch sports');
       const data = await response.json();
       
@@ -54,7 +53,7 @@ function OddsComparison() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/odds/odds/${sportKey}`);
+      const response = await apiFetch(`/api/odds/odds/${sportKey}`);
       if (!response.ok) throw new Error('Failed to fetch odds');
       const data = await response.json();
       setOdds(data);

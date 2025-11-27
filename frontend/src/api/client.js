@@ -1,4 +1,6 @@
-// Simple API client wrapper adding Authorization header if token is present
+// API client wrapper with auto-auth and centralized URL management
+import API_URL from '../config';
+
 export async function apiFetch(path, options = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   const headers = {
@@ -11,6 +13,8 @@ export async function apiFetch(path, options = {}) {
     ...options,
     headers,
   };
-  const response = await fetch(path.startsWith('http') ? path : `${process.env.REACT_APP_API_URL || ''}${path}`, finalOptions);
+  // Use full URL if provided, otherwise prepend API_URL
+  const url = path.startsWith('http') ? path : `${API_URL}${path}`;
+  const response = await fetch(url, finalOptions);
   return response;
 }
