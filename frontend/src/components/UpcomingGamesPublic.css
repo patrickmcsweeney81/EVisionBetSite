@@ -1,0 +1,157 @@
+.upcoming-games-public {
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  backdrop-filter: blur(10px);
+}
+
+.widget-header-public {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(75, 225, 193, 0.2);
+}
+
+.widget-header-public h3 {
+  margin: 0;
+  color: #4be1c1;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.live-indicator {
+  color: #ff4444;
+  font-size: 0.85rem;
+  font-weight: bold;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.widget-loading-public {
+  text-align: center;
+  padding: 1.5rem;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+}
+
+.games-list-public {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.game-item-public {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.game-item-public:hover {
+  background: rgba(75, 225, 193, 0.08);
+  border-color: rgba(75, 225, 193, 0.3);
+  transform: translateX(3px);
+}
+
+.game-teams-public {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.team-public {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.team-public.home {
+  color: #4be1c1;
+}
+
+.vs-public {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
+.game-time-public {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.time-main-public {
+  color: #4be1c1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.time-until-public {
+  color: #888;
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.widget-cta {
+  text-align: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(75, 225, 193, 0.1);
+}
+
+.widget-cta p {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .upcoming-games-public {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .widget-header-public h3 {
+    font-size: 1rem;
+  }
+
+  .game-item-public {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .game-teams-public {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .vs-public {
+    display: none;
+  }
+
+  .game-time-public {
+    align-items: flex-start;
+    width: 100%;
+  }
+}

@@ -71,3 +71,22 @@ async def get_ev_opportunities(request: Request, sport_key: str = "upcoming", ca
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/upcoming/{sport_key}")
+async def get_upcoming_games(sport_key: str, request: Request, cache: CacheManager = Depends(get_cache)):
+    """Get upcoming games for a specific sport with simplified data (cached)."""
+    try:
+        refresh = request.query_params.get("refresh") == "1"
+        key = f"odds:upcoming:{sport_key}"
+        if not refresh:
+            cached = cache.get(key)
+            if cached:
+                return json.loads(cached)
+        result = bot_service.get_upcoming_games(sport_key)
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+        cache.set(key, json.dumps(result), CACHE_TTL_SECONDS)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

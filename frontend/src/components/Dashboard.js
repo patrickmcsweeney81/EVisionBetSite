@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import UpcomingGames from './UpcomingGames';
+import ContactUs from './ContactUs';
 import './Dashboard.css';
 
 function Dashboard({ username, onLogout }) {
@@ -34,6 +36,8 @@ function Dashboard({ username, onLogout }) {
           Your betting analytics and value tools hub
         </p>
 
+        <UpcomingGames />
+
         <div className="dashboard-grid">
           <div className="dashboard-card">
             <h3>📊 Analytics</h3>
@@ -58,9 +62,11 @@ function Dashboard({ username, onLogout }) {
           </div>
 
           <div className="dashboard-card">
-            <h3>📈 EV Calculator</h3>
-            <p>Calculate expected value for your bets</p>
-            <button className="card-button" disabled>Coming Soon</button>
+            <h3>📈 EV Hits</h3>
+            <p>View positive expected value betting opportunities</p>
+            <Link to="/ev" className="card-button">
+              View EV Hits
+            </Link>
           </div>
 
           <div className="dashboard-card">
@@ -73,6 +79,8 @@ function Dashboard({ username, onLogout }) {
         <div className="tagline">
           Bet smarter with BET EVision — where value comes first.
         </div>
+
+        <ContactUs />
       </div>
     </div>
   );

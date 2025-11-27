@@ -1,0 +1,249 @@
+.upcoming-games-widget {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(75, 225, 193, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.upcoming-games-widget:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(75, 225, 193, 0.4);
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(75, 225, 193, 0.2);
+}
+
+.widget-header h3 {
+  margin: 0;
+  color: #4be1c1;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.refresh-btn {
+  background: transparent;
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  color: #4be1c1;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(75, 225, 193, 0.1);
+  border-color: #4be1c1;
+  transform: rotate(45deg);
+}
+
+.sport-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sport-selector label {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sport-select {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sport-select:hover {
+  border-color: rgba(75, 225, 193, 0.5);
+}
+
+.sport-select:focus {
+  outline: none;
+  border-color: #4be1c1;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.widget-loading,
+.widget-error,
+.widget-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #a0a0a0;
+}
+
+.widget-error {
+  color: #e74c3c;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Custom scrollbar */
+.games-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.games-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.games-list::-webkit-scrollbar-thumb {
+  background: rgba(75, 225, 193, 0.3);
+  border-radius: 3px;
+}
+
+.games-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 225, 193, 0.5);
+}
+
+.game-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.game-item:hover {
+  background: rgba(75, 225, 193, 0.05);
+  border-color: rgba(75, 225, 193, 0.2);
+  transform: translateX(2px);
+}
+
+.game-teams {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team {
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.vs {
+  color: #666;
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.game-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.time-main {
+  color: #4be1c1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.time-until {
+  color: #a0a0a0;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.more-games {
+  text-align: center;
+  padding: 0.75rem;
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .upcoming-games-widget {
+    padding: 1rem;
+  }
+
+  .widget-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .sport-selector {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .game-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .game-teams {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .vs {
+    display: none;
+  }
+
+  .game-time {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .team {
+    font-size: 0.85rem;
+  }
+
+  .time-main {
+    font-size: 0.85rem;
+  }
+}
+
+/* Animation for live games */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.game-item:has(.time-until:contains("Live")) {
+  border-color: rgba(231, 76, 60, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}

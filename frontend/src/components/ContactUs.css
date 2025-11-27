@@ -1,0 +1,135 @@
+.contact-us-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(75, 225, 193, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.contact-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.contact-content h3 {
+  color: #4be1c1;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-description {
+  color: #a0a0a0;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.contact-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.contact-method {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.contact-method:hover {
+  background: rgba(75, 225, 193, 0.05);
+  border: 1px solid rgba(75, 225, 193, 0.2);
+  transform: translateY(-2px);
+}
+
+.contact-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.contact-details {
+  flex: 1;
+}
+
+.contact-details h4 {
+  color: #e0e0e0;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.contact-details p {
+  color: #a0a0a0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.contact-details a {
+  color: #4be1c1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contact-details a:hover {
+  color: #3cc5a8;
+  text-decoration: underline;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-links a {
+  color: #4be1c1;
+  text-decoration: none;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.social-links a:hover {
+  background: rgba(75, 225, 193, 0.1);
+  border-color: #4be1c1;
+}
+
+.contact-tagline {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-top: 2rem;
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-us-section {
+    padding: 1.5rem;
+  }
+
+  .contact-methods {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .contact-method {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .contact-details {
+    text-align: center;
+  }
+
+  .social-links {
+    justify-content: center;
+  }
+}

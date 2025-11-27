@@ -1,9 +1,19 @@
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.login-page {
   min-height: 100vh;
   background: #0b0b0b;
+}
+
+.login-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.login-main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
 }
 
 .login-box {
@@ -11,8 +21,7 @@
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  max-width: 450px;
-  width: 90%;
+  width: 100%;
   text-align: center;
 }
 
@@ -94,4 +103,88 @@
   margin-top: 20px;
   color: #666;
   font-size: 13px;
+}
+
+/* EV Explainer Section */
+.ev-explainer-section {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.ev-explainer-section h3 {
+  color: #ffffff;
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.ev-description {
+  color: #888;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 16px;
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  background: #0b0b0b;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.ev-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.ev-point {
+  text-align: center;
+  padding: 15px;
+  background: #0b0b0b;
+  border-radius: 8px;
+}
+
+.ev-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ev-point p {
+  color: #ccc;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Widgets Section */
+.login-widgets {
+  margin-bottom: 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .login-main-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .ev-highlights {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
 }

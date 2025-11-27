@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import TodoPage from './components/TodoPage';
 import OddsComparison from './components/OddsComparison';
 import DiagnosticPage from './components/DiagnosticPage';
+import EVHits from './components/EVHits';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -68,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <DiagnosticPage username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/ev" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <EVHits username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
         />

@@ -107,6 +107,30 @@ class BotService:
         except Exception as e:
             return {"error": str(e)}
     
+    def get_upcoming_games(self, sport_key: str) -> Dict[str, Any]:
+        """Get upcoming games for a sport with simplified data"""
+        try:
+            # Fetch raw odds from API (just h2h market for game listings)
+            events = fetch_all_odds(sport_key, self.regions, ["h2h"])
+            
+            # Simplify to just what we need for the widget
+            games = []
+            for event in events:
+                games.append({
+                    "id": event.get("id"),
+                    "commence_time": event.get("commence_time"),
+                    "home_team": event.get("home_team"),
+                    "away_team": event.get("away_team"),
+                })
+            
+            return {
+                "sport": sport_key,
+                "count": len(games),
+                "games": games
+            }
+        except Exception as e:
+            return {"error": str(e)}
+    
     def get_config(self) -> Dict[str, Any]:
         """Get current bot configuration"""
         return {
