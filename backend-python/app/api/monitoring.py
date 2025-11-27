@@ -267,6 +267,7 @@ def get_metrics_middleware():
     return metrics_middleware
 
 
+@router.get("/init-db")
 @router.post("/init-db")
 async def initialize_database(db: Session = Depends(get_db)):
     """
