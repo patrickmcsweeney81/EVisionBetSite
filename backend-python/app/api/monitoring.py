@@ -288,8 +288,12 @@ async def initialize_database(db: Session = Depends(get_db)):
         if not user:
             # Create admin user with direct password hashing (avoid import issues)
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-            password = "PattyMac"[:72]  # Truncate to bcrypt limit
-            hashed_password = pwd_context.hash(password)
+            # Ensure password is a string and properly encoded
+            password = str("PattyMac")
+            # Explicitly encode to UTF-8 and truncate bytes
+            password_bytes = password.encode('utf-8')[:72]
+            password_str = password_bytes.decode('utf-8')
+            hashed_password = pwd_context.hash(password_str)
             
             user = User(
                 username="EVision",
