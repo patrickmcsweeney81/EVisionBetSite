@@ -19,6 +19,7 @@ python-multipart>=0.0.9
 # Environment and Config
 python-dotenv>=1.0.0
 pydantic-settings>=2.0.0
+pydantic[email]>=2.0.0
 
 # Monitoring
 psutil>=5.9.0
