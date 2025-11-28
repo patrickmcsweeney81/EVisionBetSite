@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import UpcomingGames from './UpcomingGames';
 import ContactUs from './ContactUs';
 import './Dashboard.css';
 
@@ -35,8 +34,6 @@ function Dashboard({ username, onLogout }) {
         <p className="dashboard-subtitle">
           Your betting analytics and value tools hub
         </p>
-
-        <UpcomingGames />
 
         <div className="dashboard-grid">
           <div className="dashboard-card">
