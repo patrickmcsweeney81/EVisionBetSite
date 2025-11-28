@@ -1,0 +1,330 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import API_URL from '../config';
+import './OddsTable.css';
+
+function OddsTable({ username, onLogout }) {
+  const [odds, setOdds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    limit: 100,
+    sport: '',
+    market: '',
+    minEV: '',
+    book: ''
+  });
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'ev', direction: 'desc' });
+
+  const fetchOdds = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Build query params
+      const params = new URLSearchParams();
+      params.append('limit', filters.limit);
+      if (filters.sport) params.append('sport', filters.sport);
+      if (filters.market) params.append('market', filters.market);
+      if (filters.minEV) params.append('min_ev', filters.minEV);
+      if (filters.book) params.append('book', filters.book);
+      
+      const response = await fetch(`${API_URL}/api/ev/all-odds?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch odds data');
+      }
+
+      const data = await response.json();
+      setOdds(data.odds);
+      setLastUpdated(data.last_updated);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchOdds();
+    
+    // Refresh every 2 minutes
+    const interval = setInterval(() => {
+      fetchOdds();
+    }, 120000);
+    
+    return () => clearInterval(interval);
+  }, [fetchOdds]);
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedOdds = React.useMemo(() => {
+    let sortableOdds = [...odds];
+    if (sortConfig.key) {
+      sortableOdds.sort((a, b) => {
+        const aVal = a[sortConfig.key] || 0;
+        const bVal = b[sortConfig.key] || 0;
+        
+        if (aVal < bVal) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aVal > bVal) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableOdds;
+  }, [odds, sortConfig]);
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'TBA';
+    try {
+      const date = new Date(timeString);
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return timeString;
+    }
+  };
+
+  const formatSport = (sport) => {
+    const sportMap = {
+      'basketball_nba': 'NBA',
+      'basketball': 'BBall',
+      'americanfootball_nfl': 'NFL',
+      'icehockey_nhl': 'NHL',
+      'soccer': 'Soccer'
+    };
+    return sportMap[sport] || sport;
+  };
+
+  const shortenEvent = (event) => {
+    if (!event) return '';
+    // Remove common words and shorten team names
+    return event
+      .replace(/\s+(vs|@)\s+/gi, ' v ')
+      .replace(/\s+h2h$/i, '')
+      .substring(0, 30);
+  };
+
+  const getEVClass = (ev) => {
+    if (!ev) return 'ev-none';
+    if (ev >= 3) return 'ev-high';
+    if (ev >= 1) return 'ev-medium';
+    return 'ev-low';
+  };
+
+  const getProbClass = (prob) => {
+    if (!prob) return 'prob-none';
+    if (prob >= 40) return 'prob-high';
+    if (prob >= 20) return 'prob-medium';
+    return 'prob-low';
+  };
+
+  const formatPercent = (value) => {
+    if (!value && value !== 0) return '-';
+    return `${value.toFixed(2)}%`;
+  };
+
+  const formatOdds = (value) => {
+    if (!value && value !== 0) return '-';
+    return `$${value.toFixed(2)}`;
+  };
+
+  const getBookmakerLogo = (bookmaker) => {
+    // For now, return text badges
+    // TODO: Add actual bookmaker logo images
+    const bookMap = {
+      'sportsbet': '🟢 SB',
+      'bet365': '🟡 365',
+      'pointsbet': '🔵 PB',
+      'ladbrokes': '🔴 LAD',
+      'unibet': '🟠 UNI',
+      'dabble': '🟣 DAB',
+      'tab': '⚫ TAB',
+      'tabtouch': '⚫ TT',
+      'neds': '🟤 NED',
+      'betr': '🟢 BTR',
+      'betright': '🔵 BR'
+    };
+    return bookMap[bookmaker?.toLowerCase()] || bookmaker;
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  return (
+    <div className="odds-table-container">
+      <div className="odds-header">
+        <div>
+          <h1>📊 Live Odds Comparison</h1>
+          {lastUpdated && (
+            <p className="last-update">
+              Last updated: {new Date(lastUpdated).toLocaleString()}
+            </p>
+          )}
+        </div>
+        <button onClick={fetchOdds} className="refresh-btn">
+          🔄 Refresh
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="odds-filters">
+        <div className="filter-group">
+          <label>Sport:</label>
+          <select name="sport" value={filters.sport} onChange={handleFilterChange}>
+            <option value="">All Sports</option>
+            <option value="basketball_nba">NBA</option>
+            <option value="americanfootball_nfl">NFL</option>
+            <option value="icehockey_nhl">NHL</option>
+            <option value="soccer">Soccer</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Market:</label>
+          <select name="market" value={filters.market} onChange={handleFilterChange}>
+            <option value="">All Markets</option>
+            <option value="h2h">H2H</option>
+            <option value="spreads">Spreads</option>
+            <option value="totals">Totals</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Min EV %:</label>
+          <input
+            type="number"
+            name="minEV"
+            value={filters.minEV}
+            onChange={handleFilterChange}
+            placeholder="e.g., 3"
+            min="0"
+            step="0.1"
+          />
+        </div>
+
+        <div className="filter-group">
+          <label>Bookmaker:</label>
+          <input
+            type="text"
+            name="book"
+            value={filters.book}
+            onChange={handleFilterChange}
+            placeholder="e.g., sportsbet"
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      {loading && <div className="loading">⏳ Loading odds data...</div>}
+      {error && <div className="error">❌ {error}</div>}
+
+      {!loading && odds.length === 0 && (
+        <div className="empty-state">
+          <p>No odds data available. Run the EV bot to generate data.</p>
+        </div>
+      )}
+
+      {!loading && odds.length > 0 && (
+        <div className="table-wrapper">
+          <table className="odds-table">
+            <thead>
+              <tr>
+                <th onClick={() => handleSort('game_start_perth')}>
+                  Start {sortConfig.key === 'game_start_perth' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('sport')}>
+                  Game {sortConfig.key === 'sport' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('event')}>
+                  Event {sortConfig.key === 'event' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('market')}>
+                  Market {sortConfig.key === 'market' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('line')}>
+                  Line {sortConfig.key === 'line' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('side')}>
+                  Side {sortConfig.key === 'side' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('book')}>
+                  Book {sortConfig.key === 'book' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('price')}>
+                  Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('ev')} className="sortable-header">
+                  EV % {sortConfig.key === 'ev' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('fair')}>
+                  Fair {sortConfig.key === 'fair' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('pinnacle')}>
+                  Pinnacle {sortConfig.key === 'pinnacle' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('prob')} className="sortable-header">
+                  Prob % {sortConfig.key === 'prob' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedOdds.map((row, index) => (
+                <tr key={index} className="odds-row">
+                  <td className="time-cell">{formatTime(row.game_start_perth)}</td>
+                  <td className="sport-cell">{formatSport(row.sport)}</td>
+                  <td className="event-cell">{shortenEvent(row.event)}</td>
+                  <td className="market-cell">{row.market}</td>
+                  <td className="line-cell">{row.line || '-'}</td>
+                  <td className="side-cell">{row.side}</td>
+                  <td className="book-cell">
+                    <span className="book-badge">{getBookmakerLogo(row.book)}</span>
+                  </td>
+                  <td className="price-cell">{formatOdds(row.price)}</td>
+                  <td className={`ev-cell ${getEVClass(row.ev)}`}>
+                    {formatPercent(row.ev)}
+                  </td>
+                  <td className="fair-cell">{formatOdds(row.fair)}</td>
+                  <td className="pinnacle-cell">{formatOdds(row.pinnacle)}</td>
+                  <td className={`prob-cell ${getProbClass(row.prob)}`}>
+                    {formatPercent(row.prob)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="table-footer">
+        <p>Showing {odds.length} opportunities</p>
+      </div>
+    </div>
+  );
+}
+
+export default OddsTable;
