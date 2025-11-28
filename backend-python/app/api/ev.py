@@ -5,13 +5,28 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 import csv
 from pathlib import Path
+import os
 from pydantic import BaseModel
 from datetime import datetime
 
 router = APIRouter()
 
-# Expected bot data directory (relative to backend-python root or absolute)
-BOT_DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "EV_ARB Bot VSCode" / "data"
+# Data directory resolution:
+# 1. ENV var EV_DATA_DIR if set
+# 2. ./data relative to backend (preferred for production)
+# 3. Fallback legacy path pointing to local dev bot folder
+_env_dir = os.getenv("EV_DATA_DIR")
+if _env_dir:
+    BOT_DATA_DIR = Path(_env_dir).resolve()
+else:
+    backend_root = Path(__file__).resolve().parent.parent
+    local_data = backend_root / "data"
+    if local_data.exists():
+        BOT_DATA_DIR = local_data
+    else:
+        # Legacy dev path (may not exist in production)
+        BOT_DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "EV_ARB Bot VSCode" / "data"
+
 EV_CSV_PATH = BOT_DATA_DIR / "hits_ev.csv"
 
 class EVHit(BaseModel):
@@ -104,10 +119,8 @@ async def get_ev_hits(
     - **sport**: Optional sport filter (e.g., 'basketball_nba')
     """
     if not EV_CSV_PATH.exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"EV hits CSV not found. Bot may not have run yet or path misconfigured: {EV_CSV_PATH}"
-        )
+        # Graceful empty response instead of 404 to keep frontend functional
+        return EVHitsResponse(hits=[], total=0, last_updated=None)
     
     try:
         hits = []
@@ -154,7 +167,8 @@ async def get_ev_summary():
     if not EV_CSV_PATH.exists():
         return {
             "available": False,
-            "message": "No EV data available yet"
+            "message": f"No EV data available yet (expected {EV_CSV_PATH}).",
+            "data_dir": str(BOT_DATA_DIR)
         }
     
     try:
@@ -240,10 +254,8 @@ async def get_all_odds(
     This endpoint serves the comprehensive odds comparison table.
     """
     if not ALL_ODDS_CSV_PATH.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="All odds data not available. Run the EV bot to generate data."
-        )
+        # Graceful empty response
+        return AllOddsResponse(rows=[], total=0, last_updated=None)
     
     try:
         all_rows = []
