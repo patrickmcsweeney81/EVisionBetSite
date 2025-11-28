@@ -15,13 +15,14 @@ function OddsTable({ username, onLogout }) {
   });
   const [lastUpdated, setLastUpdated] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'ev', direction: 'desc' });
+  const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
 
   const fetchOdds = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      
+      // Build query params
       // Build query params
       const params = new URLSearchParams();
       params.append('limit', filters.limit);
@@ -31,6 +32,7 @@ function OddsTable({ username, onLogout }) {
       if (filters.book) params.append('book', filters.book);
       
       const response = await fetch(`${API_URL}/api/ev/all-odds?${params.toString()}`);
+      setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
         throw new Error('Failed to fetch odds data');
@@ -71,7 +73,6 @@ function OddsTable({ username, onLogout }) {
       sortableOdds.sort((a, b) => {
         const aVal = a[sortConfig.key] || 0;
         const bVal = b[sortConfig.key] || 0;
-        
         if (aVal < bVal) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
@@ -215,6 +216,10 @@ function OddsTable({ username, onLogout }) {
   return (
     <div className="odds-table-container">
       <div className="odds-header">
+        <div className="debug-bar">
+          <span>API: {API_URL}</span>
+          <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
+        </div>
         <div className="header-left">
           <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
             ← Back to Dashboard

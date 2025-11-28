@@ -13,10 +13,12 @@ function EVHits({ username, onLogout }) {
     sport: ''
   });
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
 
   const fetchSummary = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/ev/summary`);
+      setDebugInfo({ status: response.status, message: response.statusText });
       
       if (response.ok) {
         const data = await response.json();
@@ -44,6 +46,7 @@ function EVHits({ username, onLogout }) {
       }
       
       const response = await fetch(`${API_URL}/api/ev/hits?${params.toString()}`);
+      setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
         throw new Error('Failed to fetch EV hits');
@@ -110,6 +113,10 @@ function EVHits({ username, onLogout }) {
 
   return (
     <div className="ev-hits-container">
+      <div className="debug-bar">
+        <span>API: {API_URL}</span>
+        <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
+      </div>
       <nav className="dashboard-nav">
         <div className="nav-content">
           <img 
