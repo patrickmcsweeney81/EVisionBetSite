@@ -16,6 +16,19 @@ function OddsTable({ username, onLogout }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'ev', direction: 'desc' });
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
+  const [lastErrorText, setLastErrorText] = useState(null);
+  const [health, setHealth] = useState({ ok: null, ms: null });
+  const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+
+  const buildOddsUrl = () => {
+    const params = new URLSearchParams();
+    params.append('limit', filters.limit);
+    if (filters.sport) params.append('sport', filters.sport);
+    if (filters.market) params.append('market', filters.market);
+    if (filters.minEV) params.append('min_ev', filters.minEV);
+    if (filters.book) params.append('book', filters.book);
+    return `${API_URL}/api/ev/all-odds?${params.toString()}`;
+  };
 
   const fetchOdds = useCallback(async () => {
     setLoading(true);
@@ -24,17 +37,12 @@ function OddsTable({ username, onLogout }) {
     try {
       // Build query params
       // Build query params
-      const params = new URLSearchParams();
-      params.append('limit', filters.limit);
-      if (filters.sport) params.append('sport', filters.sport);
-      if (filters.market) params.append('market', filters.market);
-      if (filters.minEV) params.append('min_ev', filters.minEV);
-      if (filters.book) params.append('book', filters.book);
-      
-      const response = await fetch(`${API_URL}/api/ev/all-odds?${params.toString()}`);
+      const response = await fetch(buildOddsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
+        const text = await response.text();
+        setLastErrorText(text);
         throw new Error('Failed to fetch odds data');
       }
 
@@ -58,6 +66,14 @@ function OddsTable({ username, onLogout }) {
     
     return () => clearInterval(interval);
   }, [fetchOdds]);
+
+  useEffect(() => {
+    // Health check badge
+    const start = performance.now();
+    fetch(`${API_URL}/health`).then(res => {
+      setHealth({ ok: res.ok, ms: Math.round(performance.now() - start) });
+    }).catch(() => setHealth({ ok: false, ms: null }));
+  }, []);
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -216,10 +232,15 @@ function OddsTable({ username, onLogout }) {
   return (
     <div className="odds-table-container">
       <div className="odds-header">
-        <div className="debug-bar">
-          <span>API: {API_URL}</span>
-          <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
-        </div>
+        {debugEnabled && (
+          <div className="debug-bar">
+            <span>API: {API_URL}</span>
+            <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
+            <span> | Health: {health.ok === null ? 'n/a' : (health.ok ? 'OK' : 'DOWN')} {health.ms ? `(${health.ms}ms)` : ''}</span>
+            <span> | <a href={buildOddsUrl()} target="_blank" rel="noreferrer">Open API</a></span>
+            {lastErrorText && (<span> | Error: {lastErrorText.slice(0,120)}...</span>)}
+          </div>
+        )}
         <div className="header-left">
           <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
             ← Back to Dashboard

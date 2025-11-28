@@ -14,6 +14,17 @@ function EVHits({ username, onLogout }) {
   });
   const [lastUpdated, setLastUpdated] = useState(null);
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
+  const [lastErrorText, setLastErrorText] = useState(null);
+  const [health, setHealth] = useState({ ok: null, ms: null });
+  const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+
+  const buildHitsUrl = () => {
+    const params = new URLSearchParams();
+    params.append('limit', filters.limit);
+    if (filters.minEV) params.append('min_ev', parseFloat(filters.minEV) / 100);
+    if (filters.sport) params.append('sport', filters.sport);
+    return `${API_URL}/api/ev/hits?${params.toString()}`;
+  };
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -36,19 +47,12 @@ function EVHits({ username, onLogout }) {
     try {
       
       // Build query params
-      const params = new URLSearchParams();
-      params.append('limit', filters.limit);
-      if (filters.minEV) {
-        params.append('min_ev', parseFloat(filters.minEV) / 100); // Convert % to decimal
-      }
-      if (filters.sport) {
-        params.append('sport', filters.sport);
-      }
-      
-      const response = await fetch(`${API_URL}/api/ev/hits?${params.toString()}`);
+      const response = await fetch(buildHitsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
+        const text = await response.text();
+        setLastErrorText(text);
         throw new Error('Failed to fetch EV hits');
       }
 
@@ -61,6 +65,14 @@ function EVHits({ username, onLogout }) {
       setLoading(false);
     }
   }, [filters]);
+
+  useEffect(() => {
+    // Health check badge
+    const start = performance.now();
+    fetch(`${API_URL}/health`).then(res => {
+      setHealth({ ok: res.ok, ms: Math.round(performance.now() - start) });
+    }).catch(() => setHealth({ ok: false, ms: null }));
+  }, []);
 
   useEffect(() => {
     fetchSummary();
@@ -113,10 +125,15 @@ function EVHits({ username, onLogout }) {
 
   return (
     <div className="ev-hits-container">
-      <div className="debug-bar">
-        <span>API: {API_URL}</span>
-        <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
-      </div>
+      {debugEnabled && (
+        <div className="debug-bar">
+          <span>API: {API_URL}</span>
+          <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
+          <span> | Health: {health.ok === null ? 'n/a' : (health.ok ? 'OK' : 'DOWN')} {health.ms ? `(${health.ms}ms)` : ''}</span>
+          <span> | <a href={buildHitsUrl()} target="_blank" rel="noreferrer">Open API</a></span>
+          {lastErrorText && (<span> | Error: {lastErrorText.slice(0,120)}...</span>)}
+        </div>
+      )}
       <nav className="dashboard-nav">
         <div className="nav-content">
           <img 
