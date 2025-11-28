@@ -148,6 +148,48 @@ function OddsTable({ username, onLogout }) {
     return `$${value.toFixed(2)}`;
   };
 
+  const addToTracker = (row) => {
+    // Create CSV row data
+    const csvData = [
+      {
+        Date: formatTime(row.game_start_perth),
+        Sport: formatSport(row.sport),
+        Event: row.event,
+        Market: row.market,
+        Line: row.line || '',
+        Side: row.side,
+        Bookmaker: row.book,
+        Price: row.price,
+        'EV%': row.ev || 0,
+        Stake: row.stake || 0,
+        Fair: row.fair || 0,
+        Pinnacle: row.pinnacle || 0,
+        'Prob%': row.prob || 0
+      }
+    ];
+
+    // Convert to CSV format
+    const headers = Object.keys(csvData[0]).join(',');
+    const values = Object.values(csvData[0]).map(val => 
+      typeof val === 'string' && val.includes(',') ? `"${val}"` : val
+    ).join(',');
+    const csv = `${headers}\n${values}`;
+
+    // Create blob and download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bet_tracker_${row.event.replace(/\s+/g, '_')}_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Optional: Show confirmation
+    alert('✅ Added to tracker! CSV file downloaded.');
+  };
+
   const getBookmakerLogo = (bookmaker) => {
     // For now, return text badges
     // TODO: Add actual bookmaker logo images
@@ -281,6 +323,9 @@ function OddsTable({ username, onLogout }) {
                 <th onClick={() => handleSort('ev')} className="sortable-header">
                   EV % {sortConfig.key === 'ev' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                 </th>
+                <th onClick={() => handleSort('stake')}>
+                  Stake {sortConfig.key === 'stake' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                </th>
                 <th onClick={() => handleSort('fair')}>
                   Fair {sortConfig.key === 'fair' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                 </th>
@@ -290,6 +335,7 @@ function OddsTable({ username, onLogout }) {
                 <th onClick={() => handleSort('prob')} className="sortable-header">
                   Prob % {sortConfig.key === 'prob' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                 </th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -308,10 +354,20 @@ function OddsTable({ username, onLogout }) {
                   <td className={`ev-cell ${getEVClass(row.ev)}`}>
                     {formatPercent(row.ev)}
                   </td>
+                  <td className="stake-cell">{formatOdds(row.stake)}</td>
                   <td className="fair-cell">{formatOdds(row.fair)}</td>
                   <td className="pinnacle-cell">{formatOdds(row.pinnacle)}</td>
                   <td className={`prob-cell ${getProbClass(row.prob)}`}>
                     {formatPercent(row.prob)}
+                  </td>
+                  <td className="action-cell">
+                    <button 
+                      className="tracker-btn"
+                      onClick={() => addToTracker(row)}
+                      title="Export to CSV tracker"
+                    >
+                      📊 Add To Tracker
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -263,6 +263,41 @@
   color: #ccc;
 }
 
+.stake-cell {
+  font-weight: bold;
+  font-size: 15px;
+  color: #4be1c1;
+  text-align: center;
+}
+
+.action-cell {
+  text-align: center;
+  padding: 8px;
+}
+
+.tracker-btn {
+  background: linear-gradient(135deg, #4be1c1 0%, #3cc5a8 100%);
+  color: #0b0b0b;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(75, 225, 193, 0.3);
+}
+
+.tracker-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(75, 225, 193, 0.5);
+}
+
+.tracker-btn:active {
+  transform: translateY(0);
+}
+
 /* Loading & Error States */
 .loading {
   text-align: center;
