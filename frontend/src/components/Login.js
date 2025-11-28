@@ -95,11 +95,12 @@ function Login({ onLogin }) {
             <div className="video-container">
               <iframe
                 width="100%"
-                height="315"
-                src="https://www.youtube.com/embed/uFcS0ury4K0"
-                title="Expected Value in Sports Betting Explained"
+                height="100%"
+                src="https://www.youtube.com/embed/jJa6OzLnDSM"
+                title="EV BETTING EXPLAINED IN 60 SECONDS | SHARP BETTING STRATEGIES"
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               ></iframe>
             </div>
