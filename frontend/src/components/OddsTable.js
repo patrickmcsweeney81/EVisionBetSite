@@ -21,7 +21,6 @@ function OddsTable({ username, onLogout }) {
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
       
       // Build query params
       const params = new URLSearchParams();
@@ -31,11 +30,7 @@ function OddsTable({ username, onLogout }) {
       if (filters.minEV) params.append('min_ev', filters.minEV);
       if (filters.book) params.append('book', filters.book);
       
-      const response = await fetch(`${API_URL}/api/ev/all-odds?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_URL}/api/ev/all-odds?${params.toString()}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch odds data');

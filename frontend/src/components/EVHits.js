@@ -16,12 +16,7 @@ function EVHits({ username, onLogout }) {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/ev/summary`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_URL}/api/ev/summary`);
       
       if (response.ok) {
         const data = await response.json();
@@ -37,7 +32,6 @@ function EVHits({ username, onLogout }) {
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
       
       // Build query params
       const params = new URLSearchParams();
@@ -49,11 +43,7 @@ function EVHits({ username, onLogout }) {
         params.append('sport', filters.sport);
       }
       
-      const response = await fetch(`${API_URL}/api/ev/hits?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_URL}/api/ev/hits?${params.toString()}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch EV hits');
