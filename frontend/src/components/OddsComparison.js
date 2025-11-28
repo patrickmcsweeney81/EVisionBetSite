@@ -75,6 +75,9 @@ function OddsComparison() {
   return (
     <div className="odds-comparison">
       <div className="odds-header">
+        <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+          ← Back to Dashboard
+        </button>
         <h1>🎯 Live Odds Comparison</h1>
         {config && (
           <div className="config-info">

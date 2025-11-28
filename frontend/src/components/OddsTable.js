@@ -220,13 +220,18 @@ function OddsTable({ username, onLogout }) {
   return (
     <div className="odds-table-container">
       <div className="odds-header">
-        <div>
-          <h1>📊 Live Odds Comparison</h1>
-          {lastUpdated && (
-            <p className="last-update">
-              Last updated: {new Date(lastUpdated).toLocaleString()}
-            </p>
-          )}
+        <div className="header-left">
+          <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+            ← Back to Dashboard
+          </button>
+          <div>
+            <h1>📊 Live Odds Comparison</h1>
+            {lastUpdated && (
+              <p className="last-update">
+                Last updated: {new Date(lastUpdated).toLocaleString()}
+              </p>
+            )}
+          </div>
         </div>
         <button onClick={fetchOdds} className="refresh-btn">
           🔄 Refresh

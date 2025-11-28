@@ -83,6 +83,19 @@ function DiagnosticPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'monospace', backgroundColor: '#1a1a1a', color: '#0f0', minHeight: '100vh' }}>
+      <button onClick={() => window.location.href = '/dashboard'} style={{ 
+        marginBottom: '20px', 
+        padding: '10px 20px', 
+        backgroundColor: '#2a2a2a', 
+        color: '#4be1c1', 
+        border: '2px solid #4be1c1',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        fontWeight: 'bold'
+      }}>
+        ← Back to Dashboard
+      </button>
       <h1 style={{ color: '#0f0' }}>🔧 EVisionBet API Diagnostics</h1>
       
       <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '5px' }}>

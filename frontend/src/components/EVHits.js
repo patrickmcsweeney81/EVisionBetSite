@@ -138,8 +138,13 @@ function EVHits({ username, onLogout }) {
 
       <div className="ev-hits-content">
         <div className="ev-header">
-          <h1>💰 EV Hits</h1>
-          <p className="ev-subtitle">Positive expected value betting opportunities</p>
+          <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+            ← Back to Dashboard
+          </button>
+          <div>
+            <h1>💰 EV Hits</h1>
+            <p className="ev-subtitle">Positive expected value betting opportunities</p>
+          </div>
         </div>
 
         {/* Summary Cards */}

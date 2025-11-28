@@ -14,6 +14,31 @@
   border-bottom: 2px solid #2a2a2a;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-btn {
+  background: #2a2a2a;
+  color: #4be1c1;
+  border: 1px solid #4be1c1;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.back-btn:hover {
+  background: #4be1c1;
+  color: #0b0b0b;
+  transform: translateX(-3px);
+}
+
 .odds-header h1 {
   font-size: 28px;
   margin: 0 0 10px 0;
