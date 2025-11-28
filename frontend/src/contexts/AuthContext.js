@@ -48,12 +48,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = (user, token) => {
     localStorage.setItem('authToken', token);
+    localStorage.setItem('token', token); // Also set 'token' for backward compatibility
     setIsAuthenticated(true);
     setUsername(user);
   };
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('token'); // Also remove 'token' for backward compatibility
     setIsAuthenticated(false);
     setUsername('');
   };
