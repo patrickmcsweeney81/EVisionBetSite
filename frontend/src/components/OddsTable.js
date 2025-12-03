@@ -137,27 +137,50 @@ function OddsTable({ username, onLogout }) {
   };
 
   const getEVClass = (ev) => {
-    if (!ev) return 'ev-none';
-    if (ev >= 3) return 'ev-high';
-    if (ev >= 1) return 'ev-medium';
-    return 'ev-low';
+    if (ev === null || ev === undefined) return 'ev-none';
+    // ev provided as percent already
+    if (ev > 3) return 'ev-green';
+    if (ev >= 1) return 'ev-orange';
+    if (ev <= 0) return 'ev-red';
+    return 'ev-base';
   };
 
   const getProbClass = (prob) => {
-    if (!prob) return 'prob-none';
-    if (prob >= 40) return 'prob-high';
-    if (prob >= 20) return 'prob-medium';
-    return 'prob-low';
+    if (prob === null || prob === undefined) return 'prob-none';
+    if (prob > 40) return 'prob-green';
+    if (prob >= 20) return 'prob-orange';
+    if (prob < 19) return 'prob-red';
+    return 'prob-base';
   };
 
   const formatPercent = (value) => {
-    if (!value && value !== 0) return '-';
-    return `${value.toFixed(2)}%`;
+    if (value === null || value === undefined) return '-';
+    return `${Number(value).toFixed(2)}%`;
   };
 
   const formatOdds = (value) => {
-    if (!value && value !== 0) return '-';
-    return `$${value.toFixed(2)}`;
+    if (value === null || value === undefined) return '-';
+    return `$${Number(value).toFixed(2)}`;
+  };
+
+  // Build consolidated bookmaker logo cell from row fields (show available sharp + AU books present)
+  const getLogoBadges = (row) => {
+    const logoKeys = [
+      'book', 'pinnacle', 'betfair', 'sportsbet', 'bet365', 'pointsbet', 'ladbrokes', 'unibet', 'dabble', 'tab', 'tabtouch', 'neds', 'betr', 'betright'
+    ];
+    const present = [];
+    logoKeys.forEach(k => {
+      if (k === 'book') {
+        if (row.book) present.push(row.book);
+      } else if (row[k] !== null && row[k] !== undefined) {
+        // Only show if odds value present (non-null)
+        present.push(k);
+      }
+    });
+    // Limit to first 6 for compactness
+    return present.slice(0, 6).map((bk, idx) => (
+      <span key={idx} className={`logo-badge logo-${bk.toLowerCase()}`}>{getBookmakerLogo(bk)}</span>
+    ));
   };
 
   const addToTracker = (row) => {
@@ -322,78 +345,42 @@ function OddsTable({ username, onLogout }) {
           <table className="odds-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('game_start_perth')}>
-                  Start {sortConfig.key === 'game_start_perth' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('sport')}>
-                  Game {sortConfig.key === 'sport' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('event')}>
-                  Event {sortConfig.key === 'event' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('market')}>
-                  Market {sortConfig.key === 'market' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('line')}>
-                  Line {sortConfig.key === 'line' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('side')}>
-                  Side {sortConfig.key === 'side' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('book')}>
-                  Book {sortConfig.key === 'book' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('price')}>
-                  Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('ev')} className="sortable-header">
-                  EV % {sortConfig.key === 'ev' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('stake')}>
-                  Stake {sortConfig.key === 'stake' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('fair')}>
-                  Fair {sortConfig.key === 'fair' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('pinnacle')}>
-                  Pinnacle {sortConfig.key === 'pinnacle' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('prob')} className="sortable-header">
-                  Prob % {sortConfig.key === 'prob' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-                <th>Action</th>
+                <th onClick={() => handleSort('game_start_perth')} className="col-start">Start {sortConfig.key === 'game_start_perth' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('event')} className="col-game">Game {sortConfig.key === 'event' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('market')} className="col-market">Market {sortConfig.key === 'market' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('line')} className="col-line">Line {sortConfig.key === 'line' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('side')} className="col-side">Side {sortConfig.key === 'side' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th className="col-books">Books</th>
+                <th onClick={() => handleSort('price')} className="col-price">Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('ev')} className="col-ev">EV % {sortConfig.key === 'ev' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('fair')} className="col-fair">Fair {sortConfig.key === 'fair' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('stake')} className="col-stake">Stake {sortConfig.key === 'stake' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('pinnacle')} className="col-pin">Pinnacle {sortConfig.key === 'pinnacle' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th onClick={() => handleSort('prob')} className="col-prob">Prob % {sortConfig.key === 'prob' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
+                <th className="col-actions">Action</th>
               </tr>
             </thead>
             <tbody>
               {sortedOdds.map((row, index) => (
                 <tr key={index} className="odds-row">
                   <td className="time-cell">{formatTime(row.game_start_perth)}</td>
-                  <td className="sport-cell">{formatSport(row.sport)}</td>
-                  <td className="event-cell">{shortenEvent(row.event)}</td>
+                  <td className="game-cell">{shortenEvent(row.event)}</td>
                   <td className="market-cell">{row.market}</td>
                   <td className="line-cell">{row.line || '-'}</td>
                   <td className="side-cell">{row.side}</td>
-                  <td className="book-cell">
-                    <span className="book-badge">{getBookmakerLogo(row.book)}</span>
-                  </td>
+                  <td className="books-cell">{getLogoBadges(row)}</td>
                   <td className="price-cell">{formatOdds(row.price)}</td>
-                  <td className={`ev-cell ${getEVClass(row.ev)}`}>
-                    {formatPercent(row.ev)}
-                  </td>
-                  <td className="stake-cell">{formatOdds(row.stake)}</td>
+                  <td className={`ev-cell ${getEVClass(row.ev)}`}>{formatPercent(row.ev)}</td>
                   <td className="fair-cell">{formatOdds(row.fair)}</td>
+                  <td className="stake-cell">{formatOdds(row.stake)}</td>
                   <td className="pinnacle-cell">{formatOdds(row.pinnacle)}</td>
-                  <td className={`prob-cell ${getProbClass(row.prob)}`}>
-                    {formatPercent(row.prob)}
-                  </td>
+                  <td className={`prob-cell ${getProbClass(row.prob)}`}>{formatPercent(row.prob)}</td>
                   <td className="action-cell">
-                    <button 
+                    <button
                       className="tracker-btn"
                       onClick={() => addToTracker(row)}
                       title="Export to CSV tracker"
-                    >
-                      📊 Add To Tracker
-                    </button>
+                    >📊</button>
                   </td>
                 </tr>
               ))}

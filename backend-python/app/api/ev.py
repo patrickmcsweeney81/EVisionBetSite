@@ -15,6 +15,7 @@ router = APIRouter()
 # 1. ENV var EV_DATA_DIR if set
 # 2. ./data relative to backend (preferred for production)
 # 3. Fallback legacy path pointing to local dev bot folder
+
 _env_dir = os.getenv("EV_DATA_DIR")
 if _env_dir:
     BOT_DATA_DIR = Path(_env_dir).resolve()
@@ -27,7 +28,11 @@ else:
         # Legacy dev path (may not exist in production)
         BOT_DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "EV_ARB Bot VSCode" / "data"
 
-EV_CSV_PATH = BOT_DATA_DIR / "hits_ev.csv"
+
+# DEBUG: Print resolved data directory and CSV paths at import time
+print(f"[EV API DEBUG] BOT_DATA_DIR: {BOT_DATA_DIR}")
+ALL_ODDS_CSV_PATH = BOT_DATA_DIR / "all_odds.csv"
+print(f"[EV API DEBUG] ALL_ODDS_CSV_PATH: {ALL_ODDS_CSV_PATH}")
 
 class EVHit(BaseModel):
     """Single EV opportunity"""
@@ -46,175 +51,7 @@ class EVHit(BaseModel):
     # Bookmaker odds (optional fields)
     pinnacle: Optional[float] = None
     betfair: Optional[float] = None
-    sportsbet: Optional[float] = None
-    bet365: Optional[float] = None
-    pointsbet: Optional[float] = None
-    dabble: Optional[float] = None
-    ladbrokes: Optional[float] = None
-    unibet: Optional[float] = None
-    neds: Optional[float] = None
-    tab: Optional[float] = None
-    tabtouch: Optional[float] = None
-    betr: Optional[float] = None
-    playup: Optional[float] = None
-    betright: Optional[float] = None
 
-class EVHitsResponse(BaseModel):
-    """Response containing EV hits and metadata"""
-    hits: List[EVHit]
-    total: int
-    last_updated: Optional[str] = None
-
-def _parse_ev_csv_row(row: dict) -> EVHit:
-    """Parse CSV row dict into EVHit model, handling missing/empty values."""
-    def safe_float(val, default=0.0):
-        try:
-            return float(val) if val and val.strip() else default
-        except (ValueError, AttributeError):
-            return default
-    
-    def safe_str(val, default=""):
-        return str(val).strip() if val else default
-    
-    return EVHit(
-        game_start_perth=safe_str(row.get("game_start_perth", "")),
-        sport=safe_str(row.get("sport", "")),
-        ev=safe_float(row.get("EV"), 0.0),
-        event=safe_str(row.get("event", "")),
-        market=safe_str(row.get("market", "")),
-        line=safe_str(row.get("line")) or None,
-        side=safe_str(row.get("side", "")),
-        stake=safe_float(row.get("stake"), 0.0),
-        book=safe_str(row.get("book", "")),
-        price=safe_float(row.get("price"), 0.0),
-        prob=safe_float(row.get("Prob"), 0.0),
-        fair=safe_float(row.get("Fair"), 0.0),
-        pinnacle=safe_float(row.get("Pinnacle")) or None,
-        betfair=safe_float(row.get("Betfair")) or None,
-        sportsbet=safe_float(row.get("Sportsbet")) or None,
-        bet365=safe_float(row.get("Bet365")) or None,
-        pointsbet=safe_float(row.get("Pointsbet")) or None,
-        dabble=safe_float(row.get("Dabble")) or None,
-        ladbrokes=safe_float(row.get("Ladbrokes")) or None,
-        unibet=safe_float(row.get("Unibet")) or None,
-        neds=safe_float(row.get("Neds")) or None,
-        tab=safe_float(row.get("TAB")) or None,
-        tabtouch=safe_float(row.get("TABtouch")) or None,
-        betr=safe_float(row.get("Betr")) or None,
-        playup=safe_float(row.get("PlayUp")) or None,
-        betright=safe_float(row.get("BetRight")) or None,
-    )
-
-@router.get("/hits", response_model=EVHitsResponse)
-async def get_ev_hits(
-    limit: int = Query(default=50, ge=1, le=500, description="Max hits to return"),
-    min_ev: Optional[float] = Query(default=None, ge=0, description="Minimum EV percentage filter"),
-    sport: Optional[str] = Query(default=None, description="Filter by sport key")
-):
-    """
-    Retrieve recent EV hits from bot CSV output.
-    
-    - **limit**: Maximum number of hits to return (default 50, max 500)
-    - **min_ev**: Optional minimum EV threshold (e.g., 0.05 for 5%)
-    - **sport**: Optional sport filter (e.g., 'basketball_nba')
-    """
-    if not EV_CSV_PATH.exists():
-        # Graceful empty response instead of 404 to keep frontend functional
-        return EVHitsResponse(hits=[], total=0, last_updated=None)
-    
-    try:
-        hits = []
-        last_modified = datetime.fromtimestamp(EV_CSV_PATH.stat().st_mtime).isoformat()
-        
-        with EV_CSV_PATH.open("r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Apply filters
-                if min_ev is not None:
-                    try:
-                        ev_val = float(row.get("EV", 0))
-                        if ev_val < min_ev:
-                            continue
-                    except (ValueError, TypeError):
-                        continue
-                
-                if sport is not None:
-                    if row.get("sport", "").lower() != sport.lower():
-                        continue
-                
-                hits.append(_parse_ev_csv_row(row))
-                
-                if len(hits) >= limit:
-                    break
-        
-        return EVHitsResponse(
-            hits=hits,
-            total=len(hits),
-            last_updated=last_modified
-        )
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to read EV hits CSV: {str(e)}"
-        )
-
-@router.get("/summary")
-async def get_ev_summary():
-    """
-    Get summary statistics of EV hits without full data.
-    """
-    if not EV_CSV_PATH.exists():
-        return {
-            "available": False,
-            "message": f"No EV data available yet (expected {EV_CSV_PATH}).",
-            "data_dir": str(BOT_DATA_DIR)
-        }
-    
-    try:
-        total_hits = 0
-        sports_count = {}
-        top_ev = 0.0
-        
-        with EV_CSV_PATH.open("r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                total_hits += 1
-                sport = row.get("sport", "unknown")
-                sports_count[sport] = sports_count.get(sport, 0) + 1
-                
-                try:
-                    ev_val = float(row.get("EV", 0))
-                    if ev_val > top_ev:
-                        top_ev = ev_val
-                except (ValueError, TypeError):
-                    pass
-        
-        return {
-            "available": True,
-            "total_hits": total_hits,
-            "sports": sports_count,
-            "top_ev": round(top_ev, 4),
-            "last_updated": datetime.fromtimestamp(EV_CSV_PATH.stat().st_mtime).isoformat()
-        }
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to read EV summary: {str(e)}"
-        )
-
-
-# All Odds data path
-ALL_ODDS_CSV_PATH = BOT_DATA_DIR / "all_odds.csv"
-
-
-class AllOddsRow(BaseModel):
-    """Single row from all_odds.csv"""
-    game_start_perth: str
-    sport: str
-    ev: Optional[float] = None
-    event: str
     market: str
     line: Optional[str] = None
     side: str
