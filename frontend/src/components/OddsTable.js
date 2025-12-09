@@ -67,14 +67,6 @@ function OddsTable({ username, onLogout }) {
     return () => clearInterval(interval);
   }, [fetchOdds]);
 
-  useEffect(() => {
-    // Health check badge
-    const start = performance.now();
-    fetch(`${API_URL}/health`).then(res => {
-      setHealth({ ok: res.ok, ms: Math.round(performance.now() - start) });
-    }).catch(() => setHealth({ ok: false, ms: null }));
-  }, []);
-
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -259,11 +251,18 @@ function OddsTable({ username, onLogout }) {
           <div className="debug-bar">
             <span>API: {API_URL}</span>
             <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
-            <span> | Health: {health.ok === null ? 'n/a' : (health.ok ? 'OK' : 'DOWN')} {health.ms ? `(${health.ms}ms)` : ''}</span>
             <span> | <a href={buildOddsUrl()} target="_blank" rel="noreferrer">Open API</a></span>
             {lastErrorText && (<span> | Error: {lastErrorText.slice(0,120)}...</span>)}
           </div>
         )}
+
+        {/* Backend Offline Banner */}
+        {debugInfo.status === 404 && (
+          <div className="info-banner">
+            <p>⚠️ Backend service is currently offline. Showing empty state.</p>
+          </div>
+        )}
+
         <div className="header-left">
           <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
             ← Back to Dashboard
