@@ -185,7 +185,7 @@ function EVHits({ username, onLogout }) {
         )}
 
         {/* Summary Cards */}
-        {summary && summary.available && (
+        {summary && summary.total_hits !== undefined && (
           <div className="summary-cards">
             <div className="summary-card">
               <div className="summary-label">Total Hits</div>
@@ -193,16 +193,16 @@ function EVHits({ username, onLogout }) {
             </div>
             <div className="summary-card">
               <div className="summary-label">Top EV</div>
-              <div className="summary-value">{formatEV(summary.top_ev)}</div>
+              <div className="summary-value">{formatEV((summary.max_ev_percent || 0) / 100)}</div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Sports</div>
-              <div className="summary-value">{summary.sports ? Object.keys(summary.sports).length : 0}</div>
+              <div className="summary-value">{(summary.sports && summary.sports.length) || 0}</div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Last Updated</div>
               <div className="summary-value summary-time">
-                {formatDateTime(summary.last_updated)}
+                {formatDateTime(new Date().toISOString())}
               </div>
             </div>
           </div>
