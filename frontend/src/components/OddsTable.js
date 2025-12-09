@@ -54,7 +54,7 @@ function OddsTable({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, buildOddsUrl]);
 
   useEffect(() => {
     fetchOdds();

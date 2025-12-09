@@ -64,7 +64,7 @@ function EVHits({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, buildHitsUrl]);
 
   useEffect(() => {
     // Health check badge
