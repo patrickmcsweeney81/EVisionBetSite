@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test - EV Summary</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #0f0;
+        }
+        pre { 
+            background: #000; 
+            padding: 15px; 
+            border: 1px solid #0f0;
+            overflow-x: auto;
+        }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <h1>🔍 EV Finder API Diagnostic</h1>
+    <p>Testing: <strong>https://ev-finder-spu3.onrender.com/api/ev/summary</strong></p>
+    
+    <button onclick="testSummary()">Test /api/ev/summary</button>
+    <button onclick="testHits()">Test /api/ev/hits</button>
+    <button onclick="clearResults()">Clear</button>
+    
+    <h2>Results:</h2>
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'https://ev-finder-spu3.onrender.com';
+        
+        function log(message, isError = false) {
+            const results = document.getElementById('results');
+            const pre = document.createElement('pre');
+            pre.className = isError ? 'error' : 'success';
+            pre.textContent = message;
+            results.appendChild(pre);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testSummary() {
+            log('🔄 Fetching /api/ev/summary...');
+            try {
+                const response = await fetch(`${API_URL}/api/ev/summary`);
+                log(`Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ SUCCESS! Data received:');
+                    log(JSON.stringify(data, null, 2));
+                    
+                    // Test the condition used in EVHits.js
+                    if (data.total_hits !== undefined) {
+                        log('✅ Condition Check: summary.total_hits !== undefined → TRUE');
+                        log(`   total_hits = ${data.total_hits}`);
+                        log(`   sports.length = ${data.sports ? data.sports.length : 'N/A'}`);
+                        log(`   max_ev_percent = ${data.max_ev_percent}`);
+                    } else {
+                        log('❌ Condition Check: summary.total_hits !== undefined → FALSE', true);
+                    }
+                } else {
+                    const text = await response.text();
+                    log(`❌ Error Response: ${text}`, true);
+                }
+            } catch (err) {
+                log(`❌ Network Error: ${err.message}`, true);
+                log(`   This could be CORS, connection timeout, or DNS issue`, true);
+            }
+        }
+
+        async function testHits() {
+            log('🔄 Fetching /api/ev/hits?limit=5...');
+            try {
+                const response = await fetch(`${API_URL}/api/ev/hits?limit=5`);
+                log(`Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ SUCCESS! Data received:');
+                    log(JSON.stringify(data, null, 2));
+                } else {
+                    const text = await response.text();
+                    log(`❌ Error Response: ${text}`, true);
+                }
+            } catch (err) {
+                log(`❌ Network Error: ${err.message}`, true);
+            }
+        }
+
+        // Auto-run on page load
+        window.onload = () => {
+            log('🚀 Page loaded. Click "Test /api/ev/summary" to start diagnostic.');
+        };
+    </script>
+</body>
+</html>
