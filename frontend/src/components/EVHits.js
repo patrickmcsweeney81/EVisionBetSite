@@ -172,7 +172,7 @@ function EVHits({ username, onLogout }) {
             ← Back to Dashboard
           </button>
           <div>
-            <h1>💰 EV Hits</h1>
+            <h1>💰 Expected Value Finder</h1>
             <p className="ev-subtitle">Positive expected value betting opportunities</p>
           </div>
         </div>
@@ -266,7 +266,7 @@ function EVHits({ username, onLogout }) {
         {/* Loading State */}
         {loading && (
           <div className="loading-message">
-            <p>Loading EV hits...</p>
+            <p>Loading Expected Value Finder...</p>
           </div>
         )}
 
@@ -318,7 +318,7 @@ function EVHits({ username, onLogout }) {
         {/* Empty State */}
         {!loading && !error && hits.length === 0 && (
           <div className="empty-state">
-            <p>No EV hits found with current filters.</p>
+            <p>No expected value opportunities found with current filters.</p>
             <p className="empty-hint">Try adjusting your filters or check back later.</p>
           </div>
         )}
