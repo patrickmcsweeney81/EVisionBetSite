@@ -25,8 +25,8 @@ function OddsTable({ username, onLogout }) {
     if (filters.sport) params.append('sport', filters.sport);
     if (filters.market) params.append('market', filters.market);
     if (filters.minEV) params.append('min_ev', filters.minEV);
-    if (filters.book) params.append('book', filters.book);
-    return `${API_URL}/api/ev/all-odds?${params.toString()}`;
+    if (filters.book) params.append('bookmaker', filters.book);
+    return `${API_URL}/api/ev/hits?${params.toString()}`;
   }, [filters]);
 
   const fetchOdds = useCallback(async () => {
@@ -44,8 +44,8 @@ function OddsTable({ username, onLogout }) {
         setLastUpdated(new Date().toISOString());
       } else {
         const data = await response.json();
-        setOdds(data.odds || []);
-        setLastUpdated(data.last_updated);
+        setOdds(data.hits || []);
+        setLastUpdated(new Date().toISOString());
       }
     } catch (err) {
       setOdds([]);
