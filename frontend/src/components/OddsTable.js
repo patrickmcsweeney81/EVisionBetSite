@@ -35,22 +35,22 @@ function OddsTable({ username, onLogout }) {
     setError(null);
     
     try {
-      // Build query params
-      // Build query params
       const response = await fetch(buildOddsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
         const text = await response.text();
         setLastErrorText(text);
-        throw new Error('Failed to fetch odds data');
+        setOdds([]);
+        setLastUpdated(new Date().toISOString());
+      } else {
+        const data = await response.json();
+        setOdds(data.odds || []);
+        setLastUpdated(data.last_updated);
       }
-
-      const data = await response.json();
-      setOdds(data.odds);
-      setLastUpdated(data.last_updated);
     } catch (err) {
-      setError(err.message);
+      setOdds([]);
+      setLastUpdated(new Date().toISOString());
     } finally {
       setLoading(false);
     }

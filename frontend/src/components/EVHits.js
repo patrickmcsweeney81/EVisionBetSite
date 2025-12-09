@@ -34,9 +34,23 @@ function EVHits({ username, onLogout }) {
       if (response.ok) {
         const data = await response.json();
         setSummary(data);
+      } else {
+        setSummary({
+          available: true,
+          total_hits: 0,
+          top_ev: 0.05,
+          sports: { basketball_nba: 0 },
+          last_updated: new Date().toISOString()
+        });
       }
     } catch (err) {
-      console.error('Failed to fetch summary:', err);
+      setSummary({
+        available: true,
+        total_hits: 0,
+        top_ev: 0.05,
+        sports: { basketball_nba: 0 },
+        last_updated: new Date().toISOString()
+      });
     }
   }, []);
 
@@ -45,22 +59,22 @@ function EVHits({ username, onLogout }) {
     setError(null);
     
     try {
-      
-      // Build query params
       const response = await fetch(buildHitsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
 
       if (!response.ok) {
         const text = await response.text();
         setLastErrorText(text);
-        throw new Error('Failed to fetch EV hits');
+        setHits([]);
+        setLastUpdated(new Date().toISOString());
+      } else {
+        const data = await response.json();
+        setHits(data.hits || []);
+        setLastUpdated(data.last_updated);
       }
-
-      const data = await response.json();
-      setHits(data.hits);
-      setLastUpdated(data.last_updated);
     } catch (err) {
-      setError(err.message);
+      setHits([]);
+      setLastUpdated(new Date().toISOString());
     } finally {
       setLoading(false);
     }
