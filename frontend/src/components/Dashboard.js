@@ -37,10 +37,10 @@ function Dashboard({ username, onLogout }) {
 
         <div className="dashboard-grid">
           <div className="dashboard-card">
-            <h3>📈 EV Hits</h3>
+            <h3>📈 Expected Value Finder</h3>
             <p>View positive expected value betting opportunities</p>
             <Link to="/ev" className="card-button">
-              View EV Hits
+              View Expected Value Finder
             </Link>
           </div>
 
