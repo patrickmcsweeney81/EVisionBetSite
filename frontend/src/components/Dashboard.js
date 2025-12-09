@@ -37,6 +37,14 @@ function Dashboard({ username, onLogout }) {
 
         <div className="dashboard-grid">
           <div className="dashboard-card">
+            <h3>📈 EV Hits</h3>
+            <p>View positive expected value betting opportunities</p>
+            <Link to="/ev" className="card-button">
+              View EV Hits
+            </Link>
+          </div>
+
+          <div className="dashboard-card">
             <h3>📊 Analytics</h3>
             <p>View your betting statistics and performance metrics</p>
             <button className="card-button" disabled>Coming Soon</button>
@@ -63,14 +71,6 @@ function Dashboard({ username, onLogout }) {
             <p>View project ideas and development roadmap</p>
             <Link to="/todo" className="card-button">
               View TODO
-            </Link>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>📈 EV Hits</h3>
-            <p>View positive expected value betting opportunities</p>
-            <Link to="/ev" className="card-button">
-              View EV Hits
             </Link>
           </div>
 
