@@ -18,13 +18,13 @@ function EVHits({ username, onLogout }) {
   const [health, setHealth] = useState({ ok: null, ms: null });
   const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
 
-  const buildHitsUrl = () => {
+  const buildHitsUrl = useCallback(() => {
     const params = new URLSearchParams();
     params.append('limit', filters.limit);
     if (filters.minEV) params.append('min_ev', parseFloat(filters.minEV) / 100);
     if (filters.sport) params.append('sport', filters.sport);
     return `${API_URL}/api/ev/hits?${params.toString()}`;
-  };
+  }, [filters]);
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -64,7 +64,7 @@ function EVHits({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [filters, buildHitsUrl]);
+  }, [buildHitsUrl]);
 
   useEffect(() => {
     // Health check badge

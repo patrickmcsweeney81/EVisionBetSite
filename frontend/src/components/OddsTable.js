@@ -20,7 +20,7 @@ function OddsTable({ username, onLogout }) {
   const [health, setHealth] = useState({ ok: null, ms: null });
   const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
 
-  const buildOddsUrl = () => {
+  const buildOddsUrl = useCallback(() => {
     const params = new URLSearchParams();
     params.append('limit', filters.limit);
     if (filters.sport) params.append('sport', filters.sport);
@@ -28,7 +28,7 @@ function OddsTable({ username, onLogout }) {
     if (filters.minEV) params.append('min_ev', filters.minEV);
     if (filters.book) params.append('book', filters.book);
     return `${API_URL}/api/ev/all-odds?${params.toString()}`;
-  };
+  }, [filters]);
 
   const fetchOdds = useCallback(async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ function OddsTable({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [filters, buildOddsUrl]);
+  }, [buildOddsUrl]);
 
   useEffect(() => {
     fetchOdds();
