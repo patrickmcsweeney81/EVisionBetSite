@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiFetch } from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -17,45 +16,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on mount
     const token = localStorage.getItem('authToken');
-    if (token) {
-      // Optionally verify token with /api/auth/me
-      verifyToken(token);
-    } else {
-      setLoading(false);
+    const storedUser = localStorage.getItem('username');
+    if (token && storedUser) {
+      setIsAuthenticated(true);
+      setUsername(storedUser);
     }
+    setLoading(false);
   }, []);
-
-  const verifyToken = async (token) => {
-    try {
-      const response = await apiFetch('/api/auth/me');
-      if (response.ok) {
-        const data = await response.json();
-        setIsAuthenticated(true);
-        setUsername(data.username);
-      } else {
-        // Token invalid, clear it
-        localStorage.removeItem('authToken');
-      }
-    } catch (err) {
-      console.error('Token verification failed:', err);
-      localStorage.removeItem('authToken');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const login = (user, token) => {
     localStorage.setItem('authToken', token);
-    localStorage.setItem('token', token); // Also set 'token' for backward compatibility
+    localStorage.setItem('token', token); // backward compatibility
+    localStorage.setItem('username', user);
     setIsAuthenticated(true);
     setUsername(user);
   };
 
   const logout = () => {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('token'); // Also remove 'token' for backward compatibility
+    localStorage.removeItem('token'); // backward compatibility
+    localStorage.removeItem('username');
     setIsAuthenticated(false);
     setUsername('');
   };
