@@ -267,7 +267,7 @@ function OddsTable({ username, onLogout }) {
             ← Back to Dashboard
           </button>
           <div>
-            <h1>📊 Live Odds Comparison</h1>
+            <h1>📈 Expected Value Finder</h1>
             {lastUpdated && (
               <p className="last-update">
                 Last updated: {new Date(lastUpdated).toLocaleString()}
