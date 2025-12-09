@@ -17,7 +17,6 @@ function OddsTable({ username, onLogout }) {
   const [sortConfig, setSortConfig] = useState({ key: 'ev', direction: 'desc' });
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
   const [lastErrorText, setLastErrorText] = useState(null);
-  const [health, setHealth] = useState({ ok: null, ms: null });
   const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
 
   const buildOddsUrl = useCallback(() => {
