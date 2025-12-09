@@ -1,6 +1,6 @@
 // API configuration with environment auto-detection
 // Production backend URL
-const PROD_API = 'https://evisionbet-api.onrender.com';
+const PROD_API = 'https://ev-finder-spu3.onrender.com';
 // Local development backend URL
 const LOCAL_API = 'http://localhost:8000';
 
