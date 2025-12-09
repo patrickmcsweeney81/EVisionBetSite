@@ -36,19 +36,21 @@ function EVHits({ username, onLogout }) {
         setSummary(data);
       } else {
         setSummary({
-          available: true,
+          available: false,
+          backend_offline: true,
           total_hits: 0,
-          top_ev: 0.05,
-          sports: { basketball_nba: 0 },
+          top_ev: 0,
+          sports: {},
           last_updated: new Date().toISOString()
         });
       }
     } catch (err) {
       setSummary({
-        available: true,
+        available: false,
+        backend_offline: true,
         total_hits: 0,
-        top_ev: 0.05,
-        sports: { basketball_nba: 0 },
+        top_ev: 0,
+        sports: {},
         last_updated: new Date().toISOString()
       });
     }
@@ -174,6 +176,13 @@ function EVHits({ username, onLogout }) {
             <p className="ev-subtitle">Positive expected value betting opportunities</p>
           </div>
         </div>
+
+        {/* Backend Offline Banner */}
+        {summary && summary.backend_offline && (
+          <div className="info-banner">
+            <p>⚠️ Backend service is currently offline. Showing cached/demo data.</p>
+          </div>
+        )}
 
         {/* Summary Cards */}
         {summary && summary.available && (
