@@ -44,7 +44,21 @@ function OddsTable({ username, onLogout }) {
         setLastUpdated(new Date().toISOString());
       } else {
         const data = await response.json();
-        setOdds(data.hits || []);
+        // Map backend API fields to frontend table fields
+        const mappedHits = (data.hits || []).map(row => ({
+          ...row,
+          // Alias backend field names to frontend expected names
+          game_start_perth: row.commence_time,
+          event: `${row.away_team} v ${row.home_team}`,
+          side: row.selection,
+          book: row.bookmaker,
+          price: row.odds_decimal,
+          ev: row.ev_percent,
+          fair: row.fair_odds,
+          pinnacle: null, // Not in current API response
+          prob: row.implied_prob
+        }));
+        setOdds(mappedHits);
         setLastUpdated(new Date().toISOString());
       }
     } catch (err) {
@@ -78,8 +92,17 @@ function OddsTable({ username, onLogout }) {
     let sortableOdds = [...odds];
     if (sortConfig.key) {
       sortableOdds.sort((a, b) => {
-        const aVal = a[sortConfig.key] || 0;
-        const bVal = b[sortConfig.key] || 0;
+        let aVal = a[sortConfig.key] ?? 0;
+        let bVal = b[sortConfig.key] ?? 0;
+        
+        // Handle numeric comparisons
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        
+        // Handle string comparisons
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
         if (aVal < bVal) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
