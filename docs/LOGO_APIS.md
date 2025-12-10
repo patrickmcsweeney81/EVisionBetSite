@@ -16,10 +16,15 @@ This document provides a comprehensive list of APIs and resources used for fetch
 
 #### Basic URL Format
 ```
+https://img.logo.dev/{domain}
+```
+
+**With optional query parameters:**
+```
 https://img.logo.dev/{domain}?format={format}&size={size}&theme={theme}
 ```
 
-#### Query Parameters
+#### Query Parameters (All Optional)
 - `format`: Image format (`png`, `svg`, `jpeg`)
 - `size`: Logo size in pixels (e.g., `96`, `128`, `256`)
 - `theme`: Color theme (`light`, `dark`)
