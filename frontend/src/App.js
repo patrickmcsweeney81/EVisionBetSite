@@ -77,7 +77,7 @@ function App() {
           path="/ev" 
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <OddsTable username={username} onLogout={logout} />
+              <EVHits username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
         />
