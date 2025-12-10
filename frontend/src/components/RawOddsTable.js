@@ -291,17 +291,6 @@ function RawOddsTable({ username, onLogout }) {
     }
   };
 
-  const formatSport = (sport) => {
-    const sportMap = {
-      'basketball_nba': 'NBA',
-      'americanfootball_nfl': 'NFL',
-      'icehockey_nhl': 'NHL',
-      'soccer_epl': 'EPL',
-      'soccer': 'Soccer'
-    };
-    return sportMap[sport] || sport;
-  };
-
   return (
     <div className="raw-odds-container">
       <nav className="raw-odds-nav">
