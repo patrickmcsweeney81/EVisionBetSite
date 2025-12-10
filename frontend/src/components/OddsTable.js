@@ -354,51 +354,74 @@ function OddsTable({ username, onLogout }) {
       )}
 
       {!loading && odds.length > 0 && (
-        <div className="table-wrapper">
-          <table className="odds-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('game_start_perth')} className="col-start">Start {sortConfig.key === 'game_start_perth' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('event')} className="col-game">Game {sortConfig.key === 'event' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('market')} className="col-market">Market {sortConfig.key === 'market' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('line')} className="col-line">Line {sortConfig.key === 'line' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('side')} className="col-side">Side {sortConfig.key === 'side' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th className="col-books">Books</th>
-                <th onClick={() => handleSort('price')} className="col-price">Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('ev')} className="col-ev">EV % {sortConfig.key === 'ev' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('fair')} className="col-fair">Fair {sortConfig.key === 'fair' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('stake')} className="col-stake">Stake {sortConfig.key === 'stake' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('pinnacle')} className="col-pin">Pinnacle {sortConfig.key === 'pinnacle' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th onClick={() => handleSort('prob')} className="col-prob">Prob % {sortConfig.key === 'prob' && (sortConfig.direction === 'asc' ? '▲' : '▼')}</th>
-                <th className="col-actions">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedOdds.map((row, index) => (
-                <tr key={index} className="odds-row">
-                  <td className="time-cell">{formatTime(row.game_start_perth)}</td>
-                  <td className="game-cell">{shortenEvent(row.event)}</td>
-                  <td className="market-cell">{row.market}</td>
-                  <td className="line-cell">{row.line || '-'}</td>
-                  <td className="side-cell">{row.side}</td>
-                  <td className="books-cell">{getLogoBadges(row)}</td>
-                  <td className="price-cell">{formatOdds(row.price)}</td>
-                  <td className={`ev-cell ${getEVClass(row.ev)}`}>{formatPercent(row.ev)}</td>
-                  <td className="fair-cell">{formatOdds(row.fair)}</td>
-                  <td className="stake-cell">{formatOdds(row.stake)}</td>
-                  <td className="pinnacle-cell">{formatOdds(row.pinnacle)}</td>
-                  <td className={`prob-cell ${getProbClass(row.prob)}`}>{formatPercent(row.prob)}</td>
-                  <td className="action-cell">
-                    <button
-                      className="tracker-btn"
-                      onClick={() => addToTracker(row)}
-                      title="Export to CSV tracker"
-                    >📊</button>
-                  </td>
+        <div className="odds-table-layout">
+          {/* Fixed Left Columns */}
+          <div className="fixed-left-section">
+            <table className="fixed-table">
+              <thead>
+                <tr>
+                  <th className="col-start">Start</th>
+                  <th className="col-sport">Sport</th>
+                  <th className="col-game">Game</th>
+                  <th className="col-market">Market</th>
+                  <th className="col-line">Line</th>
+                  <th className="col-side">Side</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sortedOdds.map((row, index) => (
+                  <tr key={index} className="odds-row">
+                    <td className="time-cell">{formatTime(row.game_start_perth)}</td>
+                    <td className="sport-cell">{formatSport(row.sport)}</td>
+                    <td className="game-cell">{shortenEvent(row.event)}</td>
+                    <td className="market-cell">{formatMarket(row.market)}</td>
+                    <td className="line-cell">{row.line || '-'}</td>
+                    <td className="side-cell">{row.side}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Scrollable Right Columns (Bookmakers) */}
+          <div className="scrollable-right-section">
+            <table className="scrollable-table">
+              <thead>
+                <tr>
+                  <th className="col-book">Pinnacle</th>
+                  <th className="col-book">Betfair EU</th>
+                  <th className="col-book">DraftKings</th>
+                  <th className="col-book">FanDuel</th>
+                  <th className="col-book">Sportsbet</th>
+                  <th className="col-book">PointsBet</th>
+                  <th className="col-book">Tab</th>
+                  <th className="col-book">Neds</th>
+                  <th className="col-book">Ladbrokes</th>
+                  <th className="col-book">Betrivers</th>
+                  <th className="col-book">Mybookie</th>
+                  <th className="col-book">Betonline</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedOdds.map((row, index) => (
+                  <tr key={index} className="odds-row">
+                    <td className="odds-cell">{row.pinnacle ? formatOdds(row.pinnacle) : '-'}</td>
+                    <td className="odds-cell">{row.betfair_eu ? formatOdds(row.betfair_eu) : '-'}</td>
+                    <td className="odds-cell">{row.draftkings ? formatOdds(row.draftkings) : '-'}</td>
+                    <td className="odds-cell">{row.fanduel ? formatOdds(row.fanduel) : '-'}</td>
+                    <td className="odds-cell">{row.sportsbet ? formatOdds(row.sportsbet) : '-'}</td>
+                    <td className="odds-cell">{row.pointsbet ? formatOdds(row.pointsbet) : '-'}</td>
+                    <td className="odds-cell">{row.tab ? formatOdds(row.tab) : '-'}</td>
+                    <td className="odds-cell">{row.neds ? formatOdds(row.neds) : '-'}</td>
+                    <td className="odds-cell">{row.ladbrokes ? formatOdds(row.ladbrokes) : '-'}</td>
+                    <td className="odds-cell">{row.betrivers ? formatOdds(row.betrivers) : '-'}</td>
+                    <td className="odds-cell">{row.mybookie ? formatOdds(row.mybookie) : '-'}</td>
+                    <td className="odds-cell">{row.betonline ? formatOdds(row.betonline) : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
