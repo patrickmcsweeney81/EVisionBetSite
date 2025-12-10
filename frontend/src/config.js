@@ -1,6 +1,6 @@
 // API configuration with environment auto-detection
-// Production backend URL
-const PROD_API = 'https://ev-finder-spu3.onrender.com';
+// Production backend URL (FastAPI service on Render)
+const PROD_API = 'https://evision-api.onrender.com';
 // Local development backend URL
 const LOCAL_API = 'http://localhost:8000';
 
