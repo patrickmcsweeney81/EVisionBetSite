@@ -259,6 +259,26 @@
   font-size: 0.9rem;
 }
 
+.point-cell {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  text-align: center;
+}
+
+.selection-cell {
+  font-weight: 500;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sharps-cell {
+  text-align: center;
+  color: #2ecc71;
+  font-weight: bold;
+}
+
 .line-value {
   color: #a0a0a0;
   font-size: 0.85rem;
