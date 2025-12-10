@@ -111,28 +111,52 @@ function EVHits({ username, onLogout }) {
     }));
   };
 
-  const formatDateTime = (dateStr) => {
+  const formatStartTime = (dateStr) => {
     if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
-    return date.toLocaleString('en-AU', {
-      timeZone: 'Australia/Perth',
-      month: 'short',
-      day: 'numeric',
+    const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const fmt = new Intl.DateTimeFormat('en-AU', {
+      timeZone: userTz,
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false
     });
+    return fmt.format(date);
   };
 
-  const formatEV = (ev) => {
-    return `${(ev * 100).toFixed(2)}%`;
+  const sportAbbrev = (sport) => {
+    const map = {
+      'basketball_nba': 'NBA',
+      'basketball_nbl': 'NBL',
+      'americanfootball_nfl': 'NFL',
+      'icehockey_nhl': 'NHL'
+    };
+    return map[sport] || sport.slice(0, 3).toUpperCase();
+  };
+
+  const formatEvent = (hit) => {
+    const away = hit.away_team || 'Away';
+    const home = hit.home_team || 'Home';
+    return `${away} v ${home}`;
+  };
+
+  const formatMarket = (hit) => {
+    if (hit.market === 'h2h') return 'H2H';
+    if (hit.market === 'spreads') return 'Line';
+    if (hit.market.startsWith('player_')) {
+      return hit.market.replace('player_', '').replace('_', '-').toUpperCase();
+    }
+    return hit.market;
   };
 
   const formatOdds = (odds) => {
     return odds ? odds.toFixed(2) : '-';
   };
 
-  const getEVClass = (ev) => {
-    const evPercent = ev * 100;
+  const getEVClass = (evPercent) => {
     if (evPercent >= 10) return 'ev-excellent';
     if (evPercent >= 5) return 'ev-great';
     if (evPercent >= 3) return 'ev-good';
@@ -193,16 +217,16 @@ function EVHits({ username, onLogout }) {
             </div>
             <div className="summary-card">
               <div className="summary-label">Top EV</div>
-              <div className="summary-value">{formatEV((summary.max_ev_percent || 0) / 100)}</div>
+              <div className="summary-value">{(summary.top_ev || 0).toFixed(2)}%</div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Sports</div>
-              <div className="summary-value">{(summary.sports && summary.sports.length) || 0}</div>
+              <div className="summary-value">{Object.keys(summary.sports || {}).length}</div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Last Updated</div>
               <div className="summary-value summary-time">
-                {formatDateTime(new Date().toISOString())}
+                {formatStartTime(summary.last_updated)}
               </div>
             </div>
           </div>
@@ -276,38 +300,37 @@ function EVHits({ username, onLogout }) {
             <table className="hits-table">
               <thead>
                 <tr>
-                  <th>Time</th>
+                  <th>Start</th>
                   <th>Sport</th>
                   <th>Event</th>
                   <th>Market</th>
-                  <th>Side</th>
+                  <th>Points</th>
+                  <th>Selection</th>
+                  <th>Sharps</th>
                   <th>Book</th>
                   <th>Price</th>
+                  <th>EV%</th>
                   <th>Fair</th>
-                  <th>EV</th>
-                  <th>Stake</th>
-                  <th>Prob</th>
+                  <th>Pin Prob</th>
                 </tr>
               </thead>
               <tbody>
                 {hits.map((hit, index) => (
-                  <tr key={index} className="hit-row">
-                    <td className="time-cell">{formatDateTime(hit.game_start_perth)}</td>
-                    <td className="sport-cell">{hit.sport}</td>
-                    <td className="event-cell">{hit.event}</td>
-                    <td className="market-cell">
-                      {hit.market}
-                      {hit.line && <span className="line-value"> ({hit.line})</span>}
+                  <tr key={index} className={`hit-row ${getEVClass(hit.ev_percent)}`}>
+                    <td className="time-cell">{formatStartTime(hit.commence_time)}</td>
+                    <td className="sport-cell">{sportAbbrev(hit.sport)}</td>
+                    <td className="event-cell">{formatEvent(hit)}</td>
+                    <td className="market-cell">{formatMarket(hit)}</td>
+                    <td className="point-cell">{hit.point || '-'}</td>
+                    <td className="selection-cell">{hit.selection}</td>
+                    <td className="sharps-cell">{hit.sharp_book_count || 0}</td>
+                    <td className="book-cell">{hit.best_book}</td>
+                    <td className="price-cell">{formatOdds(hit.best_odds)}</td>
+                    <td className={`ev-cell ${getEVClass(hit.ev_percent)}`}>
+                      {(hit.ev_percent || 0).toFixed(2)}%
                     </td>
-                    <td className="side-cell">{hit.side}</td>
-                    <td className="book-cell">{hit.book}</td>
-                    <td className="price-cell">{formatOdds(hit.price)}</td>
-                    <td className="fair-cell">{formatOdds(hit.fair)}</td>
-                    <td className={`ev-cell ${getEVClass(hit.ev)}`}>
-                      {formatEV(hit.ev)}
-                    </td>
-                    <td className="stake-cell">${hit.stake.toFixed(2)}</td>
-                    <td className="prob-cell">{(hit.prob * 100).toFixed(1)}%</td>
+                    <td className="fair-cell">{formatOdds(hit.fair_odds)}</td>
+                    <td className="prob-cell">{(hit.implied_prob || 0).toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -326,7 +349,7 @@ function EVHits({ username, onLogout }) {
         {/* Footer Info */}
         {lastUpdated && (
           <div className="data-info">
-            Data last updated: {formatDateTime(lastUpdated)}
+            Data last updated: {formatStartTime(lastUpdated)}
           </div>
         )}
       </div>
