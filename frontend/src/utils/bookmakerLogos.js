@@ -1,96 +1,23 @@
 /**
  * Bookmaker logo mapping and utilities
- * Uses Logo.dev API for dynamic logo loading (publishable keys only)
+ * Uses fallback SVG logos with initials for bookmaker identification
  *
  * Usage:
  * import { getBookmakerLogo, getBookmakerDisplayName } from '../utils/bookmakerLogos';
  * <img src={getBookmakerLogo(row.book || 'sportsbet')} alt="..." />
  *
  * Notes:
- * - Put a global publishable key in .env.local as REACT_APP_LOGODEV_PUBLISHABLE (optional).
- * - You can also add per-bookmaker publishable tokens in BOOKMAKER_TOKENS below
- *   (or set them via a server-side config if you prefer).
- * - Do NOT put secret keys (sk_...) into frontend env vars.
+ * - Generates color-coded SVG logos with bookmaker initials
+ * - No external API dependencies - works offline and in restricted networks
+ * - Each bookmaker gets a consistent color based on name hash
  */
-
-const GLOBAL_LOGO_DEV_PUBLISHABLE = process.env.REACT_APP_LOGODEV_PUBLISHABLE || '';
-
-const BOOKMAKER_TOKENS = {
-  // Add per-bookmaker publishable keys here if you created them (publishable keys only)
-};
-
-const BOOKMAKER_DOMAINS = {
-  'pinnacle': 'pinnacle.com',
-  'betfair': 'betfair.com',
-  'betfair_eu': 'betfair.com',
-  'betfair_au': 'betfair.com.au',
-  'betfair_uk': 'betfair.co.uk',
-  'draftkings': 'draftkings.com',
-  'fanduel': 'fanduel.com',
-  'betmgm': 'betmgm.com',
-  'betrivers': 'betrivers.com',
-  'betsson': 'betsson.com',
-  'marathonbet': 'marathonbet.com',
-  'lowvig': 'lowvig.com',
-  'nordicbet': 'nordicbet.com',
-  'mybookie': 'mybookie.ag',
-  'betonline': 'betonline.ag',
-  'bovada': 'bovada.lv',
-  'sportsbet': 'sportsbet.com.au',
-  'pointsbet': 'pointsbet.com',
-  'tab': 'tab.com.au',
-  'tabtouch': 'tab.com.au',
-  'unibet': 'unibet.com',
-  'unibet_au': 'unibet.com.au',
-  'ladbrokes': 'ladbrokes.com.au',
-  'ladbrokes_au': 'ladbrokes.com.au',
-  'neds': 'neds.com.au',
-  'betr': 'betr.com.au',
-  'boombet': 'boombet.com.au',
-  'bet365': 'bet365.com',
-  'williamhill_us': 'williamhill.us',
-  'sbk': 'sbk.com',
-  'fanatics': 'fanatics.com',
-  'ballybet': 'ballybet.com',
-  'betparx': 'betparx.com',
-  'espnbet': 'espnbet.com',
-  'fliff': 'fliff.com',
-  'hardrockbet': 'hardrockbet.com',
-  'rebet': 'rebet.com',
-  'williamhill': 'williamhill.co.uk',
-  'betvictor': 'betvictor.com',
-  'coral': 'coral.co.uk',
-  'skybet': 'skybet.com',
-  'paddypower': 'paddypower.com',
-  'boylesports': 'boylesports.com',
-  'betfred': 'betfred.com',
-  'bwin': 'bwin.com',
-  'williamhill_eu': 'williamhill.eu',
-  'codere': 'codere.com',
-  'tipico': 'tipico.com',
-  'leovegas': 'leovegas.com',
-  'parionssport': 'parionssport.fr',
-  'winamax': 'winamax.fr',
-  'betclic': 'betclic.com',
-};
-
-function normalizeSlug(name) {
-  if (!name) return '';
-  return name.toString().trim().replace(/\s+/g, '_').replace(/\./g, '').toLowerCase();
-}
 
 export const getBookmakerLogo = (bookmakerName, opts = {}) => {
   if (!bookmakerName) return createFallbackLogo('BK');
   const size = opts.size || 96;
-  const slug = normalizeSlug(bookmakerName);
-  const domain = BOOKMAKER_DOMAINS[slug] || BOOKMAKER_DOMAINS[bookmakerName?.toString().toLowerCase()];
-  const token = BOOKMAKER_TOKENS[slug] || GLOBAL_LOGO_DEV_PUBLISHABLE || '';
-  if (domain) {
-    const params = new URLSearchParams({ size: String(size), format: 'png' });
-    if (token) params.set('token', token);
-    return `https://img.logo.dev/${domain}?${params.toString()}`;
-  }
-  // If no domain mapping, skip Clearbit and go straight to fallback
+  
+  // Use fallback logos directly since Logo.dev may not be accessible
+  // in all environments (network restrictions, CORS, etc.)
   return createFallbackLogo(bookmakerName, size);
 };
 
