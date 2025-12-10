@@ -40,8 +40,8 @@ describe('Dashboard Component', () => {
     
     // Verify the order
     expect(cards[0]).toHaveTextContent('📈 Expected Value Finder');
-    expect(cards[1]).toHaveTextContent('📊 Analytics');
-    expect(cards[2]).toHaveTextContent('🎯 Live Odds');
+    expect(cards[1]).toHaveTextContent('🎯 Patty Picks');
+    expect(cards[2]).toHaveTextContent('🧰 EV Toolbox');
     expect(cards[3]).toHaveTextContent('📊 All Odds Table');
     expect(cards[4]).toHaveTextContent('💡 Ideas & TODO');
     expect(cards[5]).toHaveTextContent('⚙️ Settings');

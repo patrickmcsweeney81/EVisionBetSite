@@ -1,0 +1,364 @@
+.patty-picks-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0b0b0b 0%, #1a1a1a 100%);
+  color: #e0e0e0;
+}
+
+.patty-picks-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin: 1rem 0 0.5rem 0;
+  color: #4be1c1;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  background: rgba(75, 225, 193, 0.1);
+  border: 1px solid #4be1c1;
+  color: #4be1c1;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(75, 225, 193, 0.2);
+  transform: translateX(-5px);
+}
+
+/* Section Styles */
+.section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(75, 225, 193, 0.2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  color: #4be1c1;
+  font-size: 1.8rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.date-badge {
+  background: rgba(75, 225, 193, 0.1);
+  color: #4be1c1;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  border: 1px solid #4be1c1;
+}
+
+/* Daily Picks Grid */
+.picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.pick-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pick-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(75, 225, 193, 0.2);
+}
+
+.pick-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pick-number {
+  color: #888;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.ev-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ev-badge.positive {
+  background: rgba(75, 225, 193, 0.2);
+  color: #4be1c1;
+  border: 1px solid #4be1c1;
+}
+
+.ev-badge.negative {
+  background: rgba(255, 82, 82, 0.2);
+  color: #ff5252;
+  border: 1px solid #ff5252;
+}
+
+.game-title {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.pick-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row .label {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.detail-row .value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.status-badge.won {
+  background: rgba(75, 225, 193, 0.2);
+  color: #4be1c1;
+  border: 1px solid #4be1c1;
+}
+
+.status-badge.lost {
+  background: rgba(255, 82, 82, 0.2);
+  color: #ff5252;
+  border: 1px solid #ff5252;
+}
+
+/* Stats Section */
+.stats-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(75, 225, 193, 0.2);
+}
+
+.stats-section h2 {
+  color: #4be1c1;
+  font-size: 1.8rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value.positive {
+  color: #4be1c1;
+}
+
+.stat-value.negative {
+  color: #ff5252;
+}
+
+.stat-label {
+  color: #888;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+/* Bet Tracker Table */
+.bet-tracker {
+  overflow-x: auto;
+}
+
+.tracker-table {
+  min-width: 900px;
+}
+
+.tracker-header,
+.tracker-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 80px 80px 100px 120px;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+}
+
+.tracker-header {
+  background: rgba(75, 225, 193, 0.1);
+  border-radius: 8px;
+  font-weight: 600;
+  color: #4be1c1;
+  margin-bottom: 0.5rem;
+}
+
+.tracker-row {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.tracker-row:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(75, 225, 193, 0.3);
+}
+
+.col-date,
+.col-game,
+.col-pick,
+.col-odds,
+.col-stake,
+.col-result,
+.col-profit {
+  font-size: 0.95rem;
+}
+
+.col-profit.positive {
+  color: #4be1c1;
+  font-weight: 600;
+}
+
+.col-profit.negative {
+  color: #ff5252;
+  font-weight: 600;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.result-badge.won {
+  background: rgba(75, 225, 193, 0.2);
+  color: #4be1c1;
+  border: 1px solid #4be1c1;
+}
+
+.result-badge.lost {
+  background: rgba(255, 82, 82, 0.2);
+  color: #ff5252;
+  border: 1px solid #ff5252;
+}
+
+/* Info Note */
+.info-note {
+  background: rgba(75, 225, 193, 0.05);
+  border: 1px solid rgba(75, 225, 193, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.info-note p {
+  margin: 0;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+}
+
+.info-note strong {
+  color: #4be1c1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .patty-picks-content {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .picks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tracker-table {
+    font-size: 0.85rem;
+  }
+
+  .tracker-header,
+  .tracker-row {
+    grid-template-columns: 80px 1fr 1fr 60px 60px 80px 100px;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
