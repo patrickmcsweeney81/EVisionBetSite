@@ -118,5 +118,5 @@ export const getBookmakerDisplayName = (bookmakerName) => {
   return bookmakerName.toString().replace(/_[A-Za-z]{2,}$/, '').replace(/_/g, ' ').trim();
 };
 
-const bookmakerLogos = { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo };
+const bookmakerLogos = { getBookmakerLogo, getBookmakerDisplayName };
 export default bookmakerLogos;
