@@ -10,84 +10,94 @@
  * 2. Saves them to public/logos/bookmakers/
  * 3. Updates frontend/src/utils/bookmakerLogos.js with local paths
  * 
- * Requires: Node.js 14+, fetch API (or node-fetch for older versions)
+ * Requires: Node.js 14+
  */
 
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// Bookmaker list (from pipeline_v2/ratings.py)
+// Bookmaker list with domains for Logo.dev
 const BOOKMAKERS = {
   // 4⭐
-  'Pinnacle': 'pinnacle',
-  'Betfair_EU': 'betfair',
-  'Draftkings': 'draftkings',
-  'Fanduel': 'fanduel',
+  'Pinnacle': 'pinnacle.com',
+  'Betfair_EU': 'betfair.com',
+  'Draftkings': 'draftkings.com',
+  'Fanduel': 'fanduel.com',
   
   // 3⭐
-  'Betfair_AU': 'betfair',
-  'Betfair_UK': 'betfair',
-  'Betmgm': 'betmgm',
-  'Betrivers': 'betrivers',
-  'Betsson': 'betsson',
-  'Marathonbet': 'marathonbet',
-  'Lowvig': 'lowvig',
+  'Betfair_AU': 'betfair.com.au',
+  'Betfair_UK': 'betfair.co.uk',
+  'Betmgm': 'betmgm.com',
+  'Betrivers': 'betrivers.com',
+  'Betsson': 'betsson.com',
+  'Marathonbet': 'marathonbet.com',
+  'Lowvig': 'lowvig.com',
   
   // 2⭐
-  'Nordicbet': 'nordicbet',
-  'Mybookie': 'mybookie',
-  'Betonline': 'betonline',
-  'Bovada': 'bovada',
+  'Nordicbet': 'nordicbet.com',
+  'Mybookie': 'mybookie.ag',
+  'Betonline': 'betonline.ag',
+  'Bovada': 'bovada.lv',
   
   // 1⭐ - AU
-  'Sportsbet': 'sportsbet',
-  'Pointsbet': 'pointsbet',
-  'Tab': 'tab',
-  'Tabtouch': 'tabtouch',
-  'Unibet_AU': 'unibet',
-  'Ladbrokes_AU': 'ladbrokes',
-  'Neds': 'neds',
-  'Betr': 'betr',
-  'Boombet': 'boombet',
+  'Sportsbet': 'sportsbet.com.au',
+  'Pointsbet': 'pointsbet.com',
+  'Tab': 'tab.com.au',
+  'Tabtouch': 'tab.com.au',
+  'Unibet_AU': 'unibet.com.au',
+  'Ladbrokes_AU': 'ladbrokes.com.au',
+  'Neds': 'neds.com.au',
+  'Betr': 'betr.com.au',
+  'Boombet': 'boombet.com.au',
   
   // 1⭐ - US
-  'Williamhill_US': 'williamhill',
-  'Sbk': 'sbk',
-  'Fanatics': 'fanatics',
-  'Ballybet': 'ballybet',
-  'Betparx': 'betparx',
-  'Espnbet': 'espnbet',
-  'Fliff': 'fliff',
-  'Hardrockbet': 'hardrockbet',
-  'Rebet': 'rebet',
+  'Williamhill_US': 'williamhill.us',
+  'Sbk': 'sbk.com',
+  'Fanatics': 'fanatics.com',
+  'Ballybet': 'ballybet.com',
+  'Betparx': 'betparx.com',
+  'Espnbet': 'espnbet.com',
+  'Fliff': 'fliff.com',
+  'Hardrockbet': 'hardrockbet.com',
+  'Rebet': 'rebet.com',
   
   // 1⭐ - UK
-  'Williamhill_UK': 'williamhill',
-  'Betvictor': 'betvictor',
-  'Coral': 'coral',
-  'Skybet': 'skybet',
-  'Paddypower': 'paddypower',
-  'Boylesports': 'boylesports',
-  'Betfred': 'betfred',
+  'Williamhill_UK': 'williamhill.co.uk',
+  'Betvictor': 'betvictor.com',
+  'Coral': 'coral.co.uk',
+  'Skybet': 'skybet.com',
+  'Paddypower': 'paddypower.com',
+  'Boylesports': 'boylesports.com',
+  'Betfred': 'betfred.com',
   
   // 1⭐ - EU
-  'Bwin': 'bwin',
-  'Williamhill_EU': 'williamhill',
-  'Codere': 'codere',
-  'Tipico': 'tipico',
-  'Leovegas': 'leovegas',
-  'Parionssport': 'parionssport',
-  'Winamax_FR': 'winamax',
-  'Winamax_DE': 'winamax',
-  'Unibet_FR': 'unibet',
-  'Unibet_NL': 'unibet',
-  'Unibet_SE': 'unibet',
-  'Betclic': 'betclic',
+  'Bwin': 'bwin.com',
+  'Williamhill_EU': 'williamhill.eu',
+  'Codere': 'codere.com',
+  'Tipico': 'tipico.com',
+  'Leovegas': 'leovegas.com',
+  'Parionssport': 'parionssport.fr',
+  'Winamax_FR': 'winamax.fr',
+  'Winamax_DE': 'winamax.de',
+  'Unibet_FR': 'unibet.fr',
+  'Unibet_NL': 'unibet.nl',
+  'Unibet_SE': 'unibet.se',
+  'Betclic': 'betclic.com',
 };
 
 const LOGO_DIR = path.join(__dirname, '..', 'public', 'logos', 'bookmakers');
 const OUTPUT_JS = path.join(__dirname, '..', 'frontend', 'src', 'utils', 'bookmakerLogos.js');
+
+// API keys for bookmakers
+const API_KEYS = {
+  'Pinnacle': 'pk_HxFs1P6JRx62zWtMv_oq7g',
+  'Sportsbet': 'pk_ACZ0pjTZRCOhx85alcjew',
+  'Betfair_EU': 'pk_J1YM3orISmGgTEqow1GG2A',
+  'Betfair_AU': 'pk_J1YM3orISmGgTEqow1GG2A',
+  'Betfair_UK': 'pk_J1YM3orISmGgTEqow1GG2A',
+  'Draftkings': 'pk_ALAW8HDETZeISyRIcmbXUg',
+};
 
 // Create directory if it doesn't exist
 function ensureDir(dir) {
@@ -113,7 +123,7 @@ function downloadFile(url, filePath) {
         resolve();
       });
     }).on('error', (err) => {
-      fs.unlink(filePath, () => {}); // Delete file on error
+      fs.unlink(filePath, () => {});
       reject(err);
     });
   });
@@ -128,9 +138,12 @@ async function fetchAllLogos() {
   const results = {};
   const failures = [];
   let count = 0;
-  
-  for (const [bookmakerName, logoName] of Object.entries(BOOKMAKERS)) {
-    const url = `https://api.logo.dev/logo?company=${logoName}&format=svg`;
+
+  for (const [bookmakerName, domain] of Object.entries(BOOKMAKERS)) {
+    let url = `https://img.logo.dev/${domain}?format=svg&size=96`;
+    if (API_KEYS[bookmakerName]) {
+      url += `&token=${API_KEYS[bookmakerName]}`;
+    }
     const fileName = `${bookmakerName.toLowerCase()}.svg`;
     const filePath = path.join(LOGO_DIR, fileName);
     
@@ -141,7 +154,7 @@ async function fetchAllLogos() {
       count++;
     } catch (err) {
       failures.push({ bookmakerName, error: err.message });
-      results[bookmakerName] = null; // Will use fallback
+      results[bookmakerName] = null;
       console.log(`✗ ${bookmakerName.padEnd(20)} → Failed: ${err.message}`);
     }
     
