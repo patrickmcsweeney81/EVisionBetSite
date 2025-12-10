@@ -8,16 +8,30 @@ function RawOddsTable({ username, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'game_start_perth', direction: 'asc' });
+  
+  // Multi-select filter state
   const [filters, setFilters] = useState({
-    sport: '',
-    event: '',
-    market: '',
-    side: '',
-    book: '',
+    sport: new Set(),
+    event: new Set(),
+    market: new Set(),
+    selection: new Set(),
+    book: new Set(),
     searchText: ''
   });
+  
+  // Filter panel state
+  const [openFilterPanel, setOpenFilterPanel] = useState(null);
+  const [filterOptions, setFilterOptions] = useState({
+    sport: [],
+    event: [],
+    market: [],
+    selection: [],
+    book: []
+  });
+  
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 50;
+  const [tableScrollPosition, setTableScrollPosition] = useState(0);
 
   // Fetch and parse CSV data
   useEffect(() => {
@@ -32,6 +46,9 @@ function RawOddsTable({ username, onLogout }) {
         const rows = parseCSV(text);
         setOddsData(rows);
         setError(null);
+        
+        // Build filter options from data (preserving CSV column order)
+        buildFilterOptions(rows);
       } catch (err) {
         setError(err.message);
         setOddsData([]);
@@ -42,6 +59,21 @@ function RawOddsTable({ username, onLogout }) {
 
     fetchCSV();
   }, []);
+
+  // Close filter panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const filterBar = document.querySelector('.filters-bar');
+      if (filterBar && !filterBar.contains(e.target)) {
+        setOpenFilterPanel(null);
+      }
+    };
+    
+    if (openFilterPanel) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [openFilterPanel]);
 
   // Parse CSV text into array of objects with proper handling of quoted fields
   const parseCSV = (text) => {
@@ -85,10 +117,49 @@ function RawOddsTable({ username, onLogout }) {
     return data;
   };
 
-  // Get unique values for filter dropdowns
-  const getUniqueValues = (key) => {
-    const values = [...new Set(oddsData.map(row => row[key]).filter(Boolean))];
-    return values.sort();
+  // Format sport name for display
+  const formatSport = (sport) => {
+    const sportMap = {
+      'basketball_nba': 'NBA',
+      'americanfootball_nfl': 'NFL',
+      'icehockey_nhl': 'NHL',
+      'soccer': 'Soccer',
+      'tennis': 'Tennis',
+      'cricket': 'Cricket'
+    };
+    return sportMap[sport] || sport;
+  };
+
+  // Get unique values for filter dropdowns (preserving order)
+  const buildFilterOptions = (data) => {
+    const seen = {
+      sport: new Set(),
+      event: new Set(),
+      market: new Set(),
+      selection: new Set(),
+      book: new Set()
+    };
+    
+    const ordered = {
+      sport: [],
+      event: [],
+      market: [],
+      selection: [],
+      book: []
+    };
+
+    // Preserve CSV order - first occurrence wins
+    data.forEach(row => {
+      ['sport', 'event', 'market', 'selection', 'book'].forEach(key => {
+        const val = row[key];
+        if (val && !seen[key].has(val)) {
+          seen[key].add(val);
+          ordered[key].push(val);
+        }
+      });
+    });
+
+    setFilterOptions(ordered);
   };
 
   // Handle sorting
@@ -100,24 +171,62 @@ function RawOddsTable({ username, onLogout }) {
     setSortConfig({ key, direction });
   };
 
-  // Handle filter changes
-  const handleFilterChange = (key, value) => {
+  // Handle multi-select filter changes
+  const toggleFilterValue = (filterKey, value) => {
+    setFilters(prev => {
+      const newSet = new Set(prev[filterKey]);
+      if (newSet.has(value)) {
+        newSet.delete(value);
+      } else {
+        newSet.add(value);
+      }
+      return {
+        ...prev,
+        [filterKey]: newSet
+      };
+    });
+    setCurrentPage(1);
+  };
+
+  // Select all values for a filter
+  const selectAllFilter = (filterKey) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value
+      [filterKey]: new Set(filterOptions[filterKey])
     }));
-    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  // Deselect all values for a filter
+  const deselectAllFilter = (filterKey) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterKey]: new Set()
+    }));
+  };
+
+  // Handle search changes
+  const handleSearchChange = (value) => {
+    setFilters(prev => ({
+      ...prev,
+      searchText: value
+    }));
+    setCurrentPage(1);
+  };
+
+  // Close filter panel and reset if needed
+  const closeFilterPanel = () => {
+    setOpenFilterPanel(null);
   };
 
   // Apply filters and sorting
   const filteredAndSortedData = useMemo(() => {
     let filtered = [...oddsData];
 
-    // Apply column filters
-    Object.keys(filters).forEach(key => {
-      if (filters[key] && key !== 'searchText') {
+    // Apply multi-select filters
+    ['sport', 'event', 'market', 'selection', 'book'].forEach(key => {
+      if (filters[key].size > 0) {
         filtered = filtered.filter(row => 
-          row[key] && row[key].toLowerCase().includes(filters[key].toLowerCase())
+          filters[key].has(row[key])
         );
       }
     });
@@ -226,95 +335,107 @@ function RawOddsTable({ username, onLogout }) {
         <div className="search-section">
           <input
             type="text"
-            placeholder="Search across all columns..."
+            placeholder="🔍 Search across all columns..."
             value={filters.searchText}
-            onChange={(e) => handleFilterChange('searchText', e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="global-search"
           />
         </div>
 
-        {/* Column Filters */}
-        <div className="filters-section">
-          <div className="filter-group">
-            <label>Sport:</label>
-            <select
-              value={filters.sport}
-              onChange={(e) => handleFilterChange('sport', e.target.value)}
-              className="filter-select"
+        {/* Interactive Filters Bar */}
+        <div className="filters-bar">
+          {['sport', 'event', 'market', 'selection', 'book'].map(filterKey => (
+            <div key={filterKey} className="filter-button-group">
+              <button
+                className={`filter-dropdown-btn ${
+                  filters[filterKey].size > 0 ? 'active' : ''
+                }`}
+                onClick={() => setOpenFilterPanel(
+                  openFilterPanel === filterKey ? null : filterKey
+                )}
+              >
+                <span className="filter-label">
+                  {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
+                </span>
+                {filters[filterKey].size > 0 && (
+                  <span className="filter-badge">{filters[filterKey].size}</span>
+                )}
+                <span className="dropdown-arrow">
+                  {openFilterPanel === filterKey ? '▲' : '▼'}
+                </span>
+              </button>
+
+              {/* Interactive Filter Panel */}
+              {openFilterPanel === filterKey && (
+                <div className="filter-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="filter-panel-header">
+                    <h4>{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</h4>
+                    <div className="filter-panel-actions">
+                      <button 
+                        className="select-all-btn"
+                        onClick={() => selectAllFilter(filterKey)}
+                      >
+                        Select All
+                      </button>
+                      <button 
+                        className="deselect-all-btn"
+                        onClick={() => deselectAllFilter(filterKey)}
+                      >
+                        Deselect All
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="filter-options-list">
+                    {filterOptions[filterKey].map(value => (
+                      <label key={value} className="filter-option">
+                        <input
+                          type="checkbox"
+                          checked={filters[filterKey].has(value)}
+                          onChange={() => toggleFilterValue(filterKey, value)}
+                          className="filter-checkbox"
+                        />
+                        <span className="filter-option-label">
+                          {filterKey === 'sport' ? formatSport(value) : value}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="filter-panel-footer">
+                    <button 
+                      className="close-filter-btn"
+                      onClick={closeFilterPanel}
+                    >
+                      ✓ Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Clear All Button */}
+          {(filters.sport.size > 0 || filters.event.size > 0 || 
+            filters.market.size > 0 || filters.selection.size > 0 || 
+            filters.book.size > 0 || filters.searchText) && (
+            <button 
+              onClick={() => {
+                setFilters({
+                  sport: new Set(),
+                  event: new Set(),
+                  market: new Set(),
+                  selection: new Set(),
+                  book: new Set(),
+                  searchText: ''
+                });
+                setCurrentPage(1);
+              }}
+              className="clear-all-filters-btn"
             >
-              <option value="">All Sports</option>
-              {getUniqueValues('sport').map(value => (
-                <option key={value} value={value}>{formatSport(value)}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Market:</label>
-            <select
-              value={filters.market}
-              onChange={(e) => handleFilterChange('market', e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Markets</option>
-              {getUniqueValues('market').map(value => (
-                <option key={value} value={value}>{value}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Bookmaker:</label>
-            <select
-              value={filters.book}
-              onChange={(e) => handleFilterChange('book', e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Bookmakers</option>
-              {getUniqueValues('book').map(value => (
-                <option key={value} value={value}>{value}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Event:</label>
-            <input
-              type="text"
-              placeholder="Filter by event..."
-              value={filters.event}
-              onChange={(e) => handleFilterChange('event', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>Side:</label>
-            <input
-              type="text"
-              placeholder="Filter by side..."
-              value={filters.side}
-              onChange={(e) => handleFilterChange('side', e.target.value)}
-              className="filter-input"
-            />
-          </div>
-
-          <button 
-            onClick={() => {
-              setFilters({
-                sport: '',
-                event: '',
-                market: '',
-                side: '',
-                book: '',
-                searchText: ''
-              });
-              setCurrentPage(1);
-            }}
-            className="clear-filters-btn"
-          >
-            Clear All Filters
-          </button>
+              ✕ Clear All
+            </button>
+          )}
         </div>
 
         {/* Loading State */}
@@ -343,7 +464,30 @@ function RawOddsTable({ username, onLogout }) {
               </p>
             </div>
 
-            <div className="table-wrapper">
+            {/* Prominent Top Scroll Bar */}
+            <div 
+              className="top-scroll-bar"
+              onScroll={(e) => {
+                const tableWrapper = document.querySelector('.table-wrapper');
+                if (tableWrapper) {
+                  tableWrapper.scrollLeft = e.target.scrollLeft;
+                }
+              }}
+            >
+              <div className="scroll-bar-dummy"></div>
+            </div>
+
+            {/* Table Wrapper */}
+            <div 
+              className="table-wrapper"
+              onScroll={(e) => {
+                const topScroll = document.querySelector('.top-scroll-bar');
+                if (topScroll) {
+                  topScroll.scrollLeft = e.target.scrollLeft;
+                }
+                setTableScrollPosition(e.target.scrollLeft);
+              }}
+            >
               <table className="raw-odds-table">
                 <thead>
                   <tr>
