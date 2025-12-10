@@ -7,6 +7,7 @@ import OddsComparison from './components/OddsComparison';
 import DiagnosticPage from './components/DiagnosticPage';
 import EVHits from './components/EVHits';
 import OddsTable from './components/OddsTable';
+import RawOddsTable from './components/RawOddsTable';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -94,6 +95,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <OddsTable username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/raw-odds" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <RawOddsTable username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
         />
