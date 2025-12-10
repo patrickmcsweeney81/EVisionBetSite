@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
-import { getBookmakerLogo, getBookmakerDisplayName } from '../utils/bookmakerLogos';
+import { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo } from '../utils/bookmakerLogos';
 import './OddsTable.css';
 
 function OddsTable({ username, onLogout }) {
@@ -200,7 +200,7 @@ function OddsTable({ username, onLogout }) {
           alt={getBookmakerDisplayName(bk)}
           width={28}
           height={28}
-          onError={(e) => { e.currentTarget.src = getBookmakerLogo(bk, { size: 28 }); }}
+          onError={(e) => { e.currentTarget.src = createFallbackLogo(bk, 28); }}
         />
       </span>
     ));

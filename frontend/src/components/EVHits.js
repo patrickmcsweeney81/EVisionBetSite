@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
-import { getBookmakerLogo, getBookmakerDisplayName } from '../utils/bookmakerLogos';
+import { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo } from '../utils/bookmakerLogos';
 import './EVHits.css';
 
 function EVHits({ username, onLogout }) {
@@ -332,7 +332,7 @@ function EVHits({ username, onLogout }) {
                           alt={getBookmakerDisplayName(hit.best_book)}
                           className="bookmaker-logo"
                           title={getBookmakerDisplayName(hit.best_book)}
-                          onError={(e) => { e.currentTarget.src = getBookmakerLogo(hit.best_book, { size: 32 }); }}
+                          onError={(e) => { e.currentTarget.src = createFallbackLogo(hit.best_book, 32); }}
                         />
                         <span className="book-name">{getBookmakerDisplayName(hit.best_book)}</span>
                       </div>

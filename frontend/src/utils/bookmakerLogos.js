@@ -90,13 +90,11 @@ export const getBookmakerLogo = (bookmakerName, opts = {}) => {
     if (token) params.set('token', token);
     return `https://img.logo.dev/${domain}?${params.toString()}`;
   }
-  if (slug) {
-    return `https://logo.clearbit.com/${encodeURIComponent(slug)}?size=${size * 2}`;
-  }
+  // If no domain mapping, skip Clearbit and go straight to fallback
   return createFallbackLogo(bookmakerName, size);
 };
 
-const createFallbackLogo = (bookmakerName = '', size = 48) => {
+export const createFallbackLogo = (bookmakerName = '', size = 48) => {
   const initials = bookmakerName
     .split(/[_\s]+/)
     .map((word) => (word ? word[0] : ''))
@@ -120,5 +118,5 @@ export const getBookmakerDisplayName = (bookmakerName) => {
   return bookmakerName.toString().replace(/_[A-Za-z]{2,}$/, '').replace(/_/g, ' ').trim();
 };
 
-const bookmakerLogos = { getBookmakerLogo, getBookmakerDisplayName };
+const bookmakerLogos = { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo };
 export default bookmakerLogos;
