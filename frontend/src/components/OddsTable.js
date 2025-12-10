@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
+import { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo } from '../utils/bookmakerLogos';
 import './OddsTable.css';
 
 function OddsTable({ username, onLogout }) {
@@ -193,7 +194,15 @@ function OddsTable({ username, onLogout }) {
     });
     // Limit to first 6 for compactness
     return present.slice(0, 6).map((bk, idx) => (
-      <span key={idx} className={`logo-badge logo-${bk.toLowerCase()}`}>{getBookmakerLogo(bk)}</span>
+      <span key={idx} className={`logo-badge logo-${bk.toLowerCase()}`} style={{ marginRight: 6 }}>
+        <img
+          src={getBookmakerLogo(bk, { size: 28 })}
+          alt={getBookmakerDisplayName(bk)}
+          width={28}
+          height={28}
+          onError={(e) => { e.currentTarget.src = createFallbackLogo(bk, 28); }}
+        />
+      </span>
     ));
   };
 
@@ -239,24 +248,7 @@ function OddsTable({ username, onLogout }) {
     alert('✅ Added to tracker! CSV file downloaded.');
   };
 
-  const getBookmakerLogo = (bookmaker) => {
-    // For now, return text badges
-    // TODO: Add actual bookmaker logo images
-    const bookMap = {
-      'sportsbet': '🟢 SB',
-      'bet365': '🟡 365',
-      'pointsbet': '🔵 PB',
-      'ladbrokes': '🔴 LAD',
-      'unibet': '🟠 UNI',
-      'dabble': '🟣 DAB',
-      'tab': '⚫ TAB',
-      'tabtouch': '⚫ TT',
-      'neds': '🟤 NED',
-      'betr': '🟢 BTR',
-      'betright': '🔵 BR'
-    };
-    return bookMap[bookmaker?.toLowerCase()] || bookmaker;
-  };
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
