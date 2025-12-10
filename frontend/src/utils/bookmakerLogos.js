@@ -1,90 +1,121 @@
 /**
  * Bookmaker logo mapping and utilities
- * Maps bookmaker names to logo URLs
+ * Uses Logo.dev API for dynamic logo loading
  * 
- * To add logos:
- * 1. Get API key from https://www.logo.dev/dashboard/api-keys
- * 2. Use: https://api.logo.dev/logo?company={company}&format=svg
- * 3. Or host logos locally in /public/logos/bookmakers/
+ * Logos are fetched from img.logo.dev with:
+ * - PNG format (transparency support)
+ * - 48px size for table display
+ * - Dark theme for dark backgrounds
+ * - Retina support for sharp display
  */
 
-// Logo URL mapping - update with actual logo URLs
-const BOOKMAKER_LOGOS = {
-  // 4⭐ - GOLD STANDARD
-  'Pinnacle': 'https://api.logo.dev/logo?company=pinnacle&format=svg',
-  'Betfair_EU': 'https://api.logo.dev/logo?company=betfair&format=svg',
-  'Draftkings': 'https://api.logo.dev/logo?company=draftkings&format=svg',
-  'Fanduel': 'https://api.logo.dev/logo?company=fanduel&format=svg',
+// Domain mappings for bookmakers (used by Logo.dev API)
+const BOOKMAKER_DOMAINS = {
+  // 4⭐
+  'Pinnacle': 'pinnacle.com',
+  'Betfair_EU': 'betfair.com',
+  'Draftkings': 'draftkings.com',
+  'Fanduel': 'fanduel.com',
   
-  // 3⭐ - MAJOR SHARPS
-  'Betfair_AU': 'https://api.logo.dev/logo?company=betfair&format=svg',
-  'Betfair_UK': 'https://api.logo.dev/logo?company=betfair&format=svg',
-  'Betmgm': 'https://api.logo.dev/logo?company=betmgm&format=svg',
-  'Betrivers': 'https://api.logo.dev/logo?company=betrivers&format=svg',
-  'Betsson': 'https://api.logo.dev/logo?company=betsson&format=svg',
-  'Marathonbet': 'https://api.logo.dev/logo?company=marathonbet&format=svg',
-  'Lowvig': 'https://api.logo.dev/logo?company=lowvig&format=svg',
+  // 3⭐
+  'Betfair_AU': 'betfair.com.au',
+  'Betfair_UK': 'betfair.co.uk',
+  'Betmgm': 'betmgm.com',
+  'Betrivers': 'betrivers.com',
+  'Betsson': 'betsson.com',
+  'Marathonbet': 'marathonbet.com',
+  'Lowvig': 'lowvig.com',
   
-  // 2⭐ - SECONDARY SOURCES
-  'Nordicbet': 'https://api.logo.dev/logo?company=nordicbet&format=svg',
-  'Mybookie': 'https://api.logo.dev/logo?company=mybookie&format=svg',
-  'Betonline': 'https://api.logo.dev/logo?company=betonline&format=svg',
-  'Bovada': 'https://api.logo.dev/logo?company=bovada&format=svg',
+  // 2⭐
+  'Nordicbet': 'nordicbet.com',
+  'Mybookie': 'mybookie.ag',
+  'Betonline': 'betonline.ag',
+  'Bovada': 'bovada.lv',
   
-  // 1⭐ - TERTIARY (AU)
-  'Sportsbet': 'https://api.logo.dev/logo?company=sportsbet&format=svg',
-  'Pointsbet': 'https://api.logo.dev/logo?company=pointsbet&format=svg',
-  'Tab': 'https://api.logo.dev/logo?company=tab&format=svg',
-  'Tabtouch': 'https://api.logo.dev/logo?company=tabtouch&format=svg',
-  'Unibet_AU': 'https://api.logo.dev/logo?company=unibet&format=svg',
-  'Ladbrokes_AU': 'https://api.logo.dev/logo?company=ladbrokes&format=svg',
-  'Neds': 'https://api.logo.dev/logo?company=neds&format=svg',
-  'Betr': 'https://api.logo.dev/logo?company=betr&format=svg',
-  'Boombet': 'https://api.logo.dev/logo?company=boombet&format=svg',
+  // 1⭐ - AU
+  'Sportsbet': 'sportsbet.com.au',
+  'Pointsbet': 'pointsbet.com',
+  'Tab': 'tab.com.au',
+  'Tabtouch': 'tab.com.au',
+  'Unibet_AU': 'unibet.com.au',
+  'Ladbrokes_AU': 'ladbrokes.com.au',
+  'Neds': 'neds.com.au',
+  'Betr': 'betr.com.au',
+  'Boombet': 'boombet.com.au',
   
-  // 1⭐ - TERTIARY (US)
-  'Williamhill_US': 'https://api.logo.dev/logo?company=williamhill&format=svg',
-  'Sbk': 'https://api.logo.dev/logo?company=sbk&format=svg',
-  'Fanatics': 'https://api.logo.dev/logo?company=fanatics&format=svg',
-  'Ballybet': 'https://api.logo.dev/logo?company=ballybet&format=svg',
-  'Betparx': 'https://api.logo.dev/logo?company=betparx&format=svg',
-  'Espnbet': 'https://api.logo.dev/logo?company=espnbet&format=svg',
-  'Fliff': 'https://api.logo.dev/logo?company=fliff&format=svg',
-  'Hardrockbet': 'https://api.logo.dev/logo?company=hardrockbet&format=svg',
-  'Rebet': 'https://api.logo.dev/logo?company=rebet&format=svg',
+  // 1⭐ - US
+  'Williamhill_US': 'williamhill.us',
+  'Sbk': 'sbk.com',
+  'Fanatics': 'fanatics.com',
+  'Ballybet': 'ballybet.com',
+  'Betparx': 'betparx.com',
+  'Espnbet': 'espnbet.com',
+  'Fliff': 'fliff.com',
+  'Hardrockbet': 'hardrockbet.com',
+  'Rebet': 'rebet.com',
   
-  // 1⭐ - TERTIARY (UK)
-  'Williamhill_UK': 'https://api.logo.dev/logo?company=williamhill&format=svg',
-  'Betvictor': 'https://api.logo.dev/logo?company=betvictor&format=svg',
-  'Coral': 'https://api.logo.dev/logo?company=coral&format=svg',
-  'Skybet': 'https://api.logo.dev/logo?company=skybet&format=svg',
-  'Paddypower': 'https://api.logo.dev/logo?company=paddypower&format=svg',
-  'Boylesports': 'https://api.logo.dev/logo?company=boylesports&format=svg',
-  'Betfred': 'https://api.logo.dev/logo?company=betfred&format=svg',
+  // 1⭐ - UK
+  'Williamhill_UK': 'williamhill.co.uk',
+  'Betvictor': 'betvictor.com',
+  'Coral': 'coral.co.uk',
+  'Skybet': 'skybet.com',
+  'Paddypower': 'paddypower.com',
+  'Boylesports': 'boylesports.com',
+  'Betfred': 'betfred.com',
   
-  // 1⭐ - TERTIARY (EU)
-  'Bwin': 'https://api.logo.dev/logo?company=bwin&format=svg',
-  'Williamhill_EU': 'https://api.logo.dev/logo?company=williamhill&format=svg',
-  'Codere': 'https://api.logo.dev/logo?company=codere&format=svg',
-  'Tipico': 'https://api.logo.dev/logo?company=tipico&format=svg',
-  'Leovegas': 'https://api.logo.dev/logo?company=leovegas&format=svg',
-  'Parionssport': 'https://api.logo.dev/logo?company=parionssport&format=svg',
-  'Winamax_FR': 'https://api.logo.dev/logo?company=winamax&format=svg',
-  'Winamax_DE': 'https://api.logo.dev/logo?company=winamax&format=svg',
-  'Unibet_FR': 'https://api.logo.dev/logo?company=unibet&format=svg',
-  'Unibet_NL': 'https://api.logo.dev/logo?company=unibet&format=svg',
-  'Unibet_SE': 'https://api.logo.dev/logo?company=unibet&format=svg',
-  'Betclic': 'https://api.logo.dev/logo?company=betclic&format=svg',
+  // 1⭐ - EU
+  'Bwin': 'bwin.com',
+  'Williamhill_EU': 'williamhill.eu',
+  'Codere': 'codere.com',
+  'Tipico': 'tipico.com',
+  'Leovegas': 'leovegas.com',
+  'Parionssport': 'parionssport.fr',
+  'Winamax_FR': 'winamax.fr',
+  'Winamax_DE': 'winamax.de',
+  'Unibet_FR': 'unibet.fr',
+  'Unibet_NL': 'unibet.nl',
+  'Unibet_SE': 'unibet.se',
+  'Betclic': 'betclic.com',
 };
 
 /**
- * Get logo URL for a bookmaker
+ * Get logo URL for a bookmaker from Logo.dev API (light theme)
  * @param {string} bookmakerName - Name of the bookmaker
- * @returns {string} - Logo URL or fallback placeholder
+ * @returns {string} - Logo URL or fallback
  */
 export const getBookmakerLogo = (bookmakerName) => {
   if (!bookmakerName) return null;
-  return BOOKMAKER_LOGOS[bookmakerName] || createFallbackLogo(bookmakerName);
+  
+  const domain = BOOKMAKER_DOMAINS[bookmakerName];
+  if (!domain) return createFallbackLogo(bookmakerName);
+  
+  // Use Logo.dev API with optimized parameters
+  // - PNG format (transparency)
+  // - 96px size (scales to 48px in CSS, crisp on retina)
+  // - Light theme (for light table backgrounds)
+  // - Retina support (sharp on high-DPI)
+  // - Fallback to monogram if not found
+  return `https://img.logo.dev/${domain}?format=png&size=96&theme=light&retina=true`;
+};
+
+/**
+ * Get logo URL for a bookmaker from Logo.dev API (dark theme)
+ * @param {string} bookmakerName - Name of the bookmaker
+ * @returns {string} - Logo URL or fallback
+ */
+export const getBookmakerLogoDark = (bookmakerName) => {
+  if (!bookmakerName) return null;
+  
+  const domain = BOOKMAKER_DOMAINS[bookmakerName];
+  if (!domain) return createFallbackLogo(bookmakerName);
+  
+  // Dark theme version for use on dark backgrounds
+  // - PNG format (transparency)
+  // - 96px size (scales to 48px in CSS, crisp on retina)
+  // - Dark theme (for dark backgrounds/sidebars)
+  // - Retina support (sharp on high-DPI)
+  // - Fallback to monogram if not found
+  return `https://img.logo.dev/${domain}?format=png&size=96&theme=dark&retina=true`;
 };
 
 /**
@@ -123,7 +154,6 @@ const createFallbackLogo = (bookmakerName) => {
  */
 export const getBookmakerDisplayName = (bookmakerName) => {
   if (!bookmakerName) return '';
-  // Remove region codes like _AU, _UK, _US, etc.
   return bookmakerName
     .replace(/_[A-Z]{2}$/, '')
     .replace(/_/g, ' ')
