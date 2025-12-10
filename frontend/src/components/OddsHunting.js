@@ -76,6 +76,16 @@ function OddsHunting({ username, onLogout }) {
     window.location.href = '/';
   };
 
+  const handleMinOddsChange = (value) => {
+    const parsed = parseFloat(value);
+    setMinOdds(parsed >= 1.01 ? parsed : 1.01);
+  };
+
+  const handleMaxOddsChange = (value) => {
+    const parsed = parseFloat(value);
+    setMaxOdds(parsed >= 1.01 ? parsed : 10.0);
+  };
+
   const filteredHunts = hunts.filter(hunt => {
     const matchesSearch = hunt.event.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          hunt.selection.toLowerCase().includes(searchTerm.toLowerCase());
@@ -143,7 +153,7 @@ function OddsHunting({ username, onLogout }) {
               <input 
                 type="number"
                 value={minOdds}
-                onChange={(e) => setMinOdds(parseFloat(e.target.value) || 1.01)}
+                onChange={(e) => handleMinOddsChange(e.target.value)}
                 min="1.01"
                 step="0.1"
                 className="odds-input"
@@ -152,7 +162,7 @@ function OddsHunting({ username, onLogout }) {
               <input 
                 type="number"
                 value={maxOdds}
-                onChange={(e) => setMaxOdds(parseFloat(e.target.value) || 1.01)}
+                onChange={(e) => handleMaxOddsChange(e.target.value)}
                 min="1.01"
                 step="0.1"
                 className="odds-input"

@@ -14,7 +14,7 @@ function DutchingCalculator({ username, onLogout }) {
   };
 
   const addSelection = () => {
-    const newId = Math.max(...selections.map(s => s.id)) + 1;
+    const newId = selections.reduce((max, s) => s.id > max ? s.id : max, 0) + 1;
     setSelections([...selections, { id: newId, name: `Selection ${newId}`, odds: 2.0 }]);
   };
 
@@ -34,7 +34,7 @@ function DutchingCalculator({ username, onLogout }) {
     const oddsSum = selections.reduce((sum, sel) => sum + (1 / sel.odds), 0);
     return selections.map(sel => ({
       ...sel,
-      stake: (totalStake / (sel.odds * oddsSum)).toFixed(2),
+      stake: ((totalStake / oddsSum) / sel.odds).toFixed(2),
       potentialProfit: ((totalStake / oddsSum) - totalStake).toFixed(2)
     }));
   };

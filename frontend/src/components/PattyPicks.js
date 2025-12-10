@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import './PattyPicks.css';
 
 function PattyPicks({ username, onLogout }) {
+  const today = new Date().toISOString().split('T')[0];
+  
   const [dailyPicks] = useState([
     {
       id: 1,
-      date: new Date().toISOString().split('T')[0],
+      date: today,
       game: 'Lakers vs Celtics',
       pick: 'Lakers +5.5',
       odds: 1.91,
@@ -15,7 +17,7 @@ function PattyPicks({ username, onLogout }) {
     },
     {
       id: 2,
-      date: new Date().toISOString().split('T')[0],
+      date: today,
       game: 'Warriors vs Nets',
       pick: 'Over 215.5',
       odds: 1.95,
@@ -87,7 +89,8 @@ function PattyPicks({ username, onLogout }) {
     const wins = betTracker.filter(bet => bet.result === 'won').length;
     const losses = betTracker.filter(bet => bet.result === 'lost').length;
     const totalProfit = betTracker.reduce((sum, bet) => sum + bet.profit, 0);
-    const roi = ((totalProfit / (betTracker.length * 100)) * 100).toFixed(1);
+    const totalStaked = betTracker.reduce((sum, bet) => sum + bet.stake, 0);
+    const roi = totalStaked > 0 ? ((totalProfit / totalStaked) * 100).toFixed(1) : '0.0';
     
     return { wins, losses, totalProfit, roi };
   };
