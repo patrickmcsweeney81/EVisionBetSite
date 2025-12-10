@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RawOddsTable.css';
 
 function RawOddsTable({ username, onLogout }) {
+  const navigate = useNavigate();
   const [oddsData, setOddsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,19 +43,41 @@ function RawOddsTable({ username, onLogout }) {
     fetchCSV();
   }, []);
 
-  // Parse CSV text into array of objects
+  // Parse CSV text into array of objects with proper handling of quoted fields
   const parseCSV = (text) => {
     const lines = text.trim().split('\n');
     if (lines.length === 0) return [];
     
-    const headers = lines[0].split(',');
+    // Helper function to parse a CSV line respecting quotes
+    const parseLine = (line) => {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+    
+    const headers = parseLine(lines[0]);
     const data = [];
     
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',');
+      const values = parseLine(lines[i]);
       const row = {};
       headers.forEach((header, index) => {
-        row[header.trim()] = values[index] ? values[index].trim() : '';
+        row[header] = values[index] || '';
       });
       data.push(row);
     }
@@ -189,7 +213,7 @@ function RawOddsTable({ username, onLogout }) {
 
       <div className="raw-odds-content">
         <div className="raw-odds-header">
-          <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+          <button onClick={() => navigate('/dashboard')} className="back-btn">
             ← Back to Dashboard
           </button>
           <div>
