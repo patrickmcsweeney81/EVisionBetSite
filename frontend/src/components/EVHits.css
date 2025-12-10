@@ -294,6 +294,24 @@
   font-weight: 500;
 }
 
+.book-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bookmaker-logo {
+  height: 24px;
+  width: 24px;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+.book-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .price-cell,
 .fair-cell {
   font-family: 'Courier New', monospace;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import API_URL from '../config';
+import { getBookmakerLogo, getBookmakerDisplayName } from '../utils/bookmakerLogos';
 import './EVHits.css';
 
 function EVHits({ username, onLogout }) {
@@ -324,7 +325,17 @@ function EVHits({ username, onLogout }) {
                     <td className="point-cell">{hit.point || '-'}</td>
                     <td className="selection-cell">{hit.selection}</td>
                     <td className="sharps-cell">{hit.sharp_book_count || 0}</td>
-                    <td className="book-cell">{hit.best_book}</td>
+                    <td className="book-cell">
+                      <div className="book-badge">
+                        <img 
+                          src={getBookmakerLogo(hit.best_book)} 
+                          alt={hit.best_book}
+                          className="bookmaker-logo"
+                          title={getBookmakerDisplayName(hit.best_book)}
+                        />
+                        <span className="book-name">{getBookmakerDisplayName(hit.best_book)}</span>
+                      </div>
+                    </td>
                     <td className="price-cell">{formatOdds(hit.best_odds)}</td>
                     <td className={`ev-cell ${getEVClass(hit.ev_percent)}`}>
                       {(hit.ev_percent || 0).toFixed(2)}%
