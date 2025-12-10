@@ -12,6 +12,9 @@
  * - Each bookmaker gets a consistent color based on name hash
  */
 
+// Color palette for logo backgrounds - moved outside function for performance
+const LOGO_COLORS = ['#4be1c1', '#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6'];
+
 export const getBookmakerLogo = (bookmakerName, opts = {}) => {
   if (!bookmakerName) return createFallbackLogo('BK');
   const size = opts.size || 96;
@@ -22,16 +25,31 @@ export const getBookmakerLogo = (bookmakerName, opts = {}) => {
 };
 
 export const createFallbackLogo = (bookmakerName = '', size = 48) => {
+  // Extract initials from bookmaker name
   const initials = bookmakerName
     .split(/[_\s]+/)
     .map((word) => (word ? word[0] : ''))
     .join('')
     .toUpperCase()
     .slice(0, 2) || 'BK';
-  const colors = ['#4be1c1', '#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6'];
+  
+  // Calculate consistent color based on name hash
   const hash = bookmakerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const bgColor = colors[hash % colors.length];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">\n    <rect width="${size}" height="${size}" rx="${Math.round(size * 0.08)}" fill="${bgColor}"/>\n    <text x="${size / 2}" y="${Math.round(size * 0.65)}" font-size="${Math.round(size * 0.45)}" font-weight="700" fill="white" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">${initials}</text>\n  </svg>`;
+  const bgColor = LOGO_COLORS[hash % LOGO_COLORS.length];
+  
+  // Calculate SVG dimensions
+  const borderRadius = Math.round(size * 0.08);
+  const textY = Math.round(size * 0.65);
+  const fontSize = Math.round(size * 0.45);
+  const textX = size / 2;
+  
+  // Build SVG with readable template
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <rect width="${size}" height="${size}" rx="${borderRadius}" fill="${bgColor}"/>
+    <text x="${textX}" y="${textY}" font-size="${fontSize}" font-weight="700" fill="white" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">${initials}</text>
+  </svg>`;
+  
+  // Encode SVG as data URL
   try {
     const base64 = btoa(unescape(encodeURIComponent(svg)));
     return `data:image/svg+xml;base64,${base64}`;
