@@ -48,6 +48,10 @@ bot/venv/
 bot/data/*.csv
 bot/data/*.json
 bot/data/*.txt
+
+# Generated logos (download with scripts/fetch-logos.js)
+public/logos/bookmakers/
+*.svg
 bot/api_spreads.json
 bot/debug_*.txt
 bot/debug_*.json
