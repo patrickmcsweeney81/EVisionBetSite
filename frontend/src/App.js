@@ -130,6 +130,10 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <OddsHunting username={username} onLogout={logout} />
+          path="/raw-odds" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <RawOddsTable username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
         />

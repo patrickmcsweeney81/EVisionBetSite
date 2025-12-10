@@ -69,6 +69,14 @@ function Dashboard({ username, onLogout }) {
           </div>
 
           <div className="dashboard-card">
+            <h3>📋 Raw Odds Table</h3>
+            <p>View pure raw odds data with filtering (no EV calculations)</p>
+            <Link to="/raw-odds" className="card-button">
+              View Raw Odds
+            </Link>
+          </div>
+
+          <div className="dashboard-card">
             <h3>💡 Ideas & TODO</h3>
             <p>View project ideas and development roadmap</p>
             <Link to="/todo" className="card-button">
