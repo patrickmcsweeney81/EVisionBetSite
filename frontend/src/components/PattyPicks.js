@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import './PattyPicks.css';
 
+const getTodayDate = () => new Date().toISOString().split('T')[0];
+
 function PattyPicks({ username, onLogout }) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDate();
   
   const [dailyPicks] = useState([
     {
@@ -128,7 +130,7 @@ function PattyPicks({ username, onLogout }) {
         <div className="section">
           <div className="section-header">
             <h2>📅 Today's Picks</h2>
-            <span className="date-badge">{new Date().toLocaleDateString()}</span>
+            <span className="date-badge">{new Date(today).toLocaleDateString()}</span>
           </div>
           <div className="picks-grid">
             {dailyPicks.map(pick => (

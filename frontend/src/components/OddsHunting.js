@@ -78,12 +78,12 @@ function OddsHunting({ username, onLogout }) {
 
   const handleMinOddsChange = (value) => {
     const parsed = parseFloat(value);
-    setMinOdds(parsed >= 1.01 ? parsed : 1.01);
+    setMinOdds(!isNaN(parsed) && parsed >= 1.01 ? parsed : 1.01);
   };
 
   const handleMaxOddsChange = (value) => {
     const parsed = parseFloat(value);
-    setMaxOdds(parsed >= 1.01 ? parsed : 10.0);
+    setMaxOdds(!isNaN(parsed) && parsed >= 1.01 ? parsed : 10.0);
   };
 
   const filteredHunts = hunts.filter(hunt => {
