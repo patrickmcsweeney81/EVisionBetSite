@@ -1,149 +1,124 @@
 /**
  * Bookmaker logo mapping and utilities
- * Uses Logo.dev API for dynamic logo loading
- * 
- * Example usage:
- * <img
- *   src="https://img.logo.dev/sportsbet.com.au?token=pk_live_6a1a28fd-6420-4492-aeb0-b297461d9de2"
- *   alt="Sportsbet logo"
- *   loading="lazy"
- * />
+ * Uses Logo.dev API for dynamic logo loading (publishable keys only)
+ *
+ * Usage:
+ * import { getBookmakerLogo, getBookmakerDisplayName } from '../utils/bookmakerLogos';
+ * <img src={getBookmakerLogo(row.book || 'sportsbet')} alt="..." />
+ *
+ * Notes:
+ * - Put a global publishable key in .env.local as REACT_APP_LOGODEV_PUBLISHABLE (optional).
+ * - You can also add per-bookmaker publishable tokens in BOOKMAKER_TOKENS below
+ *   (or set them via a server-side config if you prefer).
+ * - Do NOT put secret keys (sk_...) into frontend env vars.
  */
 
-// Logo.dev public demo key (replace with your publishable key for production)
-const LOGO_DEV_KEY = 'pk_live_6a1a28fd-6420-4492-aeb0-b297461d9de2';
+const GLOBAL_LOGO_DEV_PUBLISHABLE = process.env.REACT_APP_LOGODEV_PUBLISHABLE || '';
 
-// Domain mappings for bookmakers (used by Logo.dev API)
+const BOOKMAKER_TOKENS = {
+  // Add per-bookmaker publishable keys here if you created them (publishable keys only)
+};
+
 const BOOKMAKER_DOMAINS = {
-  // 4⭐
-  'Pinnacle': 'pinnacle.com',
-  'Betfair_EU': 'betfair.com',
-  'Draftkings': 'draftkings.com',
-  'Fanduel': 'fanduel.com',
-  
-  // 3⭐
-  'Betfair_AU': 'betfair.com.au',
-  'Betfair_UK': 'betfair.co.uk',
-  'Betmgm': 'betmgm.com',
-  'Betrivers': 'betrivers.com',
-  'Betsson': 'betsson.com',
-  'Marathonbet': 'marathonbet.com',
-  'Lowvig': 'lowvig.com',
-  
-  // 2⭐
-  'Nordicbet': 'nordicbet.com',
-  'Mybookie': 'mybookie.ag',
-  'Betonline': 'betonline.ag',
-  'Bovada': 'bovada.lv',
-  
-  // 1⭐ - AU
-  'Sportsbet': 'sportsbet.com.au',
-  'Pointsbet': 'pointsbet.com',
-  'Tab': 'tab.com.au',
-  'Tabtouch': 'tab.com.au',
-  'Unibet_AU': 'unibet.com.au',
-  'Ladbrokes_AU': 'ladbrokes.com.au',
-  'Neds': 'neds.com.au',
-  'Betr': 'betr.com.au',
-  'Boombet': 'boombet.com.au',
-  
-  // 1⭐ - US
-  'Williamhill_US': 'williamhill.us',
-  'Sbk': 'sbk.com',
-  'Fanatics': 'fanatics.com',
-  'Ballybet': 'ballybet.com',
-  'Betparx': 'betparx.com',
-  'Espnbet': 'espnbet.com',
-  'Fliff': 'fliff.com',
-  'Hardrockbet': 'hardrockbet.com',
-  'Rebet': 'rebet.com',
-  
-  // 1⭐ - UK
-  'Williamhill_UK': 'williamhill.co.uk',
-  'Betvictor': 'betvictor.com',
-  'Coral': 'coral.co.uk',
-  'Skybet': 'skybet.com',
-  'Paddypower': 'paddypower.com',
-  'Boylesports': 'boylesports.com',
-  'Betfred': 'betfred.com',
-  
-  // 1⭐ - EU
-  'Bwin': 'bwin.com',
-  'Williamhill_EU': 'williamhill.eu',
-  'Codere': 'codere.com',
-  'Tipico': 'tipico.com',
-  'Leovegas': 'leovegas.com',
-  'Parionssport': 'parionssport.fr',
-  'Winamax_FR': 'winamax.fr',
-  'Winamax_DE': 'winamax.de',
-  'Unibet_FR': 'unibet.fr',
-  'Unibet_NL': 'unibet.nl',
-  'Unibet_SE': 'unibet.se',
-  'Betclic': 'betclic.com',
+  'pinnacle': 'pinnacle.com',
+  'betfair': 'betfair.com',
+  'betfair_eu': 'betfair.com',
+  'betfair_au': 'betfair.com.au',
+  'betfair_uk': 'betfair.co.uk',
+  'draftkings': 'draftkings.com',
+  'fanduel': 'fanduel.com',
+  'betmgm': 'betmgm.com',
+  'betrivers': 'betrivers.com',
+  'betsson': 'betsson.com',
+  'marathonbet': 'marathonbet.com',
+  'lowvig': 'lowvig.com',
+  'nordicbet': 'nordicbet.com',
+  'mybookie': 'mybookie.ag',
+  'betonline': 'betonline.ag',
+  'bovada': 'bovada.lv',
+  'sportsbet': 'sportsbet.com.au',
+  'pointsbet': 'pointsbet.com',
+  'tab': 'tab.com.au',
+  'tabtouch': 'tab.com.au',
+  'unibet': 'unibet.com',
+  'unibet_au': 'unibet.com.au',
+  'ladbrokes': 'ladbrokes.com.au',
+  'ladbrokes_au': 'ladbrokes.com.au',
+  'neds': 'neds.com.au',
+  'betr': 'betr.com.au',
+  'boombet': 'boombet.com.au',
+  'bet365': 'bet365.com',
+  'williamhill_us': 'williamhill.us',
+  'sbk': 'sbk.com',
+  'fanatics': 'fanatics.com',
+  'ballybet': 'ballybet.com',
+  'betparx': 'betparx.com',
+  'espnbet': 'espnbet.com',
+  'fliff': 'fliff.com',
+  'hardrockbet': 'hardrockbet.com',
+  'rebet': 'rebet.com',
+  'williamhill': 'williamhill.co.uk',
+  'betvictor': 'betvictor.com',
+  'coral': 'coral.co.uk',
+  'skybet': 'skybet.com',
+  'paddypower': 'paddypower.com',
+  'boylesports': 'boylesports.com',
+  'betfred': 'betfred.com',
+  'bwin': 'bwin.com',
+  'williamhill_eu': 'williamhill.eu',
+  'codere': 'codere.com',
+  'tipico': 'tipico.com',
+  'leovegas': 'leovegas.com',
+  'parionssport': 'parionssport.fr',
+  'winamax': 'winamax.fr',
+  'betclic': 'betclic.com',
 };
 
-/**
- * Get logo URL for a bookmaker
- * Tries Logo.dev API first, falls back to SVG with initials
- * 
- * @param {string} bookmakerName - Name of the bookmaker
- * @returns {string} - Logo URL or data URI
- */
-export const getBookmakerLogo = (bookmakerName) => {
-  if (!bookmakerName) return null;
-  
-  const domain = BOOKMAKER_DOMAINS[bookmakerName];
+function normalizeSlug(name) {
+  if (!name) return '';
+  return name.toString().trim().replace(/\s+/g, '_').replace(/\./g, '').toLowerCase();
+}
+
+export const getBookmakerLogo = (bookmakerName, opts = {}) => {
+  if (!bookmakerName) return createFallbackLogo('BK');
+  const size = opts.size || 96;
+  const slug = normalizeSlug(bookmakerName);
+  const domain = BOOKMAKER_DOMAINS[slug] || BOOKMAKER_DOMAINS[bookmakerName?.toString().toLowerCase()];
+  const token = BOOKMAKER_TOKENS[slug] || GLOBAL_LOGO_DEV_PUBLISHABLE || '';
   if (domain) {
-    // Return Logo.dev API URL with token
-    return `https://img.logo.dev/${domain}?token=${LOGO_DEV_KEY}&size=96&format=png`;
+    const params = new URLSearchParams({ size: String(size), format: 'png' });
+    if (token) params.set('token', token);
+    return `https://img.logo.dev/${domain}?${params.toString()}`;
   }
-  
-  // Fallback to generated SVG
-  return createFallbackLogo(bookmakerName);
+  if (slug) {
+    return `https://logo.clearbit.com/${encodeURIComponent(slug)}?size=${size * 2}`;
+  }
+  return createFallbackLogo(bookmakerName, size);
 };
 
-/**
- * Create a fallback SVG logo with bookmaker initials
- * @param {string} bookmakerName - Name of the bookmaker
- * @returns {string} - Data URI for SVG
- */
-const createFallbackLogo = (bookmakerName) => {
+const createFallbackLogo = (bookmakerName = '', size = 48) => {
   const initials = bookmakerName
     .split(/[_\s]+/)
-    .map(word => word[0])
+    .map((word) => (word ? word[0] : ''))
     .join('')
     .toUpperCase()
-    .slice(0, 2);
-  
-  const colors = ['#4be1c1', '#3498db', '#f39c12', '#2ecc71', '#e74c3c'];
+    .slice(0, 2) || 'BK';
+  const colors = ['#4be1c1', '#3498db', '#f39c12', '#2ecc71', '#e74c3c', '#9b59b6'];
   const hash = bookmakerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const bgColor = colors[hash % colors.length];
-  
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-      <rect width="48" height="48" rx="4" fill="${bgColor}"/>
-      <text x="24" y="30" font-size="18" font-weight="bold" fill="white" text-anchor="middle">
-        ${initials}
-      </text>
-    </svg>
-  `;
-  
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">\n    <rect width="${size}" height="${size}" rx="${Math.round(size * 0.08)}" fill="${bgColor}"/>\n    <text x="${size / 2}" y="${Math.round(size * 0.65)}" font-size="${Math.round(size * 0.45)}" font-weight="700" fill="white" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">${initials}</text>\n  </svg>`;
+  try {
+    const base64 = btoa(unescape(encodeURIComponent(svg)));
+    return `data:image/svg+xml;base64,${base64}`;
+  } catch (err) {
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }
 };
 
-/**
- * Get display-friendly bookmaker name
- * Removes region codes and underscores
- * 
- * @param {string} bookmakerName - Raw bookmaker name
- * @returns {string} - Display name (e.g., "Betfair AU" from "Betfair_AU")
- */
 export const getBookmakerDisplayName = (bookmakerName) => {
   if (!bookmakerName) return '';
-  return bookmakerName
-    .replace(/_[A-Z]{2}$/, '')
-    .replace(/_/g, ' ')
-    .trim();
+  return bookmakerName.toString().replace(/_[A-Za-z]{2,}$/, '').replace(/_/g, ' ').trim();
 };
 
-export default { getBookmakerLogo, getBookmakerDisplayName };
+const bookmakerLogos = { getBookmakerLogo, getBookmakerDisplayName };
+export default bookmakerLogos;

@@ -328,10 +328,11 @@ function EVHits({ username, onLogout }) {
                     <td className="book-cell">
                       <div className="book-badge">
                         <img 
-                          src={getBookmakerLogo(hit.best_book)} 
-                          alt={hit.best_book}
+                          src={getBookmakerLogo(hit.best_book, { size: 32 })} 
+                          alt={getBookmakerDisplayName(hit.best_book)}
                           className="bookmaker-logo"
                           title={getBookmakerDisplayName(hit.best_book)}
+                          onError={(e) => { e.currentTarget.src = getBookmakerLogo(hit.best_book, { size: 32 }); }}
                         />
                         <span className="book-name">{getBookmakerDisplayName(hit.best_book)}</span>
                       </div>
