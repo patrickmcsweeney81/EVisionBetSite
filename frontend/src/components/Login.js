@@ -11,6 +11,9 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showHint, setShowHint] = useState(true);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -27,8 +30,74 @@ function Login({ onLogin }) {
     }
   };
 
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    setAdminError('');
+
+    try {
+      // Login as admin with the provided password
+      login('admin', adminPassword, `token-admin-${Date.now()}`);
+      setShowAdminModal(false);
+      navigate('/admin');
+    } catch (err) {
+      setAdminError(err.message || 'Invalid admin password');
+    }
+  };
+
   return (
     <div className="login-page">
+      {/* Admin Button in Top Corner */}
+      <button 
+        className="admin-corner-btn"
+        onClick={() => {
+          setShowAdminModal(true);
+          setAdminError('');
+          setAdminPassword('');
+        }}
+        title="Admin Access"
+      >
+        ⚙️
+      </button>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="admin-modal-close"
+              onClick={() => setShowAdminModal(false)}
+            >
+              ✕
+            </button>
+            
+            <h2>🔐 Admin Access</h2>
+            <p className="admin-modal-subtitle">Enter admin password to access the dashboard</p>
+
+            {adminError && <div className="admin-error-message">{adminError}</div>}
+
+            <form onSubmit={handleAdminLogin}>
+              <div className="admin-form-group">
+                <label htmlFor="admin-password">Admin Password</label>
+                <input
+                  type="password"
+                  id="admin-password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                  autoFocus
+                />
+              </div>
+
+              <button type="submit" className="admin-login-btn">
+                Enter Admin Portal
+              </button>
+            </form>
+
+            <p className="admin-modal-hint">Password: <code>admin123</code></p>
+          </div>
+        </div>
+      )}
+
       <div className="login-container">
         <div className="login-main-content">
           <div className="login-box">
@@ -37,8 +106,9 @@ function Login({ onLogin }) {
               alt="BET EVision" 
               className="login-logo"
             />
-            <h2>Welcome Back</h2>
-            <p className="login-subtitle">Sign in to access your dashboard</p>
+            
+            <h1 className="login-greeting">Welcome Back Patty Mac!</h1>
+            <p className="login-tagline">login and let's go break things 🔥</p>
             
             {error && <div className="error-message">{error}</div>}
             
@@ -71,6 +141,8 @@ function Login({ onLogin }) {
                 Sign In
               </button>
             </form>
+
+            <p className="lets-go-cry">Let's go make the bookies cry 💸</p>
             
             {showHint && (
               <div className="hint-box">
