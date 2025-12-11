@@ -12,6 +12,7 @@ import EVToolbox from './components/EVToolbox';
 import DutchingCalculator from './components/DutchingCalculator';
 import OddsHunting from './components/OddsHunting';
 import RawOddsTable from './components/RawOddsTable';
+import AdminPanel from './components/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -141,6 +142,10 @@ function App() {
               <RawOddsTable username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/admin" 
+          element={<AdminPanel />}
         />
       </Routes>
     </Router>
