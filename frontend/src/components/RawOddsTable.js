@@ -31,7 +31,6 @@ function RawOddsTable({ username, onLogout }) {
   
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 50;
-  const [tableScrollPosition, setTableScrollPosition] = useState(0);
 
   // Fetch and parse CSV data
   useEffect(() => {
@@ -474,7 +473,6 @@ function RawOddsTable({ username, onLogout }) {
                 if (topScroll) {
                   topScroll.scrollLeft = e.target.scrollLeft;
                 }
-                setTableScrollPosition(e.target.scrollLeft);
               }}
             >
               <table className="raw-odds-table">
