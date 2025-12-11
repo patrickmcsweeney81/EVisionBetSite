@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import API_URL from '../config';
 import UpcomingGamesPublic from './UpcomingGamesPublic';
 import ContactUs from './ContactUs';
@@ -9,45 +10,20 @@ function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showHint, setShowHint] = useState(true);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const fallbackLogin = () => {
-      const user = username || 'demo';
-      onLogin(user, 'demo-token');
-      navigate('/dashboard');
-    };
-
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString()
-      });
-
-      // If backend endpoint is missing, fall back to client-side demo login
-      if (response.status === 404) {
-        fallbackLogin();
-        return;
-      }
-
-      const data = await response.json().catch(() => ({}));
-      if (response.ok && data.access_token) {
-        onLogin(username, data.access_token);
-        navigate('/dashboard');
-      } else {
-        setError(data.detail || data.error || 'Login failed');
-      }
+      // Use local auth with client-side user database
+      login(username, password, `token-${username}-${Date.now()}`);
+      navigate('/dashboard');
     } catch (err) {
-      fallbackLogin();
+      setError(err.message || 'Login failed - check username and password');
     }
   };
 
@@ -96,7 +72,30 @@ function Login({ onLogin }) {
               </button>
             </form>
             
-            <p className="hint">Hint: Username: EVision, Password: PattyMac</p>
+            {showHint && (
+              <div className="hint-box">
+                <div className="hint-header">
+                  <span>💡 Test Accounts Available:</span>
+                  <button 
+                    type="button" 
+                    className="hint-close"
+                    onClick={() => setShowHint(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="hint-content">
+                  <div className="user-hint">
+                    <strong>Admin:</strong> <code>admin</code> / <code>admin123</code>
+                    <span className="badge admin">✓ Admin - Full Access</span>
+                  </div>
+                  <div className="user-hint">
+                    <strong>User:</strong> <code>user1234</code> / <code>user1234</code>
+                    <span className="badge user">👤 User - Limited Access</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* EV Explainer Video Section */}

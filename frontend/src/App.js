@@ -13,6 +13,7 @@ import DutchingCalculator from './components/DutchingCalculator';
 import OddsHunting from './components/OddsHunting';
 import RawOddsTable from './components/RawOddsTable';
 import AdminPanel from './components/AdminPanel';
+import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -145,7 +146,11 @@ function App() {
         />
         <Route 
           path="/admin" 
-          element={<AdminPanel />}
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          }
         />
       </Routes>
     </Router>
