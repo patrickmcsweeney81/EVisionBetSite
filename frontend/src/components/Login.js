@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import API_URL from '../config';
 import UpcomingGamesPublic from './UpcomingGamesPublic';
 import ContactUs from './ContactUs';
 import './Login.css';
@@ -70,6 +69,9 @@ function Login({ onLogin }) {
               ✕
             </button>
             
+            <h1 className="admin-greeting">Welcome Back Patty Mac!</h1>
+            <p className="admin-tagline">login and let's go break things 🔥</p>
+            
             <h2>🔐 Admin Access</h2>
             <p className="admin-modal-subtitle">Enter admin password to access the dashboard</p>
 
@@ -107,8 +109,8 @@ function Login({ onLogin }) {
               className="login-logo"
             />
             
-            <h1 className="login-greeting">Welcome Back Patty Mac!</h1>
-            <p className="login-tagline">login and let's go break things 🔥</p>
+            <h2>Sign In</h2>
+            <p className="login-subtitle">Access your account</p>
             
             {error && <div className="error-message">{error}</div>}
             

@@ -106,6 +106,29 @@
   font-size: 26px;
 }
 
+.admin-greeting {
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.admin-tagline {
+  color: #aaa;
+  margin-bottom: 25px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-modal-card h2 {
+  color: #4be1c1;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
 .admin-modal-subtitle {
   color: #aaa;
   margin-bottom: 20px;
@@ -224,18 +247,11 @@
 }
 
 .login-greeting {
-  color: #ffffff;
-  margin-bottom: 8px;
-  font-size: 42px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  display: none;
 }
 
 .login-tagline {
-  color: #aaa;
-  margin-bottom: 30px;
-  font-size: 16px;
-  font-weight: 500;
+  display: none;
 }
 
 .lets-go-cry {
