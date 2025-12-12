@@ -126,60 +126,138 @@
   border-color: #4be1c1;
 }
 
-/* Table Wrapper */
-.table-wrapper {
-  overflow-x: auto;
+/* Table Layout - Fixed Left + Scrollable Right */
+.odds-table-layout {
+  display: flex;
   background: #1a1a1a;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2a2a2a;
+  height: 600px;
+  overflow: hidden;
 }
 
-/* Table Styling */
-.odds-table {
-  width: 100%;
+/* Fixed Left Section */
+.fixed-left-section {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-right: 2px solid #4be1c1;
+  background: #1a1a1a;
+}
+
+.fixed-table {
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
+  width: 100%;
+  background: #1a1a1a;
 }
 
-.odds-table thead {
+.fixed-table thead {
+  background: #2a2a2a;
+  position: sticky;
+  top: 0;
+  z-index: 11;
+}
+
+.fixed-table thead th {
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #4be1c1;
+  border-bottom: 1px solid #4be1c1;
+  white-space: nowrap;
+}
+
+.fixed-table tbody td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.fixed-table tbody tr:hover td {
+  background: #252525;
+}
+
+/* Fixed Column Widths */
+.fixed-table .col-start { width: 110px; }
+.fixed-table .col-sport { width: 60px; }
+.fixed-table .col-game { width: 140px; }
+.fixed-table .col-market { width: 80px; }
+.fixed-table .col-line { width: 70px; }
+.fixed-table .col-side { width: 100px; }
+
+/* Scrollable Right Section */
+.scrollable-right-section {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.scrollable-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: 100%;
+  background: #1a1a1a;
+}
+
+.scrollable-table thead {
   background: #2a2a2a;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.odds-table th {
-  padding: 16px 12px;
-  text-align: left;
+.scrollable-table thead th {
+  padding: 12px 10px;
+  text-align: center;
   font-weight: 600;
   color: #4be1c1;
-  cursor: pointer;
-  user-select: none;
+  border-bottom: 1px solid #4be1c1;
   white-space: nowrap;
-  border-bottom: 2px solid #4be1c1;
+  min-width: 90px;
 }
 
-.odds-table th:hover {
-  background: #333;
-}
-
-.sortable-header {
-  position: relative;
-}
-
-.odds-table tbody tr {
+.scrollable-table tbody td {
+  padding: 10px;
+  text-align: right;
   border-bottom: 1px solid #2a2a2a;
-  transition: background 0.2s;
+  background: #1a1a1a;
+  color: #ffffff;
+  min-width: 90px;
 }
 
-.odds-table tbody tr:hover {
+.scrollable-table tbody tr:hover td {
   background: #252525;
 }
 
-.odds-table td {
-  padding: 14px 12px;
-  white-space: nowrap;
+.odds-cell {
+  font-weight: 500;
+  color: #4be1c1;
 }
+
+/* Scrollbar Styling */
+.scrollable-right-section::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.scrollable-right-section::-webkit-scrollbar-track {
+  background: #0b0b0b;
+}
+
+.scrollable-right-section::-webkit-scrollbar-thumb {
+  background: #4be1c1;
+  border-radius: 6px;
+}
+
+.scrollable-right-section::-webkit-scrollbar-thumb:hover {
+  background: #3cc5a8;
+}
+
+
+
+/* Remove old table styles - using new fixed/scrollable layout */
 
 /* Column-specific styling */
 .time-cell {
