@@ -332,7 +332,13 @@ function EVHits({ username, onLogout }) {
                           alt={getBookmakerDisplayName(hit.best_book)}
                           className="bookmaker-logo"
                           title={getBookmakerDisplayName(hit.best_book)}
-                          onError={(e) => { e.currentTarget.src = createFallbackLogo(hit.best_book, 32); }}
+                          onError={(e) => {
+                            // Fallback: Generate SVG badge if external source fails
+                            if (!e.currentTarget.dataset.fallback) {
+                              e.currentTarget.src = createFallbackLogo(hit.best_book, 32);
+                              e.currentTarget.dataset.fallback = 'true';
+                            }
+                          }}
                         />
                         <span className="book-name">{getBookmakerDisplayName(hit.best_book)}</span>
                       </div>

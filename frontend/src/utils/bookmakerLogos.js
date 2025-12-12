@@ -149,6 +149,7 @@ export const getBookmakerLogo = (bookmakerName, opts = {}) => {
   if (!bookmakerName) return createFallbackLogo('BK');
   const { size = 96, preferLocal = true } = opts;
 
+  // FIRST: Try local SVG files (highest priority - they're always available)
   if (preferLocal) {
     const localPath = resolveLocalLogoPath(bookmakerName);
     if (localPath) {
@@ -156,6 +157,7 @@ export const getBookmakerLogo = (bookmakerName, opts = {}) => {
     }
   }
 
+  // SECOND: Try Logo.dev API (if domain is mapped)
   const slug = normalizeSlug(bookmakerName);
   const rawLower = bookmakerName.toString().toLowerCase();
   const domain =
@@ -170,7 +172,7 @@ export const getBookmakerLogo = (bookmakerName, opts = {}) => {
     return `https://img.logo.dev/${domain}?${params.toString()}`;
   }
 
-  // If no domain mapping, skip Clearbit and go straight to fallback
+  // THIRD: Fallback to generated SVG badge with initials
   return createFallbackLogo(bookmakerName, size);
 };
 

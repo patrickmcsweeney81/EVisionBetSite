@@ -200,7 +200,18 @@ function OddsTable({ username, onLogout }) {
           alt={getBookmakerDisplayName(bk)}
           width={28}
           height={28}
-          onError={(e) => { e.currentTarget.src = createFallbackLogo(bk, 28); }}
+          onError={(e) => {
+            // Fallback: Generate SVG badge if external source fails
+            if (!e.currentTarget.dataset.fallback) {
+              e.currentTarget.src = createFallbackLogo(bk, 28);
+              e.currentTarget.dataset.fallback = 'true';
+            } else {
+              // Fallback SVG also failed to load; log warning for debugging
+              console.warn(`Bookmaker logo and fallback failed to load for: ${bk}. Displaying generic placeholder or leaving logo blank.`);
+              // Optionally, set a generic error placeholder (e.g., a transparent pixel or error icon)
+              // e.currentTarget.src = 'data:image/svg+xml,<svg ...>...</svg>';
+            }
+          }}
         />
       </span>
     ));
