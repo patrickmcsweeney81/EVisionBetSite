@@ -78,10 +78,12 @@ npm install
 
 1. **Install Frontend Dependencies**
 
+
 ```bash
 cd ../frontend
 npm install
 ```
+
 
 
 ## Running the Application
@@ -95,8 +97,7 @@ cd backend
 npm start
 ```
 
-
-The backend will run on `http://localhost:3001`
+The backend will run on `http://localhost:3001`.
 
 ### Start the Frontend Development Server
 
@@ -111,22 +112,17 @@ The frontend will run on `http://localhost:3000` and automatically open in your 
 
 ## Using the Application
 
-
 1. **Login**: Navigate to `http://localhost:3000`
    - Username: `EVison`
    - Password: `PattyMac`
-
 2. **Dashboard**: After successful login, you'll be redirected to the dashboard
    - View various cards for different features
    - Access the Ideas/TODO page
-
 3. **Ideas/TODO Page**: Click the "View TODO" button to see the project roadmap and development tasks
-
 
 ### Backend API Endpoints
 
 - `POST /api/login` - Authenticate user
-
 
 ### Frontend Routes
 
@@ -136,10 +132,9 @@ The frontend will run on `http://localhost:3000` and automatically open in your 
 
 ## Original Static Site
 
-
 The original `index.html` file is preserved at the root level and can be viewed by opening it directly in a browser.
 
-### Current Limitations (Development Only)
+## Current Limitations (Development Only)
 
 - **Hardcoded credentials** - Username and password are hardcoded in the backend
 - **No HTTPS** - Cookies are sent over HTTP (secure: false)
@@ -150,13 +145,13 @@ The original `index.html` file is preserved at the root level and can be viewed 
 - ✅ Proper error handling and logging
 - ✅ Security headers (helmet.js)
 
+## Bookmaker Logos
 
 This project uses Logo.dev API to fetch bookmaker logos. For complete documentation:
 
 - **Quick Reference:** [LOGO_API_QUICKREF.md](LOGO_API_QUICKREF.md) - Fast lookup for domains and API keys
 - **Full Documentation:** [docs/LOGO_APIS.md](docs/LOGO_APIS.md) - Complete API guide with all 52 bookmakers
 - **Scripts:** [scripts/README.md](scripts/README.md) - Logo download tools
-
 
 ### Quick Setup
 
@@ -171,6 +166,8 @@ See `TODO.md` for a complete list of planned features and improvements.
 
 ## License
 
+ISC
+
 ---
 
 ## Contributing
@@ -182,8 +179,6 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 **Backend repo:** [EVisionBetCode](https://github.com/patrickmcsweeney81/EVisionBetCode)
 
 **Maintainer:** Patrick McSweeney
-
-ISC
 
 ## Author
 
