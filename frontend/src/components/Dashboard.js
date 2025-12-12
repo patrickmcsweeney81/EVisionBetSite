@@ -45,16 +45,18 @@ function Dashboard({ username, onLogout }) {
           </div>
 
           <div className="dashboard-card">
-            <h3>📊 Analytics</h3>
-            <p>View your betting statistics and performance metrics</p>
-            <button className="card-button" disabled>Coming Soon</button>
+            <h3>🎯 Patty Picks</h3>
+            <p>2 EV bets added daily with bet tracker for 2 weeks of results</p>
+            <Link to="/patty-picks" className="card-button">
+              View Patty Picks
+            </Link>
           </div>
 
           <div className="dashboard-card">
-            <h3>🎯 Live Odds</h3>
-            <p>Compare live odds across multiple bookmakers</p>
-            <Link to="/odds" className="card-button">
-              View Odds
+            <h3>🧰 EV Toolbox</h3>
+            <p>Access Dutching, Odds Hunting, and other value betting tools</p>
+            <Link to="/ev-toolbox" className="card-button">
+              View EV Toolbox
             </Link>
           </div>
 
@@ -63,6 +65,14 @@ function Dashboard({ username, onLogout }) {
             <p>Professional odds comparison table from all_odds.csv</p>
             <Link to="/odds-table" className="card-button">
               View Table
+            </Link>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>📋 Raw Odds Table</h3>
+            <p>View pure raw odds data with filtering (no EV calculations)</p>
+            <Link to="/raw-odds" className="card-button">
+              View Raw Odds
             </Link>
           </div>
 

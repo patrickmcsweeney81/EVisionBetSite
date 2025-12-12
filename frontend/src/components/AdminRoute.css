@@ -1,0 +1,98 @@
+/**
+ * AdminRoute.css
+ * Styling for admin access denial page
+ */
+
+.admin-route-denied {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0b0b0b 0%, #1a1a1a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.denied-card {
+  background: #111;
+  border: 2px solid #ff6464;
+  border-radius: 12px;
+  padding: 50px 40px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(255, 100, 100, 0.1);
+  animation: slideInDenied 0.4s ease-out;
+}
+
+@keyframes slideInDenied {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.denied-card h2 {
+  color: #ff6464;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 28px;
+}
+
+.denied-card p {
+  color: #aaa;
+  margin: 15px 0;
+  line-height: 1.6;
+}
+
+.access-info {
+  background: rgba(255, 100, 100, 0.08);
+  border: 1px solid #ff6464;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 25px 0;
+}
+
+.access-info p {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.role-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6464 0%, #ff4444 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #666;
+  margin-top: 20px;
+}
+
+.hint-text code {
+  background: #1a1a1a;
+  color: #4be1c1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  margin: 0 3px;
+}
+
+@media (max-width: 480px) {
+  .denied-card {
+    padding: 30px 20px;
+  }
+
+  .denied-card h2 {
+    font-size: 24px;
+  }
+}

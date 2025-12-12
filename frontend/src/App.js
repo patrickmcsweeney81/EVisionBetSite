@@ -7,6 +7,13 @@ import OddsComparison from './components/OddsComparison';
 import DiagnosticPage from './components/DiagnosticPage';
 import EVHits from './components/EVHits';
 import OddsTable from './components/OddsTable';
+import PattyPicks from './components/PattyPicks';
+import EVToolbox from './components/EVToolbox';
+import DutchingCalculator from './components/DutchingCalculator';
+import OddsHunting from './components/OddsHunting';
+import RawOddsTable from './components/RawOddsTable';
+import AdminPanel from './components/AdminPanel';
+import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -96,6 +103,54 @@ function App() {
               <OddsTable username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/patty-picks" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <PattyPicks username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/ev-toolbox" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <EVToolbox username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/ev-toolbox/dutching" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <DutchingCalculator username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/ev-toolbox/odds-hunting" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <OddsHunting username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/raw-odds" 
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <RawOddsTable username={username} onLogout={logout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin" 
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          }
         />
       </Routes>
     </Router>

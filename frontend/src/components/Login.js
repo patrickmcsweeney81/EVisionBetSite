@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API_URL from '../config';
+import { useAuth } from '../contexts/AuthContext';
 import UpcomingGamesPublic from './UpcomingGamesPublic';
 import ContactUs from './ContactUs';
 import './Login.css';
@@ -9,50 +9,97 @@ function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showHint, setShowHint] = useState(true);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const fallbackLogin = () => {
-      const user = username || 'demo';
-      onLogin(user, 'demo-token');
+    try {
+      // Use local auth with client-side user database
+      login(username, password, `token-${username}-${Date.now()}`);
       navigate('/dashboard');
-    };
+    } catch (err) {
+      setError(err.message || 'Login failed - check username and password');
+    }
+  };
+
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    setAdminError('');
 
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString()
-      });
-
-      // If backend endpoint is missing, fall back to client-side demo login
-      if (response.status === 404) {
-        fallbackLogin();
-        return;
-      }
-
-      const data = await response.json().catch(() => ({}));
-      if (response.ok && data.access_token) {
-        onLogin(username, data.access_token);
-        navigate('/dashboard');
-      } else {
-        setError(data.detail || data.error || 'Login failed');
-      }
+      // Login as admin with the provided password
+      login('admin', adminPassword, `token-admin-${Date.now()}`);
+      setShowAdminModal(false);
+      navigate('/admin');
     } catch (err) {
-      fallbackLogin();
+      setAdminError(err.message || 'Invalid admin password');
     }
   };
 
   return (
     <div className="login-page">
+      {/* Admin Button in Top Corner */}
+      <button 
+        className="admin-corner-btn"
+        onClick={() => {
+          setShowAdminModal(true);
+          setAdminError('');
+          setAdminPassword('');
+        }}
+        title="Admin Access"
+      >
+        ⚙️
+      </button>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="admin-modal-close"
+              onClick={() => setShowAdminModal(false)}
+            >
+              ✕
+            </button>
+            
+            <h1 className="admin-greeting">Welcome Back Patty Mac!</h1>
+            <p className="admin-tagline">login and let's go break things 🔥</p>
+            
+            <h2>🔐 Admin Access</h2>
+            <p className="admin-modal-subtitle">Enter admin password to access the dashboard</p>
+
+            {adminError && <div className="admin-error-message">{adminError}</div>}
+
+            <form onSubmit={handleAdminLogin}>
+              <div className="admin-form-group">
+                <label htmlFor="admin-password">Admin Password</label>
+                <input
+                  type="password"
+                  id="admin-password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                  autoFocus
+                />
+              </div>
+
+              <button type="submit" className="admin-login-btn">
+                Enter Admin Portal
+              </button>
+            </form>
+
+            <p className="admin-modal-hint">Password: <code>admin123</code></p>
+          </div>
+        </div>
+      )}
+
       <div className="login-container">
         <div className="login-main-content">
           <div className="login-box">
@@ -61,8 +108,9 @@ function Login({ onLogin }) {
               alt="BET EVision" 
               className="login-logo"
             />
-            <h2>Welcome Back</h2>
-            <p className="login-subtitle">Sign in to access your dashboard</p>
+            
+            <h2>Sign In</h2>
+            <p className="login-subtitle">Access your account</p>
             
             {error && <div className="error-message">{error}</div>}
             
@@ -95,8 +143,33 @@ function Login({ onLogin }) {
                 Sign In
               </button>
             </form>
+
+            <p className="lets-go-cry">Let's go make the bookies cry 💸</p>
             
-            <p className="hint">Hint: Username: EVision, Password: PattyMac</p>
+            {showHint && (
+              <div className="hint-box">
+                <div className="hint-header">
+                  <span>💡 Test Accounts Available:</span>
+                  <button 
+                    type="button" 
+                    className="hint-close"
+                    onClick={() => setShowHint(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="hint-content">
+                  <div className="user-hint">
+                    <strong>Admin:</strong> <code>admin</code> / <code>admin123</code>
+                    <span className="badge admin">✓ Admin - Full Access</span>
+                  </div>
+                  <div className="user-hint">
+                    <strong>User:</strong> <code>user1234</code> / <code>user1234</code>
+                    <span className="badge user">👤 User - Limited Access</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* EV Explainer Video Section */}

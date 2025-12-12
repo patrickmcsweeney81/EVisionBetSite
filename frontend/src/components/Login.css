@@ -1,6 +1,215 @@
 .login-page {
   min-height: 100vh;
   background: #0b0b0b;
+  position: relative;
+}
+
+/* Admin Corner Button */
+
+.admin-corner-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4be1c1 0%, #2db8a0 100%);
+  border: 2px solid #4be1c1;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(75, 225, 193, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-corner-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(75, 225, 193, 0.5);
+}
+
+.admin-corner-btn:active {
+  transform: scale(0.95);
+}
+
+/* Admin Modal Overlay */
+
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.admin-modal-card {
+  background: #111;
+  border: 2px solid #4be1c1;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(75, 225, 193, 0.2);
+  animation: slideInModal 0.3s ease-out;
+}
+
+@keyframes slideInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #4be1c1;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 5px;
+}
+
+.admin-modal-close:hover {
+  transform: scale(1.2);
+}
+
+.admin-modal-card h2 {
+  color: #4be1c1;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 26px;
+}
+
+.admin-greeting {
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.admin-tagline {
+  color: #aaa;
+  margin-bottom: 25px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-modal-card h2 {
+  color: #4be1c1;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.admin-modal-subtitle {
+  color: #aaa;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.admin-error-message {
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid #ff6464;
+  color: #ff9999;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.admin-form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.admin-form-group label {
+  display: block;
+  color: #ccc;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-form-group input {
+  width: 100%;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.admin-form-group input:focus {
+  outline: none;
+  border-color: #4be1c1;
+}
+
+.admin-login-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #4be1c1 0%, #2db8a0 100%);
+  color: #0b0b0b;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(75, 225, 193, 0.3);
+}
+
+.admin-modal-hint {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  margin-top: 15px;
+}
+
+.admin-modal-hint code {
+  background: #1a1a1a;
+  color: #4be1c1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
 }
 
 .login-container {
@@ -35,6 +244,25 @@
   color: #ffffff;
   margin-bottom: 10px;
   font-size: 28px;
+}
+
+.login-greeting {
+  display: none;
+}
+
+.login-tagline {
+  display: none;
+}
+
+.lets-go-cry {
+  color: #4be1c1;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 25px;
+  padding: 15px;
+  background: rgba(75, 225, 193, 0.08);
+  border: 1px solid rgba(75, 225, 193, 0.3);
+  border-radius: 6px;
 }
 
 .login-subtitle {
@@ -103,6 +331,105 @@
   margin-top: 20px;
   color: #666;
   font-size: 13px;
+}
+
+/* Hint Box for Test Accounts */
+
+.hint-box {
+  background: rgba(75, 225, 193, 0.08);
+  border: 2px solid #4be1c1;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #4be1c1;
+  font-weight: 600;
+}
+
+.hint-close {
+  background: none;
+  border: none;
+  color: #4be1c1;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.hint-close:hover {
+  transform: scale(1.2);
+}
+
+.hint-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-hint {
+  text-align: left;
+  padding: 10px;
+  background: rgba(11, 11, 11, 0.5);
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-hint strong {
+  color: #aaa;
+}
+
+.user-hint code {
+  background: #0b0b0b;
+  color: #4be1c1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  margin: 0 4px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.badge.admin {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+}
+
+.badge.user {
+  background: rgba(75, 225, 193, 0.2);
+  color: #4be1c1;
 }
 
 /* EV Explainer Section */

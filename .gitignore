@@ -58,3 +58,14 @@ bot/debug_*.json
 bot/test_*.txt
 bot/dedup_test.txt
 bot/final_test.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.tmp
+*.orig
+*.sublime-workspace
+*.sublime-project
