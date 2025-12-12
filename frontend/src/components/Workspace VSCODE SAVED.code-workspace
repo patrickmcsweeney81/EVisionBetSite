@@ -7,5 +7,14 @@
 			"path": "../../../../EVisionBetCode"
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"eamodio.gitlens"
+		]
+	}
+		"recommendations": [
+			"eamodio.gitlens"
+		]
+	}
 }
