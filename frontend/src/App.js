@@ -6,12 +6,12 @@ import TodoPage from './components/TodoPage';
 import OddsComparison from './components/OddsComparison';
 import DiagnosticPage from './components/DiagnosticPage';
 import EVHits from './components/EVHits';
-import OddsTable from './components/OddsTable';
 import PattyPicks from './components/PattyPicks';
 import EVToolbox from './components/EVToolbox';
 import DutchingCalculator from './components/DutchingCalculator';
 import OddsHunting from './components/OddsHunting';
 import RawOddsTable from './components/RawOddsTable';
+import RawOdds from './components/RawOdds';
 import AdminPanel from './components/AdminPanel';
 import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -100,7 +100,7 @@ function App() {
           path="/odds-table" 
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <OddsTable username={username} onLogout={logout} />
+                <RawOdds username={username} onLogout={logout} />
             </ProtectedRoute>
           } 
         />

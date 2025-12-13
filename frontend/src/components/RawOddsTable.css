@@ -389,6 +389,52 @@
   margin: 0;
 }
 
+/* Split table layout: fixed core columns + scrollable bookmaker columns */
+.split-table {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fixed-columns {
+  flex: 0 0 auto;
+  background: #1a1a1a;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.fixed-table {
+  min-width: 680px; /* approx width for 7 core columns */
+}
+
+.scrollable-columns {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  background: #1a1a1a;
+}
+
+.scrollable-columns table {
+  min-width: 1000px;
+}
+
+/* Top scroll bar aligned with scrollable bookmaker section */
+.top-scroll-bar {
+  height: 14px;
+  overflow-x: auto;
+  margin-bottom: 8px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 6px;
+}
+
+.scroll-bar-dummy {
+  height: 1px;
+  width: 1600px; /* acts as scrollbar width; actual content width handled by JS sync */
+}
+
 /* Table Wrapper */
 .table-wrapper {
   overflow-x: auto;
