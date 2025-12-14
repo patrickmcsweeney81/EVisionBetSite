@@ -3,6 +3,7 @@
 ## Initial Setup (First Time Only)
 
 ### 1. Install Recommended Extensions
+
 Run in terminal or install manually from Extensions panel:
 
 ```powershell
@@ -18,6 +19,7 @@ code --install-extension GitHub.copilot
 ```
 
 ### 2. Python Environment Setup
+
 ```powershell
 cd C:\EVisionBetCode
 python -m venv .venv
@@ -26,12 +28,14 @@ pip install -e ".[dev]"
 ```
 
 ### 3. Frontend Dependencies
+
 ```powershell
 cd C:\EVisionBetSite\frontend
 npm install
 ```
 
 ### 4. Create VS Code Workspace Settings
+
 Create `.vscode/settings.json` in workspace root:
 
 ```json
@@ -73,6 +77,7 @@ Create `.vscode/settings.json` in workspace root:
 ### Start Services (3 Terminals)
 
 **Terminal 1 - Backend API:**
+
 ```powershell
 cd C:\EVisionBetCode
 .\.venv\Scripts\Activate.ps1
@@ -81,6 +86,7 @@ uvicorn backend_api:app --reload
 ```
 
 **Terminal 2 - Frontend Dev Server:**
+
 ```powershell
 cd C:\EVisionBetSite\frontend
 npm start
@@ -88,6 +94,7 @@ npm start
 ```
 
 **Terminal 3 - Python Pipeline (as needed):**
+
 ```powershell
 cd C:\EVisionBetCode
 .\.venv\Scripts\Activate.ps1
@@ -96,6 +103,7 @@ python src/pipeline_v2/extract_odds.py
 ```
 
 ### Access Points
+
 - **Frontend:** http://localhost:3000
 - **API Docs:** http://localhost:8000/docs
 - **API Health:** http://localhost:8000/health
@@ -146,6 +154,7 @@ EVisionBetSite/
 ### Environment Variables (.env)
 
 **Backend** - Create `.env` in `C:\EVisionBetCode`:
+
 ```
 ODDS_API_KEY=your_key_here
 DATABASE_URL=postgresql://user:pass@host/db  # Optional
@@ -155,6 +164,7 @@ ADMIN_PASSWORD_HASH=your_hash_here
 ```
 
 **Frontend** - Create `.env` in `C:\EVisionBetSite\frontend`:
+
 ```
 REACT_APP_API_URL=http://localhost:8000  # Dev
 # Production: https://api.evisionbet.com
@@ -177,7 +187,9 @@ Press `Ctrl+Shift+B` to see available tasks:
 ## Debugging Tips
 
 ### Python Debugging
+
 Add to `.vscode/launch.json`:
+
 ```json
 {
   "version": "0.2.0",
@@ -204,12 +216,15 @@ Add to `.vscode/launch.json`:
 ```
 
 ### React DevTools
+
 - Install: Chrome extension "React Developer Tools"
 - Use `Components` tab to inspect component hierarchy
 - Use `Profiler` tab to measure render times
 
 ### API Testing
+
 Use Thunder Client (installed extension):
+
 - Create requests to `http://localhost:8000/api/*` endpoints
 - Save requests as `.thunder-client` collection
 
@@ -218,6 +233,7 @@ Use Thunder Client (installed extension):
 ## Performance Optimization
 
 ### Monitor Bundle Size
+
 ```powershell
 cd C:\EVisionBetSite\frontend
 npm run build
@@ -226,11 +242,13 @@ source-map-explorer 'build/static/js/*.js'
 ```
 
 ### Check Frontend Performance
+
 - Open DevTools (F12)
 - Go to Lighthouse tab
 - Run audit on http://localhost:3000
 
 ### Python Code Quality
+
 ```powershell
 cd C:\EVisionBetCode
 make pre-commit  # Runs all checks
@@ -241,21 +259,22 @@ make test        # Run tests with coverage
 
 ## Common Tasks
 
-| Task | Command |
-|------|---------|
+| Task                | Command                                                   |
+| ------------------- | --------------------------------------------------------- |
 | Install Python deps | `.\.venv\Scripts\Activate.ps1 && pip install -e ".[dev]"` |
-| Install Node deps | `cd frontend && npm install` |
-| Format Python code | `cd C:\EVisionBetCode && make format` |
-| Format JS/CSS | `cd frontend && npx prettier --write src/` |
-| Run Python tests | `cd C:\EVisionBetCode && make test` |
-| Run all checks | `cd C:\EVisionBetCode && make pre-commit` |
-| Build frontend | `cd frontend && npm run build` |
+| Install Node deps   | `cd frontend && npm install`                              |
+| Format Python code  | `cd C:\EVisionBetCode && make format`                     |
+| Format JS/CSS       | `cd frontend && npx prettier --write src/`                |
+| Run Python tests    | `cd C:\EVisionBetCode && make test`                       |
+| Run all checks      | `cd C:\EVisionBetCode && make pre-commit`                 |
+| Build frontend      | `cd frontend && npm run build`                            |
 
 ---
 
 ## Troubleshooting
 
 **Frontend won't start:**
+
 ```powershell
 cd C:\EVisionBetSite\frontend
 rm -r node_modules package-lock.json
@@ -264,6 +283,7 @@ npm start
 ```
 
 **Backend API errors:**
+
 ```powershell
 cd C:\EVisionBetCode
 .\.venv\Scripts\Activate.ps1
@@ -271,12 +291,14 @@ python -c "from backend_api import app; print('OK')"
 ```
 
 **Port conflicts:**
+
 ```powershell
 netstat -ano | findstr ":3000"  # Find process on port 3000
 taskkill /PID <PID> /F          # Kill process
 ```
 
 **CORS issues:**
+
 - Check `backend_api.py` line 356-362 for allowed origins
 - Frontend on port 3000 should be allowed
 - Add new ports if needed
@@ -295,4 +317,3 @@ taskkill /PID <PID> /F          # Kill process
 - [ ] Monitor Lighthouse scores in CI/CD
 - [ ] Implement smart table column visibility toggle
 - [ ] Add bookmaker logo caching strategy
-
