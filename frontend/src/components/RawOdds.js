@@ -1,39 +1,52 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import API_URL from '../config';
-import { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo } from '../utils/bookmakerLogos';
-import './OddsTable.css';
+import React, { useState, useEffect, useCallback } from "react";
+import API_URL from "../config";
+import {
+  getBookmakerLogo,
+  getBookmakerDisplayName,
+  createFallbackLogo,
+} from "../utils/bookmakerLogos";
+import "./OddsTable.css";
 
 function RawOdds({ username, onLogout }) {
   const [odds, setOdds] = useState([]);
+  const [bookmakerColumns, setBookmakerColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     limit: 100,
-    sport: '',
-    market: '',
-    minEV: '',
-    book: ''
+    sport: "",
+    market: "",
+    minEV: "",
+    bookmaker: "",
   });
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: 'ev', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({
+    key: "ev",
+    direction: "desc",
+  });
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
   const [lastErrorText, setLastErrorText] = useState(null);
-  const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
-  const useRaw = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('raw') === '1';
+  const debugEnabled =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("debug") === "1";
+  const useRaw =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("raw") === "1";
 
   const buildOddsUrl = useCallback(() => {
     const params = new URLSearchParams();
-    params.append('limit', filters.limit);
-    if (filters.sport) params.append('sport', filters.sport);
-    if (filters.market) params.append('market', filters.market);
-    if (!useRaw && filters.minEV) params.append('min_ev', filters.minEV);
-    if (!useRaw && filters.book) params.append('bookmaker', filters.book);
+    params.append("limit", filters.limit);
+    if (filters.sport) params.append("sport", filters.sport);
+    if (filters.market) params.append("market", filters.market);
+    if (!useRaw && filters.minEV) params.append("min_ev", filters.minEV);
+    if (!useRaw && filters.bookmaker)
+      params.append("bookmaker", filters.bookmaker);
 
     if (useRaw) {
       return `${API_URL}/api/odds/raw?${params.toString()}`;
     }
     return `${API_URL}/api/ev/hits?${params.toString()}`;
-  }, [filters]);
+  }, [filters, useRaw]);
 
   const fetchOdds = useCallback(async () => {
     setLoading(true);
@@ -50,11 +63,13 @@ function RawOdds({ username, onLogout }) {
       } else {
         const data = await response.json();
 
-        const mappedHits = (data.hits || data.rows || []).map(row => {
-          const start = row.commence_time || row.game_start_perth || row.commence;
-          const eventName = (row.away_team && row.home_team)
-            ? `${row.away_team} v ${row.home_team}`
-            : row.event || row.event_name || row.selection;
+        const mappedHits = (data.hits || data.rows || []).map((row) => {
+          const start =
+            row.commence_time || row.game_start_perth || row.commence;
+          const eventName =
+            row.away_team && row.home_team
+              ? `${row.away_team} v ${row.home_team}`
+              : row.event || row.event_name || row.selection;
 
           if (useRaw) {
             const bookCols = {
@@ -112,22 +127,22 @@ function RawOdds({ username, onLogout }) {
           if (book && price) {
             const key = String(book).toLowerCase();
             const mapKey = {
-              pinnacle: 'pinnacle',
-              betfair: 'betfair_eu',
-              betfaireu: 'betfair_eu',
-              betfair_eu: 'betfair_eu',
-              draftkings: 'draftkings',
-              fanduel: 'fanduel',
-              sportsbet: 'sportsbet',
-              pointsbet: 'pointsbet',
-              tab: 'tab',
-              tabtouch: 'tab',
-              neds: 'neds',
-              ladbrokes: 'ladbrokes',
-              ladbrokes_au: 'ladbrokes',
-              betrivers: 'betrivers',
-              mybookie: 'mybookie',
-              betonline: 'betonline',
+              pinnacle: "pinnacle",
+              betfair: "betfair_eu",
+              betfaireu: "betfair_eu",
+              betfair_eu: "betfair_eu",
+              draftkings: "draftkings",
+              fanduel: "fanduel",
+              sportsbet: "sportsbet",
+              pointsbet: "pointsbet",
+              tab: "tab",
+              tabtouch: "tab",
+              neds: "neds",
+              ladbrokes: "ladbrokes",
+              ladbrokes_au: "ladbrokes",
+              betrivers: "betrivers",
+              mybookie: "mybookie",
+              betonline: "betonline",
             }[key];
             if (mapKey && mapKey in bookCols) {
               bookCols[mapKey] = price;
@@ -148,6 +163,17 @@ function RawOdds({ username, onLogout }) {
           };
         });
         setOdds(mappedHits);
+        
+        // Extract bookmaker columns from the first row
+        if (useRaw && mappedHits.length > 0) {
+          const firstRow = mappedHits[0];
+          const fixedColumns = ['sport', 'commence_time', 'event_name', 'market', 'point', 'selection', 'game_start_perth', 'event', 'line', 'side', 'price', 'book', 'ev', 'fair', 'prob'];
+          const bookCols = Object.keys(firstRow).filter(
+            key => !fixedColumns.includes(key) && firstRow[key] !== null
+          );
+          setBookmakerColumns(bookCols);
+        }
+        
         setLastUpdated(new Date().toISOString());
       }
     } catch (err) {
@@ -165,9 +191,9 @@ function RawOdds({ username, onLogout }) {
   }, [fetchOdds]);
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -178,13 +204,13 @@ function RawOdds({ username, onLogout }) {
       sortableOdds.sort((a, b) => {
         let aVal = a[sortConfig.key] ?? 0;
         let bVal = b[sortConfig.key] ?? 0;
-        if (typeof aVal === 'number' && typeof bVal === 'number') {
-          return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
         }
         aVal = String(aVal).toLowerCase();
         bVal = String(bVal).toLowerCase();
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
     }
@@ -192,14 +218,14 @@ function RawOdds({ username, onLogout }) {
   }, [odds, sortConfig]);
 
   const formatTime = (timeString) => {
-    if (!timeString) return 'TBA';
+    if (!timeString) return "TBA";
     try {
       const date = new Date(timeString);
-      return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return timeString;
@@ -208,57 +234,57 @@ function RawOdds({ username, onLogout }) {
 
   const formatSport = (sport) => {
     const sportMap = {
-      'basketball_nba': 'NBA',
-      'basketball': 'BBall',
-      'americanfootball_nfl': 'NFL',
-      'icehockey_nhl': 'NHL',
-      'soccer': 'Soccer'
+      basketball_nba: "NBA",
+      basketball: "BBall",
+      americanfootball_nfl: "NFL",
+      icehockey_nhl: "NHL",
+      soccer: "Soccer",
     };
     return sportMap[sport] || sport;
   };
 
   const shortenEvent = (event) => {
-    if (!event) return '';
+    if (!event) return "";
     return event
-      .replace(/\s+(vs|@)\s+/gi, ' v ')
-      .replace(/\s+h2h$/i, '')
+      .replace(/\s+(vs|@)\s+/gi, " v ")
+      .replace(/\s+h2h$/i, "")
       .substring(0, 30);
   };
 
   const getEVClass = (ev) => {
-    if (ev === null || ev === undefined) return 'ev-none';
-    if (ev > 3) return 'ev-green';
-    if (ev >= 1) return 'ev-orange';
-    if (ev <= 0) return 'ev-red';
-    return 'ev-base';
+    if (ev === null || ev === undefined) return "ev-none";
+    if (ev > 3) return "ev-green";
+    if (ev >= 1) return "ev-orange";
+    if (ev <= 0) return "ev-red";
+    return "ev-base";
   };
 
   const getProbClass = (prob) => {
-    if (prob === null || prob === undefined) return 'prob-none';
-    if (prob > 40) return 'prob-green';
-    if (prob >= 20) return 'prob-orange';
-    if (prob < 19) return 'prob-red';
-    return 'prob-base';
+    if (prob === null || prob === undefined) return "prob-none";
+    if (prob > 40) return "prob-green";
+    if (prob >= 20) return "prob-orange";
+    if (prob < 19) return "prob-red";
+    return "prob-base";
   };
 
   const formatPercent = (value) => {
-    if (value === null || value === undefined) return '-';
+    if (value === null || value === undefined) return "-";
     return `${Number(value).toFixed(2)}%`;
   };
 
   const formatOdds = (value) => {
-    if (value === null || value === undefined) return '-';
+    if (value === null || value === undefined) return "-";
     return `$${Number(value).toFixed(2)}`;
   };
 
   const formatMarket = (market) => {
-    if (!market) return '-';
+    if (!market) return "-";
     try {
-      const cleaned = String(market).replace(/_/g, ' ').trim();
+      const cleaned = String(market).replace(/_/g, " ").trim();
       return cleaned
-        .split(' ')
-        .map(w => (w ? w[0].toUpperCase() + w.slice(1) : w))
-        .join(' ');
+        .split(" ")
+        .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+        .join(" ");
     } catch {
       return String(market);
     }
@@ -266,18 +292,35 @@ function RawOdds({ username, onLogout }) {
 
   const getLogoBadges = (row) => {
     const logoKeys = [
-      'book', 'pinnacle', 'betfair', 'sportsbet', 'bet365', 'pointsbet', 'ladbrokes', 'unibet', 'dabble', 'tab', 'tabtouch', 'neds', 'betr', 'betright'
+      "book",
+      "pinnacle",
+      "betfair",
+      "sportsbet",
+      "bet365",
+      "pointsbet",
+      "ladbrokes",
+      "unibet",
+      "dabble",
+      "tab",
+      "tabtouch",
+      "neds",
+      "betr",
+      "betright",
     ];
     const present = [];
-    logoKeys.forEach(k => {
-      if (k === 'book') {
+    logoKeys.forEach((k) => {
+      if (k === "book") {
         if (row.book) present.push(row.book);
       } else if (row[k] !== null && row[k] !== undefined) {
         present.push(k);
       }
     });
     return present.slice(0, 6).map((bk, idx) => (
-      <span key={idx} className={`logo-badge logo-${bk.toLowerCase()}`} style={{ marginRight: 6 }}>
+      <span
+        key={idx}
+        className={`logo-badge logo-${bk.toLowerCase()}`}
+        style={{ marginRight: 6 }}
+      >
         <img
           src={getBookmakerLogo(bk, { size: 28 })}
           alt={getBookmakerDisplayName(bk)}
@@ -286,9 +329,11 @@ function RawOdds({ username, onLogout }) {
           onError={(e) => {
             if (!e.currentTarget.dataset.fallback) {
               e.currentTarget.src = createFallbackLogo(bk, 28);
-              e.currentTarget.dataset.fallback = 'true';
+              e.currentTarget.dataset.fallback = "true";
             } else {
-              console.warn(`Bookmaker logo and fallback failed to load for: ${bk}.`);
+              console.warn(
+                `Bookmaker logo and fallback failed to load for: ${bk}.`
+              );
             }
           }}
         />
@@ -303,39 +348,54 @@ function RawOdds({ username, onLogout }) {
         Sport: formatSport(row.sport),
         Event: row.event,
         Market: row.market,
-        Line: row.line || '',
+        Line: row.line || "",
         Side: row.side,
         Bookmaker: row.book,
         Price: row.price,
-        'EV%': row.ev || 0,
+        "EV%": row.ev || 0,
         Stake: row.stake || 0,
         Fair: row.fair || 0,
         Pinnacle: row.pinnacle || 0,
-        'Prob%': row.prob || 0
-      }
+        "Prob%": row.prob || 0,
+      },
     ];
 
-    const headers = Object.keys(csvData[0]).join(',');
-    const values = Object.values(csvData[0]).map(val => 
-      typeof val === 'string' && val.includes(',') ? `"${val}"` : val
-    ).join(',');
+    const headers = Object.keys(csvData[0]).join(",");
+    const values = Object.values(csvData[0])
+      .map((val) =>
+        typeof val === "string" && val.includes(",") ? `"${val}"` : val
+      )
+      .join(",");
     const csv = `${headers}\n${values}`;
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `bet_tracker_${row.event.replace(/\s+/g, '_')}_${Date.now()}.csv`;
+    link.download = `bet_tracker_${row.event.replace(
+      /\s+/g,
+      "_"
+    )}_${Date.now()}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-    alert('✅ Added to tracker! CSV file downloaded.');
+    alert("✅ Added to tracker! CSV file downloaded.");
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      limit: 100,
+      sport: "",
+      market: "",
+      minEV: "",
+      bookmaker: "",
+    });
   };
 
   return (
@@ -344,9 +404,21 @@ function RawOdds({ username, onLogout }) {
         {debugEnabled && (
           <div className="debug-bar">
             <span>API: {API_URL}</span>
-            <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
-            <span> | <a href={buildOddsUrl()} target="_blank" rel="noreferrer">Open API</a></span>
-            {lastErrorText && (<span> | Error: {lastErrorText.slice(0,120)}...</span>)}
+            <span>
+              {" "}
+              | Status: {debugInfo.status ?? "n/a"}{" "}
+              {debugInfo.message ? `(${debugInfo.message})` : ""}
+            </span>
+            <span>
+              {" "}
+              |{" "}
+              <a href={buildOddsUrl()} target="_blank" rel="noreferrer">
+                Open API
+              </a>
+            </span>
+            {lastErrorText && (
+              <span> | Error: {lastErrorText.slice(0, 120)}...</span>
+            )}
           </div>
         )}
 
@@ -357,7 +429,10 @@ function RawOdds({ username, onLogout }) {
         )}
 
         <div className="header-left">
-          <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+          <button
+            onClick={() => (window.location.href = "/dashboard")}
+            className="back-btn"
+          >
             ← Back to Dashboard
           </button>
           <div>
@@ -373,8 +448,177 @@ function RawOdds({ username, onLogout }) {
           🔄 Refresh
         </button>
       </div>
-      {/* Filters and tables remain unchanged from OddsTable.js */}
-      {/* ... full layout retained ... */}
+
+      {/* Filters */}
+      <div className="filters-section">
+        <div className="filter-group">
+          <label>Limit</label>
+          <select
+            name="limit"
+            value={filters.limit}
+            onChange={handleFilterChange}
+            className="filter-input"
+          >
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="500">500</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Sport</label>
+          <input
+            type="text"
+            name="sport"
+            value={filters.sport}
+            onChange={handleFilterChange}
+            placeholder="e.g., basketball_nba"
+            className="filter-input"
+          />
+        </div>
+
+        <div className="filter-group">
+          <label>Market</label>
+          <input
+            type="text"
+            name="market"
+            value={filters.market}
+            onChange={handleFilterChange}
+            placeholder="e.g., player_points"
+            className="filter-input"
+          />
+        </div>
+
+        {!useRaw && (
+          <div className="filter-group">
+            <label>Min EV %</label>
+            <input
+              type="number"
+              name="minEV"
+              value={filters.minEV}
+              onChange={handleFilterChange}
+              placeholder="e.g., 3"
+              step="0.5"
+              min="0"
+              className="filter-input"
+            />
+          </div>
+        )}
+
+        <div className="filter-group">
+          <label>Bookmaker</label>
+          <select
+            name="bookmaker"
+            value={filters.bookmaker}
+            onChange={handleFilterChange}
+            className="filter-input"
+          >
+            <option value="">All Bookmakers</option>
+            <option value="pinnacle">Pinnacle</option>
+            <option value="betfair_ex_eu">Betfair Exchange</option>
+            <option value="draftkings">DraftKings</option>
+            <option value="fanduel">FanDuel</option>
+            <option value="sportsbet">Sportsbet</option>
+            <option value="pointsbet_au">PointsBet AU</option>
+            <option value="tab">TAB</option>
+            <option value="neds">Neds</option>
+            <option value="williamhill_au">William Hill AU</option>
+            <option value="betmgm">BetMGM</option>
+            <option value="caesars">Caesars</option>
+            <option value="betonlineag">BetOnline.ag</option>
+          </select>
+        </div>
+
+        <button onClick={clearFilters} className="clear-filters-btn">
+          ✖ Clear All
+        </button>
+      </div>
+
+      {/* Error State */}
+      {error && (
+        <div className="error-message">
+          <p>❌ {error}</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="loading-message">
+          <p>Loading Raw Odds Data...</p>
+        </div>
+      )}
+
+      {/* Raw Odds Table */}
+      {!loading && !error && odds.length > 0 && (
+        <div className="split-table-container">
+          {/* Fixed Left Section */}
+          <div className="fixed-left-section">
+            <table className="fixed-table">
+              <thead>
+                <tr>
+                  <th>Sport</th>
+                  <th>Start</th>
+                  <th>Event</th>
+                  <th>Market</th>
+                  <th>Point</th>
+                  <th>Selection</th>
+                </tr>
+              </thead>
+              <tbody>
+                {odds.map((row, idx) => (
+                  <tr key={idx}>
+                    <td className="sport-cell">{formatSport(row.sport)}</td>
+                    <td className="time-cell">
+                      {formatTime(row.commence_time)}
+                    </td>
+                    <td className="event-cell" title={row.event_name}>
+                      {row.event_name}
+                    </td>
+                    <td className="market-cell">{row.market || "-"}</td>
+                    <td className="point-cell">{row.point || "-"}</td>
+                    <td className="selection-cell">{row.selection || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Scrollable Right Section */}
+          <div className="scrollable-right-section">
+            <table className="scrollable-table">
+              <thead>
+                <tr>
+                  {bookmakerColumns.map((book) => (
+                    <th key={book} title={book}>
+                      {book}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {odds.map((row, idx) => (
+                  <tr key={idx}>
+                    {bookmakerColumns.map((book) => (
+                      <td key={book} className="bookmaker-cell">
+                        {row[book] || "-"}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* No Data State */}
+      {!loading && !error && odds.length === 0 && (
+        <div className="no-data-message">
+          <p>No odds data available. Try adjusting filters or refreshing.</p>
+        </div>
+      )}
     </div>
   );
 }
