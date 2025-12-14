@@ -182,12 +182,24 @@
 }
 
 /* Fixed Column Widths - Compacted to fit in 50% */
-.fixed-table .col-start { width: 90px; }
-.fixed-table .col-sport { width: 50px; }
-.fixed-table .col-game { width: 120px; }
-.fixed-table .col-market { width: 70px; }
-.fixed-table .col-line { width: 50px; }
-.fixed-table .col-side { width: 90px; }
+.fixed-table .col-start {
+  width: 90px;
+}
+.fixed-table .col-sport {
+  width: 50px;
+}
+.fixed-table .col-game {
+  width: 120px;
+}
+.fixed-table .col-market {
+  width: 70px;
+}
+.fixed-table .col-line {
+  width: 50px;
+}
+.fixed-table .col-side {
+  width: 90px;
+}
 
 /* Scrollable Right Section */
 .scrollable-right-section {
@@ -257,8 +269,6 @@
 .scrollable-right-section::-webkit-scrollbar-thumb:hover {
   background: #3cc5a8;
 }
-
-
 
 /* Remove old table styles - using new fixed/scrollable layout */
 
@@ -465,7 +475,7 @@
   .odds-table {
     font-size: 13px;
   }
-  
+
   .odds-table th,
   .odds-table td {
     padding: 12px 8px;
@@ -478,16 +488,16 @@
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .odds-filters {
     grid-template-columns: 1fr;
   }
-  
+
   .table-wrapper {
     overflow-x: scroll;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .odds-table {
     min-width: 1200px;
   }

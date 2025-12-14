@@ -163,17 +163,33 @@ function RawOdds({ username, onLogout }) {
           };
         });
         setOdds(mappedHits);
-        
+
         // Extract bookmaker columns from the first row
         if (useRaw && mappedHits.length > 0) {
           const firstRow = mappedHits[0];
-          const fixedColumns = ['sport', 'commence_time', 'event_name', 'market', 'point', 'selection', 'game_start_perth', 'event', 'line', 'side', 'price', 'book', 'ev', 'fair', 'prob'];
+          const fixedColumns = [
+            "sport",
+            "commence_time",
+            "event_name",
+            "market",
+            "point",
+            "selection",
+            "game_start_perth",
+            "event",
+            "line",
+            "side",
+            "price",
+            "book",
+            "ev",
+            "fair",
+            "prob",
+          ];
           const bookCols = Object.keys(firstRow).filter(
-            key => !fixedColumns.includes(key) && firstRow[key] !== null
+            (key) => !fixedColumns.includes(key) && firstRow[key] !== null
           );
           setBookmakerColumns(bookCols);
         }
-        
+
         setLastUpdated(new Date().toISOString());
       }
     } catch (err) {

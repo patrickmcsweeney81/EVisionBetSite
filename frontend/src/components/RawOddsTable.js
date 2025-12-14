@@ -22,6 +22,7 @@ function RawOddsTable({ username, onLogout }) {
     home_team: new Set(),
     market: new Set(),
     selection: new Set(),
+    bookmaker: new Set(),
     searchText: "",
   });
 
@@ -33,6 +34,7 @@ function RawOddsTable({ username, onLogout }) {
     home_team: [],
     market: [],
     selection: [],
+    bookmaker: [],
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -153,6 +155,8 @@ function RawOddsTable({ username, onLogout }) {
     const keys = ["sport", "away_team", "home_team", "market", "selection"];
     const seen = Object.fromEntries(keys.map((k) => [k, new Set()]));
     const ordered = Object.fromEntries(keys.map((k) => [k, []]));
+    const bookmakerSeen = new Set();
+    const bookmakerOrdered = [];
 
     data.forEach((row) => {
       keys.forEach((key) => {
@@ -162,9 +166,22 @@ function RawOddsTable({ username, onLogout }) {
           ordered[key].push(val);
         }
       });
+
+      // Extract bookmakers from non-baseColumn fields
+      Object.keys(row).forEach((key) => {
+        if (!baseColumns.includes(key)) {
+          if (row[key] && !bookmakerSeen.has(key)) {
+            bookmakerSeen.add(key);
+            bookmakerOrdered.push(key);
+          }
+        }
+      });
     });
 
-    setFilterOptions(ordered);
+    setFilterOptions({
+      ...ordered,
+      bookmaker: bookmakerOrdered,
+    });
   };
 
   // Handle sorting
@@ -235,6 +252,14 @@ function RawOddsTable({ username, onLogout }) {
         }
       }
     );
+
+    // Apply bookmaker filter
+    if (filters.bookmaker.size > 0) {
+      filtered = filtered.filter((row) => {
+        // Check if any selected bookmaker has a value for this row
+        return Array.from(filters.bookmaker).some((bookie) => row[bookie]);
+      });
+    }
 
     // Apply global search
     if (filters.searchText) {
@@ -355,87 +380,96 @@ function RawOddsTable({ username, onLogout }) {
 
         {/* Interactive Filters Bar */}
         <div className="filters-bar">
-          {["sport", "away_team", "home_team", "market", "selection"].map(
-            (filterKey) => (
-              <div key={filterKey} className="filter-button-group">
-                <button
-                  className={`filter-dropdown-btn ${
-                    filters[filterKey].size > 0 ? "active" : ""
-                  }`}
-                  onClick={() =>
-                    setOpenFilterPanel(
-                      openFilterPanel === filterKey ? null : filterKey
-                    )
-                  }
+          {[
+            "sport",
+            "away_team",
+            "home_team",
+            "market",
+            "selection",
+            "bookmaker",
+          ].map((filterKey) => (
+            <div key={filterKey} className="filter-button-group">
+              <button
+                className={`filter-dropdown-btn ${
+                  filters[filterKey].size > 0 ? "active" : ""
+                }`}
+                onClick={() =>
+                  setOpenFilterPanel(
+                    openFilterPanel === filterKey ? null : filterKey
+                  )
+                }
+              >
+                <span className="filter-label">
+                  {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
+                </span>
+                {filters[filterKey].size > 0 && (
+                  <span className="filter-badge">
+                    {filters[filterKey].size}
+                  </span>
+                )}
+                <span className="dropdown-arrow">
+                  {openFilterPanel === filterKey ? "▲" : "▼"}
+                </span>
+              </button>
+
+              {/* Interactive Filter Panel */}
+              {openFilterPanel === filterKey && (
+                <div
+                  className="filter-panel"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="filter-label">
-                    {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
-                  </span>
-                  {filters[filterKey].size > 0 && (
-                    <span className="filter-badge">
-                      {filters[filterKey].size}
-                    </span>
-                  )}
-                  <span className="dropdown-arrow">
-                    {openFilterPanel === filterKey ? "▲" : "▼"}
-                  </span>
-                </button>
-
-                {/* Interactive Filter Panel */}
-                {openFilterPanel === filterKey && (
-                  <div
-                    className="filter-panel"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="filter-panel-header">
-                      <h4>
-                        {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
-                      </h4>
-                      <div className="filter-panel-actions">
-                        <button
-                          className="select-all-btn"
-                          onClick={() => selectAllFilter(filterKey)}
-                        >
-                          Select All
-                        </button>
-                        <button
-                          className="deselect-all-btn"
-                          onClick={() => deselectAllFilter(filterKey)}
-                        >
-                          Deselect All
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="filter-options-list">
-                      {filterOptions[filterKey].map((value) => (
-                        <label key={value} className="filter-option">
-                          <input
-                            type="checkbox"
-                            checked={filters[filterKey].has(value)}
-                            onChange={() => toggleFilterValue(filterKey, value)}
-                            className="filter-checkbox"
-                          />
-                          <span className="filter-option-label">
-                            {filterKey === "sport" ? formatSport(value) : value}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-
-                    <div className="filter-panel-footer">
+                  <div className="filter-panel-header">
+                    <h4>
+                      {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
+                    </h4>
+                    <div className="filter-panel-actions">
                       <button
-                        className="close-filter-btn"
-                        onClick={closeFilterPanel}
+                        className="select-all-btn"
+                        onClick={() => selectAllFilter(filterKey)}
                       >
-                        ✓ Done
+                        Select All
+                      </button>
+                      <button
+                        className="deselect-all-btn"
+                        onClick={() => deselectAllFilter(filterKey)}
+                      >
+                        Deselect All
                       </button>
                     </div>
                   </div>
-                )}
-              </div>
-            )
-          )}
+
+                  <div className="filter-options-list">
+                    {filterOptions[filterKey].map((value) => (
+                      <label key={value} className="filter-option">
+                        <input
+                          type="checkbox"
+                          checked={filters[filterKey].has(value)}
+                          onChange={() => toggleFilterValue(filterKey, value)}
+                          className="filter-checkbox"
+                        />
+                        <span className="filter-option-label">
+                          {filterKey === "sport"
+                            ? formatSport(value)
+                            : filterKey === "bookmaker"
+                            ? value.replace(/_/g, " ").toUpperCase()
+                            : value}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="filter-panel-footer">
+                    <button
+                      className="close-filter-btn"
+                      onClick={closeFilterPanel}
+                    >
+                      ✓ Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
 
           {/* Clear All Button */}
           {(filters.sport.size > 0 ||
@@ -443,6 +477,7 @@ function RawOddsTable({ username, onLogout }) {
             filters.home_team.size > 0 ||
             filters.market.size > 0 ||
             filters.selection.size > 0 ||
+            filters.bookmaker.size > 0 ||
             filters.searchText) && (
             <button
               onClick={() => {
@@ -452,13 +487,14 @@ function RawOddsTable({ username, onLogout }) {
                   home_team: new Set(),
                   market: new Set(),
                   selection: new Set(),
+                  bookmaker: new Set(),
                   searchText: "",
                 });
                 setCurrentPage(1);
               }}
               className="clear-all-filters-btn"
             >
-              ✕ Clear All
+              ✕ RESET
             </button>
           )}
         </div>
@@ -493,25 +529,6 @@ function RawOddsTable({ username, onLogout }) {
                   Last updated: {formatDateTime(lastUpdated)}
                 </p>
               )}
-            </div>
-
-            {/* Prominent Top Scroll Bar pinned above table */}
-            <div
-              className="top-scroll-bar"
-              onScroll={(e) => {
-                const fixedCols = document.querySelector(".fixed-columns");
-                const scrollableCols = document.querySelector(
-                  ".scrollable-columns"
-                );
-                if (scrollableCols) {
-                  scrollableCols.scrollLeft = e.target.scrollLeft;
-                }
-                if (fixedCols) {
-                  fixedCols.scrollLeft = 0; // keep fixed cols static
-                }
-              }}
-            >
-              <div className="scroll-bar-dummy"></div>
             </div>
 
             {/* Table Wrapper with fixed core columns and scrollable bookmaker columns */}
@@ -561,53 +578,70 @@ function RawOddsTable({ username, onLogout }) {
                 </table>
               </div>
 
-              <div
-                className="scrollable-columns"
-                onScroll={(e) => {
-                  const topScroll = document.querySelector(".top-scroll-bar");
-                  if (topScroll) {
-                    topScroll.scrollLeft = e.target.scrollLeft;
-                  }
-                }}
-              >
-                <table className="raw-odds-table">
-                  <thead>
-                    <tr>
-                      {columns
-                        .filter((col) => !baseColumns.includes(col))
-                        .map((column) => (
-                          <th
-                            key={column}
-                            onClick={() => handleSort(column)}
-                            className="sortable-header"
-                          >
-                            {column.replace(/_/g, " ")}
-                            {sortConfig.key === column && (
-                              <span className="sort-indicator">
-                                {sortConfig.direction === "asc" ? " ▲" : " ▼"}
-                              </span>
-                            )}
-                          </th>
-                        ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedData.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
+              {/* Scroll bar positioned only above bookmaker columns */}
+              <div className="bookmaker-scroll-section">
+                <div
+                  className="top-scroll-bar"
+                  onScroll={(e) => {
+                    const scrollableCols = document.querySelector(
+                      ".scrollable-columns"
+                    );
+                    if (scrollableCols) {
+                      scrollableCols.scrollLeft = e.target.scrollLeft;
+                    }
+                  }}
+                >
+                  <div className="scroll-bar-dummy"></div>
+                </div>
+
+                <div
+                  className="scrollable-columns"
+                  onScroll={(e) => {
+                    const topScroll = document.querySelector(".top-scroll-bar");
+                    if (topScroll) {
+                      topScroll.scrollLeft = e.target.scrollLeft;
+                    }
+                  }}
+                >
+                  <table className="raw-odds-table">
+                    <thead>
+                      <tr>
                         {columns
                           .filter((col) => !baseColumns.includes(col))
                           .map((column) => (
-                            <td
+                            <th
                               key={column}
-                              className={`cell-${column.toLowerCase()}`}
+                              onClick={() => handleSort(column)}
+                              className="sortable-header"
                             >
-                              {row[column] ?? "-"}
-                            </td>
+                              {column.replace(/_/g, " ")}
+                              {sortConfig.key === column && (
+                                <span className="sort-indicator">
+                                  {sortConfig.direction === "asc" ? " ▲" : " ▼"}
+                                </span>
+                              )}
+                            </th>
                           ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {paginatedData.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {columns
+                            .filter((col) => !baseColumns.includes(col))
+                            .map((column) => (
+                              <td
+                                key={column}
+                                className={`cell-${column.toLowerCase()}`}
+                              >
+                                {row[column] ?? "-"}
+                              </td>
+                            ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 

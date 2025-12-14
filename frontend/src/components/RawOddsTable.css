@@ -395,24 +395,36 @@
   gap: 0;
   border-radius: 8px;
   overflow: hidden;
+  align-items: stretch;
 }
 
 .fixed-columns {
-  flex: 0 0 auto;
+  flex: 0 0 50%; /* Fixed to 50% width */
   background: #1a1a1a;
   box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
   position: sticky;
   left: 0;
   z-index: 2;
+  overflow: hidden;
 }
 
 .fixed-table {
-  min-width: 680px; /* approx width for 7 core columns */
+  width: 100%; /* Use full width of fixed-columns container */
+}
+
+/* Bookmaker scroll section - aligns with fixed-columns */
+.bookmaker-scroll-section {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1a1a1a;
 }
 
 .scrollable-columns {
   flex: 1 1 auto;
   overflow-x: auto;
+  overflow-y: auto;
   background: #1a1a1a;
 }
 
@@ -420,19 +432,21 @@
   min-width: 1000px;
 }
 
-/* Top scroll bar aligned with scrollable bookmaker section */
+/* Top scroll bar - larger and positioned above bookmaker columns */
 .top-scroll-bar {
-  height: 14px;
+  height: 22px;
   overflow-x: auto;
-  margin-bottom: 8px;
+  overflow-y: hidden;
   background: #111;
-  border: 1px solid #222;
-  border-radius: 6px;
+  border: 1px solid #4be1c1;
+  border-radius: 4px;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .scroll-bar-dummy {
   height: 1px;
-  width: 1600px; /* acts as scrollbar width; actual content width handled by JS sync */
+  width: 3200px; /* Extended width for more scrollable range */
 }
 
 /* Table Wrapper */
@@ -448,8 +462,8 @@
 .raw-odds-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
-  min-width: 1200px;
+  font-size: 13px;
+  min-width: unset;
 }
 
 .raw-odds-table thead {
@@ -460,7 +474,7 @@
 }
 
 .raw-odds-table th {
-  padding: 14px 12px;
+  padding: 10px 8px;
   text-align: left;
   font-weight: 600;
   color: #4be1c1;
@@ -468,6 +482,7 @@
   -webkit-user-select: none;
   user-select: none;
   white-space: nowrap;
+  font-size: 13px;
   border-bottom: 2px solid #4be1c1;
   text-transform: capitalize;
 }
@@ -491,7 +506,7 @@
 }
 
 .raw-odds-table td {
-  padding: 12px;
+  padding: 8px;
   white-space: nowrap;
   color: #ddd;
 }
