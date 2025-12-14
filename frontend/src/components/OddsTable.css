@@ -143,11 +143,12 @@
   overflow: hidden;
   border-right: 2px solid #4be1c1;
   background: #1a1a1a;
+  width: 50%; /* Fixed columns take up half the page */
 }
 
 .fixed-table {
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12px; /* Reduced from 13px for compactness */
   width: 100%;
   background: #1a1a1a;
 }
@@ -160,16 +161,17 @@
 }
 
 .fixed-table thead th {
-  padding: 12px 8px;
+  padding: 10px 6px; /* Reduced padding for tighter columns */
   text-align: left;
   font-weight: 600;
   color: #4be1c1;
   border-bottom: 1px solid #4be1c1;
   white-space: nowrap;
+  font-size: 11px; /* Slightly smaller headers */
 }
 
 .fixed-table tbody td {
-  padding: 10px 8px;
+  padding: 8px 6px; /* Reduced padding for tighter columns */
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
   color: #ffffff;
@@ -179,24 +181,24 @@
   background: #252525;
 }
 
-/* Fixed Column Widths */
-.fixed-table .col-start { width: 110px; }
-.fixed-table .col-sport { width: 60px; }
-.fixed-table .col-game { width: 140px; }
-.fixed-table .col-market { width: 80px; }
-.fixed-table .col-line { width: 70px; }
-.fixed-table .col-side { width: 100px; }
+/* Fixed Column Widths - Compacted to fit in 50% */
+.fixed-table .col-start { width: 90px; }
+.fixed-table .col-sport { width: 50px; }
+.fixed-table .col-game { width: 120px; }
+.fixed-table .col-market { width: 70px; }
+.fixed-table .col-line { width: 50px; }
+.fixed-table .col-side { width: 90px; }
 
 /* Scrollable Right Section */
 .scrollable-right-section {
   flex: 1;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden; /* Only horizontal scroll for bookmaker columns */
 }
 
 .scrollable-table {
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12px; /* Match fixed table font size */
   width: 100%;
   background: #1a1a1a;
 }
@@ -209,22 +211,23 @@
 }
 
 .scrollable-table thead th {
-  padding: 12px 10px;
+  padding: 10px 8px; /* Match fixed table header padding */
   text-align: center;
   font-weight: 600;
   color: #4be1c1;
   border-bottom: 1px solid #4be1c1;
   white-space: nowrap;
-  min-width: 90px;
+  min-width: 75px; /* Slightly narrower bookmaker columns */
+  font-size: 11px; /* Match fixed table header size */
 }
 
 .scrollable-table tbody td {
-  padding: 10px;
+  padding: 8px; /* Match fixed table body padding */
   text-align: right;
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
   color: #ffffff;
-  min-width: 90px;
+  min-width: 75px; /* Slightly narrower bookmaker columns */
 }
 
 .scrollable-table tbody tr:hover td {
