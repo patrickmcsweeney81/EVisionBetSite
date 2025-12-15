@@ -78,7 +78,9 @@ function RawOddsTable({ username, onLogout }) {
         try {
           const delay = 500 * Math.pow(2, attempt);
           await new Promise((res) => setTimeout(res, delay));
-          const r = await fetch(url, { headers: { "Cache-Control": "no-cache" } });
+          const r = await fetch(url, {
+            headers: { "Cache-Control": "no-cache" },
+          });
           if (r.ok) {
             const data = await r.json();
             const rows = (data.rows || []).map((x) => ({

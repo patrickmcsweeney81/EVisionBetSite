@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import API_URL from '../config';
-import { getBookmakerLogo, getBookmakerDisplayName, createFallbackLogo } from '../utils/bookmakerLogos';
-import './EVHits.css';
+import React, { useState, useEffect, useCallback } from "react";
+import API_URL from "../config";
+import {
+  getBookmakerLogo,
+  getBookmakerDisplayName,
+  createFallbackLogo,
+} from "../utils/bookmakerLogos";
+import "./EVHits.css";
 
 function EVHits({ username, onLogout }) {
   const [hits, setHits] = useState([]);
@@ -10,20 +14,22 @@ function EVHits({ username, onLogout }) {
   const [summary, setSummary] = useState(null);
   const [filters, setFilters] = useState({
     limit: 50,
-    minEV: '',
-    sport: ''
+    minEV: "",
+    sport: "",
   });
   const [lastUpdated, setLastUpdated] = useState(null);
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
   const [lastErrorText, setLastErrorText] = useState(null);
   const [health, setHealth] = useState({ ok: null, ms: null });
-  const debugEnabled = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+  const debugEnabled =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("debug") === "1";
 
   const buildHitsUrl = useCallback(() => {
     const params = new URLSearchParams();
-    params.append('limit', filters.limit);
-    if (filters.minEV) params.append('min_ev', parseFloat(filters.minEV) / 100);
-    if (filters.sport) params.append('sport', filters.sport);
+    params.append("limit", filters.limit);
+    if (filters.minEV) params.append("min_ev", parseFloat(filters.minEV) / 100);
+    if (filters.sport) params.append("sport", filters.sport);
     return `${API_URL}/api/ev/hits?${params.toString()}`;
   }, [filters]);
 
@@ -31,7 +37,7 @@ function EVHits({ username, onLogout }) {
     try {
       const response = await fetch(`${API_URL}/api/ev/summary`);
       setDebugInfo({ status: response.status, message: response.statusText });
-      
+
       if (response.ok) {
         const data = await response.json();
         setSummary(data);
@@ -42,7 +48,7 @@ function EVHits({ username, onLogout }) {
           total_hits: 0,
           top_ev: 0,
           sports: {},
-          last_updated: new Date().toISOString()
+          last_updated: new Date().toISOString(),
         });
       }
     } catch (err) {
@@ -52,7 +58,7 @@ function EVHits({ username, onLogout }) {
         total_hits: 0,
         top_ev: 0,
         sports: {},
-        last_updated: new Date().toISOString()
+        last_updated: new Date().toISOString(),
       });
     }
   }, []);
@@ -60,7 +66,7 @@ function EVHits({ username, onLogout }) {
   const fetchHits = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(buildHitsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
@@ -86,82 +92,95 @@ function EVHits({ username, onLogout }) {
   useEffect(() => {
     // Health check badge
     const start = performance.now();
-    fetch(`${API_URL}/health`).then(res => {
-      setHealth({ ok: res.ok, ms: Math.round(performance.now() - start) });
-    }).catch(() => setHealth({ ok: false, ms: null }));
+    fetch(`${API_URL}/health`)
+      .then((res) => {
+        setHealth({ ok: res.ok, ms: Math.round(performance.now() - start) });
+      })
+      .catch(() => setHealth({ ok: false, ms: null }));
   }, []);
 
   useEffect(() => {
     fetchSummary();
     fetchHits();
-    
+
     // Refresh every 2 minutes
     const interval = setInterval(() => {
       fetchSummary();
       fetchHits();
     }, 120000);
-    
+
     return () => clearInterval(interval);
   }, [filters, fetchSummary, fetchHits]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const formatStartTime = (dateStr) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return "N/A";
     const date = new Date(dateStr);
     const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const fmt = new Intl.DateTimeFormat('en-AU', {
+    const fmt = new Intl.DateTimeFormat("en-AU", {
       timeZone: userTz,
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
+      year: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
-    return fmt.format(date);
+    const formatted = fmt.format(date);
+    // Convert DD/MM/YY HH:MM to HH:MM DD/MM/YY
+    const [datePart, timePart] = formatted.split(", ");
+    return `${timePart} ${datePart}`;
   };
 
   const sportAbbrev = (sport) => {
     const map = {
-      'basketball_nba': 'NBA',
-      'basketball_nbl': 'NBL',
-      'americanfootball_nfl': 'NFL',
-      'icehockey_nhl': 'NHL'
+      basketball_nba: "NBA",
+      basketball_nbl: "NBL",
+      americanfootball_nfl: "NFL",
+      icehockey_nhl: "NHL",
     };
     return map[sport] || sport.slice(0, 3).toUpperCase();
   };
 
   const formatEvent = (hit) => {
-    const away = hit.away_team || 'Away';
-    const home = hit.home_team || 'Home';
+    const away = hit.away_team || "Away";
+    const home = hit.home_team || "Home";
     return `${away} v ${home}`;
   };
 
   const formatMarket = (hit) => {
-    if (hit.market === 'h2h') return 'H2H';
-    if (hit.market === 'spreads') return 'Line';
-    if (hit.market.startsWith('player_')) {
-      return hit.market.replace('player_', '').replace('_', '-').toUpperCase();
+    if (hit.market === "h2h") return "H2H";
+    if (hit.market === "spreads") return "Line";
+    if (hit.market.startsWith("player_")) {
+      // Remove "player_" prefix, replace underscores with spaces, title case
+      return hit.market
+        .replace("player_", "")
+        .replace(/_/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
     }
     return hit.market;
   };
 
   const formatOdds = (odds) => {
-    return odds ? odds.toFixed(2) : '-';
+    return odds ? odds.toFixed(2) : "-";
   };
 
   const getEVClass = (evPercent) => {
-    if (evPercent >= 10) return 'ev-excellent';
-    if (evPercent >= 5) return 'ev-great';
-    if (evPercent >= 3) return 'ev-good';
-    return 'ev-fair';
+    if (evPercent >= 10) return "ev-excellent";
+    if (evPercent >= 5) return "ev-great";
+    if (evPercent >= 3) return "ev-good";
+    return "ev-fair";
   };
 
   return (
@@ -169,17 +188,37 @@ function EVHits({ username, onLogout }) {
       {debugEnabled && (
         <div className="debug-bar">
           <span>API: {API_URL}</span>
-          <span> | Status: {debugInfo.status ?? 'n/a'} {debugInfo.message ? `(${debugInfo.message})` : ''}</span>
-          <span> | Health: {health.ok === null ? 'n/a' : (health.ok ? 'OK' : 'DOWN')} {health.ms ? `(${health.ms}ms)` : ''}</span>
-          <span> | <a href={buildHitsUrl()} target="_blank" rel="noreferrer">Open API</a></span>
-          {lastErrorText && (<span> | Error: {lastErrorText.slice(0,120)}...</span>)}
+          <span>
+            {" "}
+            | Status: {debugInfo.status ?? "n/a"}{" "}
+            {debugInfo.message ? `(${debugInfo.message})` : ""}
+          </span>
+          <span>
+            {" "}
+            | Health: {health.ok === null
+              ? "n/a"
+              : health.ok
+              ? "OK"
+              : "DOWN"}{" "}
+            {health.ms ? `(${health.ms}ms)` : ""}
+          </span>
+          <span>
+            {" "}
+            |{" "}
+            <a href={buildHitsUrl()} target="_blank" rel="noreferrer">
+              Open API
+            </a>
+          </span>
+          {lastErrorText && (
+            <span> | Error: {lastErrorText.slice(0, 120)}...</span>
+          )}
         </div>
       )}
       <nav className="dashboard-nav">
         <div className="nav-content">
-          <img 
-            src="/img/bet-evision-horizontal.png" 
-            alt="BET EVision" 
+          <img
+            src="/img/bet-evision-horizontal.png"
+            alt="BET EVision"
             className="nav-logo"
           />
           <div className="nav-right">
@@ -193,19 +232,26 @@ function EVHits({ username, onLogout }) {
 
       <div className="ev-hits-content">
         <div className="ev-header">
-          <button onClick={() => window.location.href = '/dashboard'} className="back-btn">
+          <button
+            onClick={() => (window.location.href = "/dashboard")}
+            className="back-btn"
+          >
             ← Back to Dashboard
           </button>
           <div>
             <h1>💰 Expected Value Finder</h1>
-            <p className="ev-subtitle">Positive expected value betting opportunities</p>
+            <p className="ev-subtitle">
+              Positive expected value betting opportunities
+            </p>
           </div>
         </div>
 
         {/* Backend Offline Banner */}
         {summary && summary.backend_offline && (
           <div className="info-banner">
-            <p>⚠️ Backend service is currently offline. Showing cached/demo data.</p>
+            <p>
+              ⚠️ Backend service is currently offline. Showing cached/demo data.
+            </p>
           </div>
         )}
 
@@ -218,11 +264,15 @@ function EVHits({ username, onLogout }) {
             </div>
             <div className="summary-card">
               <div className="summary-label">Top EV</div>
-              <div className="summary-value">{(summary.top_ev || 0).toFixed(2)}%</div>
+              <div className="summary-value">
+                {(summary.top_ev || 0).toFixed(2)}%
+              </div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Sports</div>
-              <div className="summary-value">{Object.keys(summary.sports || {}).length}</div>
+              <div className="summary-value">
+                {Object.keys(summary.sports || {}).length}
+              </div>
             </div>
             <div className="summary-card">
               <div className="summary-label">Last Updated</div>
@@ -237,9 +287,9 @@ function EVHits({ username, onLogout }) {
         <div className="filters-section">
           <div className="filter-group">
             <label>Limit</label>
-            <select 
-              name="limit" 
-              value={filters.limit} 
+            <select
+              name="limit"
+              value={filters.limit}
               onChange={handleFilterChange}
               className="filter-input"
             >
@@ -301,54 +351,72 @@ function EVHits({ username, onLogout }) {
             <table className="hits-table">
               <thead>
                 <tr>
-                  <th>Start</th>
+                  <th>Start Time</th>
                   <th>Sport</th>
-                  <th>Event</th>
+                  <th>Teams</th>
                   <th>Market</th>
-                  <th>Points</th>
+                  <th>Line</th>
                   <th>Selection</th>
                   <th>Sharps</th>
                   <th>Book</th>
-                  <th>Price</th>
-                  <th>EV%</th>
+                  <th>Odds</th>
                   <th>Fair</th>
-                  <th>Pin Prob</th>
+                  <th>EV%</th>
+                  <th>Prob</th>
+                  <th>Stake</th>
                 </tr>
               </thead>
               <tbody>
                 {hits.map((hit, index) => (
-                  <tr key={index} className={`hit-row ${getEVClass(hit.ev_percent)}`}>
-                    <td className="time-cell">{formatStartTime(hit.commence_time)}</td>
+                  <tr
+                    key={index}
+                    className={`hit-row ${getEVClass(hit.ev_percent)}`}
+                  >
+                    <td className="time-cell">
+                      {formatStartTime(hit.commence_time)}
+                    </td>
                     <td className="sport-cell">{sportAbbrev(hit.sport)}</td>
-                    <td className="event-cell">{formatEvent(hit)}</td>
+                    <td className="teams-cell">{hit.teams || "-"}</td>
                     <td className="market-cell">{formatMarket(hit)}</td>
-                    <td className="point-cell">{hit.point || '-'}</td>
+                    <td className="line-cell">{hit.line || "-"}</td>
                     <td className="selection-cell">{hit.selection}</td>
                     <td className="sharps-cell">{hit.sharp_book_count || 0}</td>
                     <td className="book-cell">
                       <div className="book-badge">
-                        <img 
-                          src={getBookmakerLogo(hit.best_book, { size: 32 })} 
+                        <img
+                          src={getBookmakerLogo(hit.best_book, { size: 32 })}
                           alt={getBookmakerDisplayName(hit.best_book)}
                           className="bookmaker-logo"
                           title={getBookmakerDisplayName(hit.best_book)}
                           onError={(e) => {
                             // Fallback: Generate SVG badge if external source fails
                             if (!e.currentTarget.dataset.fallback) {
-                              e.currentTarget.src = createFallbackLogo(hit.best_book, 32);
-                              e.currentTarget.dataset.fallback = 'true';
+                              e.currentTarget.src = createFallbackLogo(
+                                hit.best_book,
+                                32
+                              );
+                              e.currentTarget.dataset.fallback = "true";
                             }
                           }}
                         />
-                        <span className="book-name">{getBookmakerDisplayName(hit.best_book)}</span>
+                        <span className="book-name">
+                          {getBookmakerDisplayName(hit.best_book)}
+                        </span>
                       </div>
                     </td>
-                    <td className="price-cell">{formatOdds(hit.best_odds)}</td>
+                    <td className="odds-cell">
+                      {formatOdds(hit.odds_decimal)}
+                    </td>
+                    <td className="fair-cell">{formatOdds(hit.fair_odds)}</td>
                     <td className={`ev-cell ${getEVClass(hit.ev_percent)}`}>
                       {(hit.ev_percent || 0).toFixed(2)}%
                     </td>
-                    <td className="fair-cell">{formatOdds(hit.fair_odds)}</td>
-                    <td className="prob-cell">{(hit.implied_prob || 0).toFixed(1)}%</td>
+                    <td className="prob-cell">
+                      {(hit.implied_prob || 0).toFixed(1)}%
+                    </td>
+                    <td className="stake-cell">
+                      {hit.stake ? `$${Math.round(hit.stake)}` : "-"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -360,7 +428,9 @@ function EVHits({ username, onLogout }) {
         {!loading && !error && hits.length === 0 && (
           <div className="empty-state">
             <p>No expected value opportunities found with current filters.</p>
-            <p className="empty-hint">Try adjusting your filters or check back later.</p>
+            <p className="empty-hint">
+              Try adjusting your filters or check back later.
+            </p>
           </div>
         )}
 
