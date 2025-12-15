@@ -372,33 +372,6 @@ function RawOdds({ username, onLogout }) {
     };
   }, []);
 
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const sortedOdds = React.useMemo(() => {
-    let sortableOdds = [...odds];
-    if (sortConfig.key) {
-      sortableOdds.sort((a, b) => {
-        let aVal = a[sortConfig.key] ?? 0;
-        let bVal = b[sortConfig.key] ?? 0;
-        if (typeof aVal === "number" && typeof bVal === "number") {
-          return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
-        }
-        aVal = String(aVal).toLowerCase();
-        bVal = String(bVal).toLowerCase();
-        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-    return sortableOdds;
-  }, [odds, sortConfig]);
-
   const formatTime = (timeString) => {
     if (!timeString) return "TBA";
     try {

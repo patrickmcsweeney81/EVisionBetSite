@@ -6,6 +6,7 @@
 [build.environment]
   NODE_VERSION = "18"
   REACT_APP_API_URL = "https://ev-finder-spu3.onrender.com"
+  CI = "false"
 
 [[redirects]]
   from = "/*"
