@@ -425,53 +425,6 @@ function RawOdds({ username, onLogout }) {
     return sportMap[sport] || sport;
   };
 
-  const shortenEvent = (event) => {
-    if (!event) return "";
-    return event
-      .replace(/\s+(vs|@)\s+/gi, " v ")
-      .replace(/\s+h2h$/i, "")
-      .substring(0, 30);
-  };
-
-  const getEVClass = (ev) => {
-    if (ev === null || ev === undefined) return "ev-none";
-    if (ev > 3) return "ev-green";
-    if (ev >= 1) return "ev-orange";
-    if (ev <= 0) return "ev-red";
-    return "ev-base";
-  };
-
-  const getProbClass = (prob) => {
-    if (prob === null || prob === undefined) return "prob-none";
-    if (prob > 40) return "prob-green";
-    if (prob >= 20) return "prob-orange";
-    if (prob < 19) return "prob-red";
-    return "prob-base";
-  };
-
-  const formatPercent = (value) => {
-    if (value === null || value === undefined) return "-";
-    return `${Number(value).toFixed(2)}%`;
-  };
-
-  const formatOdds = (value) => {
-    if (value === null || value === undefined) return "-";
-    return `$${Number(value).toFixed(2)}`;
-  };
-
-  const formatMarket = (market) => {
-    if (!market) return "-";
-    try {
-      const cleaned = String(market).replace(/_/g, " ").trim();
-      return cleaned
-        .split(" ")
-        .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
-        .join(" ");
-    } catch {
-      return String(market);
-    }
-  };
-
   const getLogoBadges = (row) => {
     const logoKeys = [
       "book",

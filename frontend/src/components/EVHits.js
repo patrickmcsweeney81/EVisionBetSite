@@ -149,12 +149,6 @@ function EVHits({ username, onLogout }) {
     return map[sport] || sport.slice(0, 3).toUpperCase();
   };
 
-  const formatEvent = (hit) => {
-    const away = hit.away_team || "Away";
-    const home = hit.home_team || "Home";
-    return `${away} v ${home}`;
-  };
-
   const formatMarket = (hit) => {
     if (hit.market === "h2h") return "H2H";
     if (hit.market === "spreads") return "Line";

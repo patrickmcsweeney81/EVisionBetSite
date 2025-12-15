@@ -42,7 +42,7 @@ jobs:
       working-directory: ./frontend
       env:
         CI: false
-        REACT_APP_API_URL: https://evisionbet-api.onrender.com
+        REACT_APP_API_URL: https://evision-api.onrender.com
       run: npm run build
     
     - name: Run tests (if available)
