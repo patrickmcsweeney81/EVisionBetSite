@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import API_URL from "../config";
 import {
   getBookmakerLogo,
@@ -20,10 +20,14 @@ function RawOdds({ username, onLogout }) {
     bookmaker: "",
   });
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [serverLastUpdated, setServerLastUpdated] = useState(null);
+  const [refreshIn, setRefreshIn] = useState(120); // seconds until next auto refresh
   const [sortConfig, setSortConfig] = useState({
     key: "ev",
     direction: "desc",
   });
+  const fixedTableRef = useRef(null);
+  const scrollableRef = useRef(null);
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
   const [lastErrorText, setLastErrorText] = useState(null);
   const debugEnabled =
@@ -48,9 +52,13 @@ function RawOdds({ username, onLogout }) {
     return `${API_URL}/api/ev/hits?${params.toString()}`;
   }, [filters, useRaw]);
 
+  // Fetch with simple retry + exponential backoff
   const fetchOdds = useCallback(async () => {
     setLoading(true);
     setError(null);
+    const maxRetries = 3;
+    let attempt = 0;
+    let lastResp = null;
     try {
       const response = await fetch(buildOddsUrl());
       setDebugInfo({ status: response.status, message: response.statusText });
@@ -164,6 +172,10 @@ function RawOdds({ username, onLogout }) {
         });
         setOdds(mappedHits);
 
+        // Prefer server-provided timestamp if available
+        const srvTs = data.last_updated || data.timestamp || null;
+        setServerLastUpdated(srvTs);
+
         // Extract bookmaker columns from the first row
         if (useRaw && mappedHits.length > 0) {
           const firstRow = mappedHits[0];
@@ -190,10 +202,139 @@ function RawOdds({ username, onLogout }) {
           setBookmakerColumns(bookCols);
         }
 
-        setLastUpdated(new Date().toISOString());
+        setLastUpdated(srvTs || new Date().toISOString());
       }
     } catch (err) {
+      // Retry logic on network errors or 5xx
+      while (attempt < maxRetries) {
+        try {
+          const delay = 500 * Math.pow(2, attempt); // 500ms, 1000ms, 2000ms
+          await new Promise((res) => setTimeout(res, delay));
+          const r = await fetch(buildOddsUrl());
+          lastResp = r;
+          setDebugInfo({ status: r.status, message: r.statusText });
+          if (r.ok) {
+            const data = await r.json();
+            const mappedHits = (data.hits || data.rows || []).map((row) => {
+              const start =
+                row.commence_time || row.game_start_perth || row.commence;
+              const eventName =
+                row.away_team && row.home_team
+                  ? `${row.away_team} v ${row.home_team}`
+                  : row.event || row.event_name || row.selection;
+
+              if (useRaw) {
+                const bookCols = {
+                  pinnacle: row.Pinnacle || null,
+                  betfair_eu: row.Betfair_EU || row.Betfair_AU || null,
+                  draftkings: row.Draftkings || null,
+                  fanduel: row.Fanduel || null,
+                  sportsbet: row.Sportsbet || null,
+                  pointsbet: row.Pointsbet || null,
+                  tab: row.Tab || row.Tabtouch || null,
+                  neds: row.Neds || null,
+                  ladbrokes: row.Ladbrokes_AU || row.Ladbrokes || null,
+                  betrivers: row.Betrivers || null,
+                  mybookie: row.Mybookie || null,
+                  betonline: row.Betonline || null,
+                };
+
+                return {
+                  ...bookCols,
+                  game_start_perth: start,
+                  sport: row.sport,
+                  event: eventName,
+                  market: row.market,
+                  line: row.point,
+                  side: row.selection,
+                  price: null,
+                  book: null,
+                  ev: null,
+                  fair: null,
+                  prob: null,
+                };
+              }
+
+              const book = row.bookmaker || row.best_book || row.best_bookmaker;
+              const price = row.odds_decimal ?? row.best_odds;
+              const fair = row.fair_odds;
+              const ev = row.ev_percent;
+              const prob = row.implied_prob;
+
+              const bookCols = {
+                pinnacle: null,
+                betfair_eu: null,
+                draftkings: null,
+                fanduel: null,
+                sportsbet: null,
+                pointsbet: null,
+                tab: null,
+                neds: null,
+                ladbrokes: null,
+                betrivers: null,
+                mybookie: null,
+                betonline: null,
+              };
+
+              if (book && price) {
+                const key = String(book).toLowerCase();
+                const mapKey = {
+                  pinnacle: "pinnacle",
+                  betfair: "betfair_eu",
+                  betfaireu: "betfair_eu",
+                  betfair_eu: "betfair_eu",
+                  draftkings: "draftkings",
+                  fanduel: "fanduel",
+                  sportsbet: "sportsbet",
+                  pointsbet: "pointsbet",
+                  tab: "tab",
+                  tabtouch: "tab",
+                  neds: "neds",
+                  ladbrokes: "ladbrokes",
+                  ladbrokes_au: "ladbrokes",
+                  betrivers: "betrivers",
+                  mybookie: "mybookie",
+                  betonline: "betonline",
+                }[key];
+                if (mapKey && mapKey in bookCols) {
+                  bookCols[mapKey] = price;
+                }
+              }
+
+              return {
+                ...row,
+                ...bookCols,
+                game_start_perth: start,
+                event: eventName,
+                side: row.selection,
+                book,
+                price,
+                ev,
+                fair,
+                prob,
+              };
+            });
+
+            setOdds(mappedHits);
+            const srvTs = data.last_updated || data.timestamp || null;
+            setServerLastUpdated(srvTs);
+            setLastUpdated(srvTs || new Date().toISOString());
+            setLoading(false);
+            setError(null);
+            return; // success
+          }
+        } catch (retryErr) {
+          // continue to next attempt
+        }
+        attempt += 1;
+      }
+      // if we get here, all retries failed
       setOdds([]);
+      setError(
+        lastResp
+          ? `Fetch failed (${lastResp.status} ${lastResp.statusText})`
+          : "Network error while fetching raw odds"
+      );
       setLastUpdated(new Date().toISOString());
     } finally {
       setLoading(false);
@@ -205,6 +346,31 @@ function RawOdds({ username, onLogout }) {
     const interval = setInterval(() => fetchOdds(), 120000);
     return () => clearInterval(interval);
   }, [fetchOdds]);
+
+  // Show a simple countdown to the next auto-refresh to make status visible
+  useEffect(() => {
+    setRefreshIn(120);
+    const t = setInterval(() => {
+      setRefreshIn((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [lastUpdated]);
+
+  // Keep left and right tables vertically in sync to avoid row misalignment when scrolling raw data.
+  useEffect(() => {
+    const right = scrollableRef.current;
+    const left = fixedTableRef.current;
+    if (!right || !left) return;
+
+    const syncScroll = () => {
+      left.scrollTop = right.scrollTop;
+    };
+
+    right.addEventListener("scroll", syncScroll);
+    return () => {
+      right.removeEventListener("scroll", syncScroll);
+    };
+  }, []);
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -456,6 +622,10 @@ function RawOdds({ username, onLogout }) {
             {lastUpdated && (
               <p className="last-update">
                 Last updated: {new Date(lastUpdated).toLocaleString()}
+                {serverLastUpdated &&
+                  ` (server: ${new Date(serverLastUpdated).toLocaleString()})`}
+                {typeof refreshIn === "number" &&
+                  ` • auto-refresh in ${refreshIn}s`}
               </p>
             )}
           </div>
@@ -548,7 +718,16 @@ function RawOdds({ username, onLogout }) {
         </div>
 
         <button onClick={clearFilters} className="clear-filters-btn">
-          ✖ Clear All
+          ✖ Clear Filters
+        </button>
+        <button
+          onClick={() => {
+            clearFilters();
+            fetchOdds();
+          }}
+          className="reset-all-btn"
+        >
+          🔄 Reset All
         </button>
       </div>
 
@@ -570,7 +749,7 @@ function RawOdds({ username, onLogout }) {
       {!loading && !error && odds.length > 0 && (
         <div className="split-table-container">
           {/* Fixed Left Section */}
-          <div className="fixed-left-section">
+          <div className="fixed-left-section" ref={fixedTableRef}>
             <table className="fixed-table">
               <thead>
                 <tr>
@@ -602,7 +781,7 @@ function RawOdds({ username, onLogout }) {
           </div>
 
           {/* Scrollable Right Section */}
-          <div className="scrollable-right-section">
+          <div className="scrollable-right-section" ref={scrollableRef}>
             <table className="scrollable-table">
               <thead>
                 <tr>

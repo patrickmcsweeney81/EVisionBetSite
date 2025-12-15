@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import API_URL from "../config";
 import { useNavigate } from "react-router-dom";
 import "./RawOddsTable.css";
@@ -14,6 +14,8 @@ function RawOddsTable({ username, onLogout }) {
   });
   const [apiTotalCount, setApiTotalCount] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [serverLastUpdated, setServerLastUpdated] = useState(null);
+  const [refreshIn, setRefreshIn] = useState(120);
 
   // Multi-select filter state
   const [filters, setFilters] = useState({
@@ -41,43 +43,83 @@ function RawOddsTable({ username, onLogout }) {
   const rowsPerPage = 50;
   const fetchLimit = 5000; // pull more than the previous 500-row cap
 
-  // Fetch raw odds via backend API to avoid stale static CSV
-  useEffect(() => {
-    const fetchRaw = async () => {
-      try {
-        setLoading(true);
-        const url = `${API_URL}/api/odds/raw?limit=${fetchLimit}&offset=0`;
-        const response = await fetch(url, {
-          headers: { "Cache-Control": "no-cache" },
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch raw odds (${response.status})`);
-        }
-        const data = await response.json();
-        const rows = (data.rows || []).map((r) => {
-          const { timestamp, event_id, ...rest } = r || {};
-          return {
-            ...rest,
-            // Ensure string defaults for filters
-            away_team: r?.away_team || "",
-            home_team: r?.home_team || "",
-          };
-        });
-        setApiTotalCount(data.total_count ?? rows.length);
-        setLastUpdated(data.last_updated || null);
-        setOddsData(rows);
-        setError(null);
-        buildFilterOptions(rows);
-      } catch (err) {
-        setError(err.message);
-        setOddsData([]);
-      } finally {
-        setLoading(false);
+  // Fetch raw odds via backend API with retry backoff; re-used by auto-refresh and reconnect button
+  const fetchRaw = useCallback(async () => {
+    const url = `${API_URL}/api/odds/raw?limit=${fetchLimit}&offset=0`;
+    const maxRetries = 3;
+    let attempt = 0;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(url, {
+        headers: { "Cache-Control": "no-cache" },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch raw odds (${response.status})`);
       }
-    };
+      const data = await response.json();
+      const rows = (data.rows || []).map((r) => {
+        const { timestamp, event_id, ...rest } = r || {};
+        return {
+          ...rest,
+          away_team: r?.away_team || "",
+          home_team: r?.home_team || "",
+        };
+      });
+      setApiTotalCount(data.total_count ?? rows.length);
+      // Always record client fetch time, show server timestamp separately
+      setServerLastUpdated(data.last_updated || data.timestamp || null);
+      setLastUpdated(new Date().toISOString());
+      setOddsData(rows);
+      setError(null);
+      buildFilterOptions(rows);
+    } catch (err) {
+      while (attempt < maxRetries) {
+        try {
+          const delay = 500 * Math.pow(2, attempt);
+          await new Promise((res) => setTimeout(res, delay));
+          const r = await fetch(url, { headers: { "Cache-Control": "no-cache" } });
+          if (r.ok) {
+            const data = await r.json();
+            const rows = (data.rows || []).map((x) => ({
+              ...x,
+              away_team: x?.away_team || "",
+              home_team: x?.home_team || "",
+            }));
+            setApiTotalCount(data.total_count ?? rows.length);
+            setServerLastUpdated(data.last_updated || data.timestamp || null);
+            setLastUpdated(new Date().toISOString());
+            setOddsData(rows);
+            setError(null);
+            buildFilterOptions(rows);
+            setLoading(false);
+            return;
+          }
+        } catch (retryErr) {
+          // continue
+        }
+        attempt += 1;
+      }
+      setError(err.message || "Network error fetching raw odds");
+      setOddsData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchLimit]);
 
+  // Auto-refresh every 2 minutes
+  useEffect(() => {
     fetchRaw();
-  }, []);
+    const interval = setInterval(fetchRaw, 120000);
+    return () => clearInterval(interval);
+  }, [fetchRaw]);
+
+  // Visible countdown to next auto-refresh
+  useEffect(() => {
+    setRefreshIn(120);
+    const t = setInterval(() => setRefreshIn((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [lastUpdated]);
 
   // Close filter panel when clicking outside
   useEffect(() => {
@@ -336,6 +378,11 @@ function RawOddsTable({ username, onLogout }) {
     }
   };
 
+  const handleReconnect = () => {
+    setRefreshIn(120);
+    fetchRaw();
+  };
+
   return (
     <div className="raw-odds-container">
       <nav className="raw-odds-nav">
@@ -356,14 +403,36 @@ function RawOddsTable({ username, onLogout }) {
 
       <div className="raw-odds-content">
         <div className="raw-odds-header">
-          <button onClick={() => navigate("/dashboard")} className="back-btn">
-            ← Back to Dashboard
-          </button>
-          <div>
-            <h1>📊 Raw Odds Table</h1>
-            <p className="subtitle">
-              Pure raw odds data from all bookmakers (no EV calculations)
-            </p>
+          <div className="header-left">
+            <button onClick={() => navigate("/dashboard")} className="back-btn">
+              ← Back to Dashboard
+            </button>
+            <div>
+              <h1>📊 Raw Odds Table</h1>
+              <p className="subtitle">
+                Pure raw odds data from all bookmakers (no EV calculations)
+              </p>
+            </div>
+          </div>
+
+          <div className="refresh-status-card">
+            <div className="refresh-row">
+              <span className="refresh-label">Auto-refresh</span>
+              {typeof refreshIn === "number" && (
+                <span className="refresh-countdown">in {refreshIn}s</span>
+              )}
+            </div>
+            <div className="refresh-timestamps">
+              <span>
+                Client: {lastUpdated ? formatDateTime(lastUpdated) : "n/a"}
+              </span>
+              {serverLastUpdated && (
+                <span>Server: {formatDateTime(serverLastUpdated)}</span>
+              )}
+            </div>
+            <button className="refresh-button" onClick={handleReconnect}>
+              Reconnect
+            </button>
           </div>
         </div>
 
@@ -471,6 +540,25 @@ function RawOddsTable({ username, onLogout }) {
             </div>
           ))}
 
+          {/* Select All Filters Button */}
+          <button
+            onClick={() => {
+              setFilters({
+                sport: new Set(filterOptions.sport),
+                away_team: new Set(filterOptions.away_team),
+                home_team: new Set(filterOptions.home_team),
+                market: new Set(filterOptions.market),
+                selection: new Set(filterOptions.selection),
+                bookmaker: new Set(filterOptions.bookmaker),
+                searchText: "",
+              });
+              setCurrentPage(1);
+            }}
+            className="select-all-filters-btn"
+          >
+            ✓ Select All Filters
+          </button>
+
           {/* Clear All Button */}
           {(filters.sport.size > 0 ||
             filters.away_team.size > 0 ||
@@ -516,7 +604,77 @@ function RawOddsTable({ username, onLogout }) {
         {/* Table */}
         {!loading && !error && (
           <>
-            <div className="results-info">
+            {/* Single unified table with sticky core columns on left */}
+            <div className="table-wrapper">
+              <div
+                className="top-scroll-bar"
+                onScroll={(e) => {
+                  const scrollContainer = document.querySelector(
+                    ".table-scroll-container"
+                  );
+                  if (scrollContainer) {
+                    scrollContainer.scrollLeft = e.target.scrollLeft;
+                  }
+                }}
+              >
+                <div className="scroll-bar-dummy"></div>
+              </div>
+
+              <div
+                className="table-scroll-container"
+                onScroll={(e) => {
+                  const topScroll = document.querySelector(".top-scroll-bar");
+                  if (topScroll) {
+                    topScroll.scrollLeft = e.target.scrollLeft;
+                  }
+                }}
+              >
+                <table className="raw-odds-table">
+                  <thead>
+                    <tr>
+                      {columns.map((column) => (
+                        <th
+                          key={column}
+                          onClick={() => handleSort(column)}
+                          className={`sortable-header ${
+                            baseColumns.includes(column) ? "sticky-core" : ""
+                          }`}
+                        >
+                          {column.replace(/_/g, " ")}
+                          {sortConfig.key === column && (
+                            <span className="sort-indicator">
+                              {sortConfig.direction === "asc" ? " ▲" : " ▼"}
+                            </span>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {columns.map((column) => (
+                          <td
+                            key={column}
+                            className={`cell-${column.toLowerCase()} ${
+                              baseColumns.includes(column) ? "sticky-core" : ""
+                            }`}
+                          >
+                            {column === "commence_time"
+                              ? formatDateTime(row[column])
+                              : column === "sport"
+                              ? formatSport(row[column])
+                              : row[column] ?? "-"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="results-info results-info-bottom">
               <p>
                 Showing {paginatedData.length} of {filteredAndSortedData.length}{" "}
                 rows
@@ -524,125 +682,6 @@ function RawOddsTable({ username, onLogout }) {
                   ` (filtered from ${oddsData.length} loaded)`}
                 {apiTotalCount !== null && ` | Server total: ${apiTotalCount}`}
               </p>
-              {lastUpdated && (
-                <p className="last-updated">
-                  Last updated: {formatDateTime(lastUpdated)}
-                </p>
-              )}
-            </div>
-
-            {/* Table Wrapper with fixed core columns and scrollable bookmaker columns */}
-            <div className="table-wrapper split-table">
-              <div className="fixed-columns">
-                <table className="raw-odds-table fixed-table">
-                  <thead>
-                    <tr>
-                      {columns
-                        .filter((col) => baseColumns.includes(col))
-                        .map((column) => (
-                          <th
-                            key={column}
-                            onClick={() => handleSort(column)}
-                            className="sortable-header"
-                          >
-                            {column.replace(/_/g, " ")}
-                            {sortConfig.key === column && (
-                              <span className="sort-indicator">
-                                {sortConfig.direction === "asc" ? " ▲" : " ▼"}
-                              </span>
-                            )}
-                          </th>
-                        ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedData.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {columns
-                          .filter((col) => baseColumns.includes(col))
-                          .map((column) => (
-                            <td
-                              key={column}
-                              className={`cell-${column.toLowerCase()}`}
-                            >
-                              {column === "commence_time"
-                                ? formatDateTime(row[column])
-                                : column === "sport"
-                                ? formatSport(row[column])
-                                : row[column] || "-"}
-                            </td>
-                          ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Scroll bar positioned only above bookmaker columns */}
-              <div className="bookmaker-scroll-section">
-                <div
-                  className="top-scroll-bar"
-                  onScroll={(e) => {
-                    const scrollableCols = document.querySelector(
-                      ".scrollable-columns"
-                    );
-                    if (scrollableCols) {
-                      scrollableCols.scrollLeft = e.target.scrollLeft;
-                    }
-                  }}
-                >
-                  <div className="scroll-bar-dummy"></div>
-                </div>
-
-                <div
-                  className="scrollable-columns"
-                  onScroll={(e) => {
-                    const topScroll = document.querySelector(".top-scroll-bar");
-                    if (topScroll) {
-                      topScroll.scrollLeft = e.target.scrollLeft;
-                    }
-                  }}
-                >
-                  <table className="raw-odds-table">
-                    <thead>
-                      <tr>
-                        {columns
-                          .filter((col) => !baseColumns.includes(col))
-                          .map((column) => (
-                            <th
-                              key={column}
-                              onClick={() => handleSort(column)}
-                              className="sortable-header"
-                            >
-                              {column.replace(/_/g, " ")}
-                              {sortConfig.key === column && (
-                                <span className="sort-indicator">
-                                  {sortConfig.direction === "asc" ? " ▲" : " ▼"}
-                                </span>
-                              )}
-                            </th>
-                          ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedData.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {columns
-                            .filter((col) => !baseColumns.includes(col))
-                            .map((column) => (
-                              <td
-                                key={column}
-                                className={`cell-${column.toLowerCase()}`}
-                              >
-                                {row[column] ?? "-"}
-                              </td>
-                            ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
 
             {/* Pagination */}

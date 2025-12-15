@@ -87,6 +87,42 @@
   transform: translateY(-2px);
 }
 
+.reset-all-btn {
+  background: #fb923c;
+  color: #0b0b0b;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.reset-all-btn:hover {
+  background: #f97316;
+  transform: scale(1.05);
+}
+
+.clear-filters-btn {
+  padding: 10px 20px;
+  background: #ef4444;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.clear-filters-btn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
 /* Filters */
 .odds-filters {
   display: grid;
@@ -140,10 +176,11 @@
 /* Fixed Left Section */
 .fixed-left-section {
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: auto;
   border-right: 2px solid #4be1c1;
   background: #1a1a1a;
   width: 50%; /* Fixed columns take up half the page */
+  max-height: 600px;
 }
 
 .fixed-table {
@@ -175,6 +212,8 @@
   border-bottom: 1px solid #2a2a2a;
   background: #1a1a1a;
   color: #ffffff;
+  line-height: 1.5;
+  height: 40px;
 }
 
 .fixed-table tbody tr:hover td {
@@ -205,7 +244,8 @@
 .scrollable-right-section {
   flex: 1;
   overflow-x: auto;
-  overflow-y: hidden; /* Only horizontal scroll for bookmaker columns */
+  overflow-y: auto; /* Syncs with fixed-left-section for vertical scroll */
+  max-height: 600px;
 }
 
 .scrollable-table {
@@ -213,6 +253,7 @@
   font-size: 12px; /* Match fixed table font size */
   width: 100%;
   background: #1a1a1a;
+  table-layout: fixed;
 }
 
 .scrollable-table thead {
@@ -240,6 +281,8 @@
   background: #1a1a1a;
   color: #ffffff;
   min-width: 75px; /* Slightly narrower bookmaker columns */
+  line-height: 1.5;
+  height: 40px;
 }
 
 .scrollable-table tbody tr:hover td {
@@ -252,23 +295,7 @@
 }
 
 /* Scrollbar Styling */
-.scrollable-right-section::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
-}
-
-.scrollable-right-section::-webkit-scrollbar-track {
-  background: #0b0b0b;
-}
-
-.scrollable-right-section::-webkit-scrollbar-thumb {
-  background: #4be1c1;
-  border-radius: 6px;
-}
-
-.scrollable-right-section::-webkit-scrollbar-thumb:hover {
-  background: #3cc5a8;
-}
+/* Removed vendor-specific WebKit scrollbar styling for consistency */
 
 /* Remove old table styles - using new fixed/scrollable layout */
 
@@ -495,7 +522,6 @@
 
   .table-wrapper {
     overflow-x: scroll;
-    -webkit-overflow-scrolling: touch;
   }
 
   .odds-table {
@@ -504,19 +530,4 @@
 }
 
 /* Scrollbar Styling */
-.table-wrapper::-webkit-scrollbar {
-  height: 12px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: #0b0b0b;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #4be1c1;
-  border-radius: 6px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #3cc5a8;
-}
+/* Removed vendor-specific WebKit scrollbar styling for consistency */
