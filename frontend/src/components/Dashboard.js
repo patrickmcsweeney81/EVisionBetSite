@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ContactUs from './ContactUs';
+import { DASHBOARD_CARDS } from '../dashboard/cards';
 import './Dashboard.css';
 
 function Dashboard({ username, onLogout }) {
@@ -16,9 +17,13 @@ function Dashboard({ username, onLogout }) {
       <nav className="dashboard-nav">
         <div className="nav-content">
           <img 
-            src="/img/bet-evision-horizontal.png" 
-            alt="BET EVision" 
+            src="/img/evisionbet-wordmark.png" 
+            alt="EVision" 
             className="nav-logo"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/img/evision-wordmark-premium.svg";
+            }}
           />
           <div className="nav-right">
             <span className="username-display">Welcome, {username}!</span>
@@ -36,59 +41,33 @@ function Dashboard({ username, onLogout }) {
         </p>
 
         <div className="dashboard-grid">
-          <div className="dashboard-card">
-            <h3>📈 Expected Value Finder</h3>
-            <p>View positive expected value betting opportunities</p>
-            <Link to="/ev" className="card-button">
-              View Expected Value Finder
-            </Link>
-          </div>
+          {DASHBOARD_CARDS.map((card) => {
+            const sources = Array.isArray(card.dataSources) ? card.dataSources : [];
+            const sourceLabel = sources.length
+              ? sources.map((s) => `${s.type}:${s.name}`).join(' • ')
+              : 'TBD';
 
-          <div className="dashboard-card">
-            <h3>🎯 Patty Picks</h3>
-            <p>2 EV bets added daily with bet tracker for 2 weeks of results</p>
-            <Link to="/patty-picks" className="card-button">
-              View Patty Picks
-            </Link>
-          </div>
+            return (
+              <div className="dashboard-card" key={card.id}>
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
+                <div className="dashboard-card-meta">
+                  <span className="dashboard-card-meta-label">Data:</span>
+                  <span className="dashboard-card-meta-value">{sourceLabel}</span>
+                </div>
 
-          <div className="dashboard-card">
-            <h3>🧰 EV Toolbox</h3>
-            <p>Access Dutching, Odds Hunting, and other value betting tools</p>
-            <Link to="/ev-toolbox" className="card-button">
-              View EV Toolbox
-            </Link>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>📊 All Odds Table</h3>
-            <p>Professional odds comparison table from all_odds.csv</p>
-            <Link to="/odds-table" className="card-button">
-              View Table
-            </Link>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>📋 Raw Odds Table</h3>
-            <p>View pure raw odds data with filtering (no EV calculations)</p>
-            <Link to="/raw-odds" className="card-button">
-              View Raw Odds
-            </Link>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>💡 Ideas & TODO</h3>
-            <p>View project ideas and development roadmap</p>
-            <Link to="/todo" className="card-button">
-              View TODO
-            </Link>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>⚙️ Settings</h3>
-            <p>Manage your account and preferences</p>
-            <button className="card-button" disabled>Coming Soon</button>
-          </div>
+                {card.route && !card.disabled ? (
+                  <Link to={card.route} className="card-button">
+                    {card.buttonText || 'Open'}
+                  </Link>
+                ) : (
+                  <button className="card-button" disabled>
+                    {card.buttonText || 'Coming Soon'}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="tagline">

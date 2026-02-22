@@ -13,9 +13,13 @@ function EVToolbox({ username, onLogout }) {
       <nav className="dashboard-nav">
         <div className="nav-content">
           <img 
-            src="/img/bet-evision-horizontal.png" 
-            alt="BET EVision" 
+            src="/img/evisionbet-wordmark.png" 
+            alt="EVision" 
             className="nav-logo"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/img/evision-wordmark-premium.svg";
+            }}
           />
           <div className="nav-right">
             <span className="username-display">Welcome, {username}!</span>

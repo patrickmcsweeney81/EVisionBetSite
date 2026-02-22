@@ -156,9 +156,11 @@ function App() {
         <Route
           path="/admin"
           element={
-            <AdminRoute>
-              <AdminPanel />
-            </AdminRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminRoute>
+                <AdminPanel />
+              </AdminRoute>
+            </ProtectedRoute>
           }
         />
       </Routes>

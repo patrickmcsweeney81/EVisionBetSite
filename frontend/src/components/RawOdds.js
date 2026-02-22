@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import API_URL from "../config";
-import {
-  getBookmakerLogo,
-  getBookmakerDisplayName,
-  createFallbackLogo,
-} from "../utils/bookmakerLogos";
 import "./OddsTable.css";
 
 function RawOdds({ username, onLogout }) {
@@ -22,10 +17,6 @@ function RawOdds({ username, onLogout }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [serverLastUpdated, setServerLastUpdated] = useState(null);
   const [refreshIn, setRefreshIn] = useState(120); // seconds until next auto refresh
-  const [sortConfig, setSortConfig] = useState({
-    key: "ev",
-    direction: "desc",
-  });
   const fixedTableRef = useRef(null);
   const scrollableRef = useRef(null);
   const [debugInfo, setDebugInfo] = useState({ status: null, message: null });
@@ -339,7 +330,7 @@ function RawOdds({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [buildOddsUrl]);
+  }, [buildOddsUrl, useRaw]);
 
   useEffect(() => {
     fetchOdds();
@@ -398,98 +389,6 @@ function RawOdds({ username, onLogout }) {
     return sportMap[sport] || sport;
   };
 
-  const getLogoBadges = (row) => {
-    const logoKeys = [
-      "book",
-      "pinnacle",
-      "betfair",
-      "sportsbet",
-      "bet365",
-      "pointsbet",
-      "ladbrokes",
-      "unibet",
-      "dabble",
-      "tab",
-      "tabtouch",
-      "neds",
-      "betr",
-      "betright",
-    ];
-    const present = [];
-    logoKeys.forEach((k) => {
-      if (k === "book") {
-        if (row.book) present.push(row.book);
-      } else if (row[k] !== null && row[k] !== undefined) {
-        present.push(k);
-      }
-    });
-    return present.slice(0, 6).map((bk, idx) => (
-      <span
-        key={idx}
-        className={`logo-badge logo-${bk.toLowerCase()}`}
-        style={{ marginRight: 6 }}
-      >
-        <img
-          src={getBookmakerLogo(bk, { size: 28 })}
-          alt={getBookmakerDisplayName(bk)}
-          width={28}
-          height={28}
-          onError={(e) => {
-            if (!e.currentTarget.dataset.fallback) {
-              e.currentTarget.src = createFallbackLogo(bk, 28);
-              e.currentTarget.dataset.fallback = "true";
-            } else {
-              console.warn(
-                `Bookmaker logo and fallback failed to load for: ${bk}.`
-              );
-            }
-          }}
-        />
-      </span>
-    ));
-  };
-
-  const addToTracker = (row) => {
-    const csvData = [
-      {
-        Date: formatTime(row.game_start_perth),
-        Sport: formatSport(row.sport),
-        Event: row.event,
-        Market: row.market,
-        Line: row.line || "",
-        Side: row.side,
-        Bookmaker: row.book,
-        Price: row.price,
-        "EV%": row.ev || 0,
-        Stake: row.stake || 0,
-        Fair: row.fair || 0,
-        Pinnacle: row.pinnacle || 0,
-        "Prob%": row.prob || 0,
-      },
-    ];
-
-    const headers = Object.keys(csvData[0]).join(",");
-    const values = Object.values(csvData[0])
-      .map((val) =>
-        typeof val === "string" && val.includes(",") ? `"${val}"` : val
-      )
-      .join(",");
-    const csv = `${headers}\n${values}`;
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `bet_tracker_${row.event.replace(
-      /\s+/g,
-      "_"
-    )}_${Date.now()}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    alert("✅ Added to tracker! CSV file downloaded.");
-  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

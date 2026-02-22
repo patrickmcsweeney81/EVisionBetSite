@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import UpcomingGamesPublic from './UpcomingGamesPublic';
-import ContactUs from './ContactUs';
 import './Login.css';
 
 function Login({ onLogin }) {
@@ -10,11 +9,19 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showHint, setShowHint] = useState(true);
+  const [showSignupModal, setShowSignupModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminError, setAdminError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  const usernameInputRef = useRef(null);
+  const explainerVideoId = useMemo(
+    () => (process.env.REACT_APP_EV_EXPLAINER_YOUTUBE_ID || '').trim(),
+    []
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +30,11 @@ function Login({ onLogin }) {
     try {
       // Use local auth with client-side user database
       login(username, password, `token-${username}-${Date.now()}`);
-      navigate('/dashboard');
+      const from = location.state?.from;
+      const redirectTo = from?.pathname
+        ? `${from.pathname || ''}${from.search || ''}${from.hash || ''}`
+        : '/dashboard';
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed - check username and password');
     }
@@ -45,18 +56,70 @@ function Login({ onLogin }) {
 
   return (
     <div className="login-page">
-      {/* Admin Button in Top Corner */}
-      <button 
-        className="admin-corner-btn"
-        onClick={() => {
-          setShowAdminModal(true);
-          setAdminError('');
-          setAdminPassword('');
-        }}
-        title="Admin Access"
-      >
-        ⚙️
-      </button>
+      <header className="login-toolbar">
+        <div className="toolbar-left">
+          <div className="toolbar-brand" aria-label="EVision">
+            <img
+              src="/img/evisionbet-monogram.png"
+              alt=""
+              className="toolbar-logo-mark"
+              aria-hidden="true"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/img/evision-monogram-ev.svg";
+              }}
+            />
+            <img
+              src="/img/evisionbet-wordmark.png"
+              alt="EVision"
+              className="toolbar-logo-wordmark"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/img/evision-wordmark-premium.svg";
+              }}
+            />
+          </div>
+        </div>
+        <nav className="toolbar-links">
+          <button type="button" className="toolbar-link">Features</button>
+          <button type="button" className="toolbar-link">How it works</button>
+          <button type="button" className="toolbar-link">Pricing</button>
+          <button type="button" className="toolbar-link">Support</button>
+        </nav>
+        <div className="toolbar-actions">
+          <button
+            type="button"
+            className="toolbar-btn secondary"
+            onClick={() => {
+              setShowSignupModal(true);
+              setShowHint(false);
+            }}
+          >
+            Get Started
+          </button>
+          <button
+            type="button"
+            className="toolbar-btn"
+            onClick={() => {
+              setError('');
+              usernameInputRef.current?.focus?.();
+            }}
+          >
+            Log In
+          </button>
+          <button
+            className="admin-corner-btn"
+            onClick={() => {
+              setShowAdminModal(true);
+              setAdminError('');
+              setAdminPassword('');
+            }}
+            title="Admin Access"
+          >
+            ⚙️
+          </button>
+        </div>
+      </header>
 
       {/* Admin Login Modal */}
       {showAdminModal && (
@@ -100,121 +163,158 @@ function Login({ onLogin }) {
         </div>
       )}
 
-      <div className="login-container">
-        <div className="login-main-content">
-          <div className="login-box">
-            <img 
-              src="/img/bet-evision-horizontal.png" 
-              alt="BET EVision" 
-              className="login-logo"
-            />
-            
-            <h2>Sign In</h2>
-            <p className="login-subtitle">Access your account</p>
-            
-            {error && <div className="error-message">{error}</div>}
-            
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  placeholder="Enter your username"
+      <main className="login-container">
+        <section className="welcome-mega-card">
+          <div className="welcome-mega-grid">
+            <div className="welcome-pane">
+              <div className="welcome-pane-inner">
+                <img
+                  src="/img/evisionbet-wordmark.png"
+                  alt="EVision"
+                  className="welcome-logo"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "/img/evision-wordmark-premium.svg";
+                  }}
                 />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                />
-              </div>
-              
-              <button type="submit" className="login-button">
-                Sign In
-              </button>
-            </form>
 
-            <p className="lets-go-cry">Let's go make the bookies cry 💸</p>
-            
-            {showHint && (
-              <div className="hint-box">
-                <div className="hint-header">
-                  <span>💡 Test Accounts Available:</span>
-                  <button 
-                    type="button" 
-                    className="hint-close"
-                    onClick={() => setShowHint(false)}
-                  >
-                    ✕
+                <h1 className="welcome-heading">Sign In</h1>
+                <p className="welcome-subheading">Access your account</p>
+
+                {error && <div className="admin-error-message">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="welcome-form">
+                  <div className="admin-form-group">
+                    <label htmlFor="username">Username</label>
+                    <input
+                      ref={usernameInputRef}
+                      type="text"
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      placeholder="Enter your username"
+                      autoComplete="username"
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label htmlFor="password">Password</label>
+                    <input
+                      type="password"
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Enter your password"
+                      autoComplete="current-password"
+                    />
+                  </div>
+
+                  <button type="submit" className="admin-login-btn">
+                    Sign In
                   </button>
-                </div>
-                <div className="hint-content">
-                  <div className="user-hint">
-                    <strong>Admin:</strong> <code>admin</code> / <code>admin123</code>
-                    <span className="badge admin">✓ Admin - Full Access</span>
-                  </div>
-                  <div className="user-hint">
-                    <strong>User:</strong> <code>user1234</code> / <code>user1234</code>
-                    <span className="badge user">👤 User - Limited Access</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+                </form>
 
-          {/* EV Explainer Video Section */}
-          <div className="ev-explainer-section">
-            <h3>💡 What is Expected Value (EV)?</h3>
-            <p className="ev-description">
-              Learn how Expected Value betting can give you an edge over the bookmakers
-            </p>
-            <div className="video-container">
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/jJa6OzLnDSM"
-                title="EV BETTING EXPLAINED IN 60 SECONDS | SHARP BETTING STRATEGIES"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              ></iframe>
-            </div>
-            <div className="ev-highlights">
-              <div className="ev-point">
-                <span className="ev-icon">📊</span>
-                <p>Find mathematically profitable bets</p>
-              </div>
-              <div className="ev-point">
-                <span className="ev-icon">💰</span>
-                <p>Long-term positive returns</p>
-              </div>
-              <div className="ev-point">
-                <span className="ev-icon">🎯</span>
-                <p>Beat the bookmaker's margin</p>
+                <button
+                  type="button"
+                  className="welcome-secondary-btn"
+                  onClick={() => setShowHint((prev) => !prev)}
+                >
+                  {showHint ? "Hide demo credentials" : "Show demo credentials"}
+                </button>
+
+                {showHint && (
+                  <div className="hint-box">
+                    <div className="hint-header">
+                      <span>💡 Test Accounts Available:</span>
+                      <button
+                        type="button"
+                        className="hint-close"
+                        onClick={() => setShowHint(false)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="hint-content">
+                      <div className="user-hint">
+                        <strong>Admin:</strong> <code>admin</code> / <code>admin123</code>
+                        <span className="badge admin">✓ Admin - Full Access</span>
+                      </div>
+                      <div className="user-hint">
+                        <strong>User:</strong> <code>user1234</code> / <code>user1234</code>
+                        <span className="badge user">👤 User - Limited Access</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            <div className="welcome-pane">
+              <div className="welcome-pane-inner">
+                <h2 className="welcome-heading small">💡 What is Expected Value (EV)?</h2>
+                <p className="welcome-subheading">
+                  Learn how EV betting can give you an edge over the bookmakers.
+                </p>
+
+                <div className="welcome-video">
+                  {explainerVideoId ? (
+                    <iframe
+                      title="EV Explained"
+                      src={`https://www.youtube-nocookie.com/embed/${explainerVideoId}?rel=0`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="welcome-video-placeholder">
+                      <div className="welcome-video-placeholder-title">EV explainer video</div>
+                      <div className="welcome-video-placeholder-subtitle">
+                        Set <code>REACT_APP_EV_EXPLAINER_YOUTUBE_ID</code> to show it here.
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="welcome-pill-grid">
+                  <div className="welcome-pill">📊 Find mathematically profitable bets</div>
+                  <div className="welcome-pill">🧠 Long-term positive returns</div>
+                  <div className="welcome-pill">🎯 Beat the bookmaker's margin</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="welcome-mega-divider" />
+
+          <div className="welcome-games">
+            <UpcomingGamesPublic />
+          </div>
+        </section>
+      </main>
+
+      {showSignupModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowSignupModal(false)}>
+          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="admin-modal-close"
+              onClick={() => setShowSignupModal(false)}
+            >
+              ✕
+            </button>
+            <h1 className="admin-greeting">Request Access</h1>
+            <p className="admin-tagline">Signups are invite-only for now.</p>
+            <button
+              type="button"
+              className="admin-login-btn"
+              onClick={() => setShowSignupModal(false)}
+            >
+              Join the Waitlist
+            </button>
           </div>
         </div>
-
-        {/* Upcoming Games Widget */}
-        <div className="login-widgets">
-          <UpcomingGamesPublic />
-        </div>
-
-        {/* Contact Us Section */}
-        <ContactUs />
-      </div>
+      )}
     </div>
   );
 }

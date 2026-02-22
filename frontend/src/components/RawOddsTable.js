@@ -43,6 +43,54 @@ function RawOddsTable({ username, onLogout }) {
   const rowsPerPage = 50;
   const fetchLimit = 5000; // pull more than the previous 500-row cap
 
+  // Get ordered column headers: core fields first
+  const baseColumns = useMemo(
+    () => [
+      "commence_time",
+      "sport",
+      "away_team",
+      "home_team",
+      "market",
+      "point",
+      "selection",
+    ],
+    []
+  );
+
+  // Get unique values for filter dropdowns (preserving order)
+  const buildFilterOptions = useCallback((data) => {
+    const keys = ["sport", "away_team", "home_team", "market", "selection"];
+    const seen = Object.fromEntries(keys.map((k) => [k, new Set()]));
+    const ordered = Object.fromEntries(keys.map((k) => [k, []]));
+    const bookmakerSeen = new Set();
+    const bookmakerOrdered = [];
+
+    data.forEach((row) => {
+      keys.forEach((key) => {
+        const val = row[key];
+        if (val && !seen[key].has(val)) {
+          seen[key].add(val);
+          ordered[key].push(val);
+        }
+      });
+
+      // Extract bookmakers from non-baseColumn fields
+      Object.keys(row).forEach((key) => {
+        if (!baseColumns.includes(key)) {
+          if (row[key] && !bookmakerSeen.has(key)) {
+            bookmakerSeen.add(key);
+            bookmakerOrdered.push(key);
+          }
+        }
+      });
+    });
+
+    setFilterOptions({
+      ...ordered,
+      bookmaker: bookmakerOrdered,
+    });
+  }, [baseColumns]);
+
   // Fetch raw odds via backend API with retry backoff; re-used by auto-refresh and reconnect button
   const fetchRaw = useCallback(async () => {
     const url = `${API_URL}/api/odds/raw?limit=${fetchLimit}&offset=0`;
@@ -107,7 +155,7 @@ function RawOddsTable({ username, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [fetchLimit]);
+  }, [fetchLimit, buildFilterOptions]);
 
   // Auto-refresh every 2 minutes
   useEffect(() => {
@@ -150,40 +198,6 @@ function RawOddsTable({ username, onLogout }) {
       cricket: "Cricket",
     };
     return sportMap[sport] || sport;
-  };
-
-  // Get unique values for filter dropdowns (preserving order)
-  const buildFilterOptions = (data) => {
-    const keys = ["sport", "away_team", "home_team", "market", "selection"];
-    const seen = Object.fromEntries(keys.map((k) => [k, new Set()]));
-    const ordered = Object.fromEntries(keys.map((k) => [k, []]));
-    const bookmakerSeen = new Set();
-    const bookmakerOrdered = [];
-
-    data.forEach((row) => {
-      keys.forEach((key) => {
-        const val = row[key];
-        if (val && !seen[key].has(val)) {
-          seen[key].add(val);
-          ordered[key].push(val);
-        }
-      });
-
-      // Extract bookmakers from non-baseColumn fields
-      Object.keys(row).forEach((key) => {
-        if (!baseColumns.includes(key)) {
-          if (row[key] && !bookmakerSeen.has(key)) {
-            bookmakerSeen.add(key);
-            bookmakerOrdered.push(key);
-          }
-        }
-      });
-    });
-
-    setFilterOptions({
-      ...ordered,
-      bookmaker: bookmakerOrdered,
-    });
   };
 
   // Handle sorting
@@ -305,23 +319,12 @@ function RawOddsTable({ username, onLogout }) {
     currentPage * rowsPerPage
   );
 
-  // Get ordered column headers: core fields first, then remaining bookmaker columns in original order
-  const baseColumns = [
-    "commence_time",
-    "sport",
-    "away_team",
-    "home_team",
-    "market",
-    "point",
-    "selection",
-  ];
-
   const columns = useMemo(() => {
     if (oddsData.length === 0) return [];
     const allCols = Object.keys(oddsData[0]);
     const remaining = allCols.filter((c) => !baseColumns.includes(c));
     return baseColumns.filter((c) => allCols.includes(c)).concat(remaining);
-  }, [oddsData]);
+  }, [oddsData, baseColumns]);
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "";
@@ -348,9 +351,13 @@ function RawOddsTable({ username, onLogout }) {
       <nav className="raw-odds-nav">
         <div className="nav-content">
           <img
-            src="/img/bet-evision-horizontal.png"
-            alt="BET EVision"
+            src="/img/evisionbet-wordmark.png"
+            alt="EVision"
             className="nav-logo"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/img/evision-wordmark-premium.svg";
+            }}
           />
           <div className="nav-right">
             <span className="username-display">Welcome, {username}!</span>

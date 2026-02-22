@@ -17,29 +17,29 @@ describe('Login Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders login form', () => {
+  test('renders unified welcome card with sign-in', () => {
     render(
       <BrowserRouter>
         <Login onLogin={jest.fn()} />
       </BrowserRouter>
     );
-    
-    expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument();
+
+    expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter your username/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter your password/i)).toBeInTheDocument();
   });
 
-  test('shows hint with correct username', () => {
+  test('shows brand wordmark', () => {
     render(
       <BrowserRouter>
         <Login onLogin={jest.fn()} />
       </BrowserRouter>
     );
-    
-    expect(screen.getByText(/EVision/i)).toBeInTheDocument();
+
+    expect(screen.getAllByAltText(/EVision/i).length).toBeGreaterThan(0);
   });
 
-  test('allows input in username and password fields', () => {
+  test('allows typing into username and password', () => {
     render(
       <BrowserRouter>
         <Login onLogin={jest.fn()} />
