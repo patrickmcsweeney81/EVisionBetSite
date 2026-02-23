@@ -23,6 +23,7 @@ backend-python/.env
 *.swp
 *.swo
 *~
+*.code-workspace
 
 # OS
 .DS_Store
