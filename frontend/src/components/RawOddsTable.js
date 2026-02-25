@@ -99,8 +99,14 @@ function RawOddsTable({ username, onLogout }) {
     setLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem("authToken") || localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const headers = { "Cache-Control": "no-cache" };
+      if (role === "admin" && token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch(url, {
-        headers: { "Cache-Control": "no-cache" },
+        headers,
       });
       if (!response.ok) {
         throw new Error(`Failed to fetch raw odds (${response.status})`);
@@ -126,9 +132,7 @@ function RawOddsTable({ username, onLogout }) {
         try {
           const delay = 500 * Math.pow(2, attempt);
           await new Promise((res) => setTimeout(res, delay));
-          const r = await fetch(url, {
-            headers: { "Cache-Control": "no-cache" },
-          });
+          const r = await fetch(url, { headers });
           if (r.ok) {
             const data = await r.json();
             const rows = (data.rows || []).map((x) => ({

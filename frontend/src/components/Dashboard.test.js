@@ -43,8 +43,10 @@ describe('Dashboard Component', () => {
     expect(cards[1]).toHaveTextContent('🎯 Patty Picks');
     expect(cards[2]).toHaveTextContent('🧰 EV Toolbox');
     expect(cards[3]).toHaveTextContent('📊 All Odds Table');
-    expect(cards[4]).toHaveTextContent('💡 Ideas & TODO');
-    expect(cards[5]).toHaveTextContent('⚙️ Settings');
+    expect(cards[4]).toHaveTextContent('📋 Raw Odds Table');
+    expect(cards[5]).toHaveTextContent('💡 Ideas & TODO');
+    expect(cards[6]).toHaveTextContent('🩺 Diagnostics');
+    expect(cards[7]).toHaveTextContent('⚙️ Settings');
   });
 
   test('Expected Value Finder card has correct link', () => {
@@ -54,7 +56,7 @@ describe('Dashboard Component', () => {
       </MemoryRouter>
     );
     
-    const evFinderLink = screen.getByRole('link', { name: /View Expected Value Finder/i });
+    const evFinderLink = screen.getByRole('link', { name: /Open EV Finder/i });
     expect(evFinderLink).toHaveAttribute('href', '/ev');
   });
 });

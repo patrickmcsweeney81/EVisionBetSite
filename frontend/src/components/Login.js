@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import API_URL from '../config';
 import UpcomingGamesPublic from './UpcomingGamesPublic';
 import './Login.css';
 
@@ -45,8 +46,20 @@ function Login({ onLogin }) {
     setAdminError('');
 
     try {
-      // Login as admin with the provided password
-      login('admin', adminPassword, `token-admin-${Date.now()}`);
+      // Request a real backend admin bearer token
+      const url = `${API_URL}/api/admin/auth?password=${encodeURIComponent(adminPassword)}`;
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        throw new Error(`Backend admin auth failed (${resp.status})`);
+      }
+      const data = await resp.json();
+      const bearer = data?.token;
+      if (!bearer) {
+        throw new Error('Backend did not return an admin token');
+      }
+
+      // Login locally (role gating) but store backend bearer token
+      login('admin', adminPassword, bearer);
       setShowAdminModal(false);
       navigate('/admin');
     } catch (err) {

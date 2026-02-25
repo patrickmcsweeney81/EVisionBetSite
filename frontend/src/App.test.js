@@ -10,6 +10,10 @@ global.fetch = jest.fn(() =>
   })
 );
 
+beforeEach(() => {
+  localStorage.clear();
+});
+
 test('renders app without crashing', () => {
   const { container } = render(
     <AuthProvider>
@@ -25,8 +29,8 @@ test('shows login when not authenticated', async () => {
       <App />
     </AuthProvider>
   );
-  
-  // Wait for auth check to complete
-  await screen.findByText(/Welcome Back/i, {}, { timeout: 2000 });
-  expect(screen.getByText(/Welcome Back/i)).toBeInTheDocument();
+
+  // Wait for auth check to complete (Login screen)
+  await screen.findByRole('heading', { name: /sign in/i }, { timeout: 2000 });
+  expect(screen.getAllByText(/sign in/i).length).toBeGreaterThan(0);
 });

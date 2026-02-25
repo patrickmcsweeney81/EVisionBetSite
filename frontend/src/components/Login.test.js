@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Login from './Login';
+import { AuthProvider } from '../contexts/AuthContext';
+
+jest.mock('./UpcomingGamesPublic', () => () => <div data-testid="upcoming-games" />);
 
 // Mock navigate
 const mockNavigate = jest.fn();
@@ -15,36 +18,35 @@ global.fetch = jest.fn();
 describe('Login Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
-  test('renders unified welcome card with sign-in', () => {
+  const renderLogin = () =>
     render(
-      <BrowserRouter>
-        <Login onLogin={jest.fn()} />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Login onLogin={jest.fn()} />
+        </BrowserRouter>
+      </AuthProvider>
     );
 
-    expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
+  test('renders unified welcome card with sign-in', () => {
+    renderLogin();
+
+    expect(screen.getByRole('heading', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^sign in$/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter your username/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Enter your password/i)).toBeInTheDocument();
   });
 
   test('shows brand wordmark', () => {
-    render(
-      <BrowserRouter>
-        <Login onLogin={jest.fn()} />
-      </BrowserRouter>
-    );
+    renderLogin();
 
     expect(screen.getAllByAltText(/EVision/i).length).toBeGreaterThan(0);
   });
 
   test('allows typing into username and password', () => {
-    render(
-      <BrowserRouter>
-        <Login onLogin={jest.fn()} />
-      </BrowserRouter>
-    );
+    renderLogin();
     
     const usernameInput = screen.getByPlaceholderText(/Enter your username/i);
     const passwordInput = screen.getByPlaceholderText(/Enter your password/i);
